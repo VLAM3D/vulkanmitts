@@ -1,0 +1,1 @@
+## Python Vulkan SWIG generated bindings
