@@ -484,10 +484,35 @@ class VkContextManager:
         self.pipeline_cache = self.ESP( vk.createPipelineCache( self.device, vk.PipelineCacheCreateInfo(0, 0) ) )
         assert(self.pipeline_cache is not None)
 
-    def init_pipeline(self):
-        #vk.createGraphicsPipelines(self.device, self.pipeline_cache, pipeline_ci
-        pass
+    def init_pipeline(self, vertex_buffer_stride_bytes):
+        pdsci = vk.PipelineDynamicStateCreateInfo(0, vk.VkDynamicStateVector())
+        vi_bindings = vk.VertexInputBindingDescription(0, vertex_buffer_stride_bytes, vk.VK_VERTEX_INPUT_RATE_VERTEX)
+        vi_attribs = vk.VkVertexInputAttributeDescriptionVector()
+        vi_attribs.append(vk.VertexInputAttributeDescription(0, 0, vk.VK_FORMAT_R32G32B32A32_SFLOAT, 0))
+        vi_attribs.append(vk.VertexInputAttributeDescription(1, 0, vk.VK_FORMAT_R32G32_SFLOAT, 16))
+        pvisci = vk.PipelineVertexInputStateCreateInfo(0, vk.VkVertexInputBindingDescriptionVector(1,vi_bindings), vi_attribs)
+        piasci = vk.PipelineInputAssemblyStateCreateInfo(0, vk.VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST, False)
+        prsci = vk.PipelineRasterizationStateCreateInfo(0, True, False, vk.VK_POLYGON_MODE_FILL, vk.VK_CULL_MODE_BACK_BIT, vk.VK_FRONT_FACE_CLOCKWISE, False, 0, 0, 0, 0)
+        pcbsci = vk.PipelineColorBlendStateCreateInfo(0, False, vk.VK_LOGIC_OP_NO_OP, 
+                                                      vk.VkPipelineColorBlendAttachmentStateVector(1, vk.PipelineColorBlendAttachmentState(False, 
+                                                                                                                                           vk.VK_BLEND_FACTOR_ZERO,  
+                                                                                                                                           vk.VK_BLEND_FACTOR_ZERO,
+                                                                                                                                           vk.VK_BLEND_OP_ADD,
+                                                                                                                                           vk.VK_BLEND_FACTOR_ZERO,
+                                                                                                                                           vk.VK_BLEND_FACTOR_ZERO,
+                                                                                                                                           vk.VK_BLEND_OP_ADD,
+                                                                                                                                           0)),
+                                                      [1.0,1.0,1.0,1.0])
 
+        pvsci = vk.PipelineViewportStateCreateInfo(0, vk.VkViewportVector(), vk.VkRect2DVector())
+        op = vk.StencilOpState(vk.VK_STENCIL_OP_KEEP,vk.VK_STENCIL_OP_KEEP,vk.VK_STENCIL_OP_KEEP,vk.VK_COMPARE_OP_ALWAYS,0,0,0)
+        pdssci = vk.PipelineDepthStencilStateCreateInfo(0, True, True, vk.VK_COMPARE_OP_LESS_OR_EQUAL, False, False, op, op, 0, 0)
+        pmsci = vk.PipelineMultisampleStateCreateInfo(0, vk.VK_SAMPLE_COUNT_1_BIT, False, 0, None, False, False)
+
+        pipeline_cis = vk.VkGraphicsPipelineCreateInfoVector()
+        #pipeline_ci = vk.GraphicsPipelineCreateInfo(0, self.sha
+        #self.pipeline = self.ESP( vk.createGraphicsPipelines(self.device, self.pipeline_cache, pipeline_cis) )
+        
     def init_presentable_image(self):
         pass
             
@@ -515,6 +540,8 @@ class VkContextManager:
     def __enter__(self):
         self.stack = ExitStack()
         try:
+            cube_coords = get_xyzw_uv_cube_coords()
+
             if self.init_stages >= VkContextManager.VKC_INIT_INSTANCE:
                 self.init_instance()
             if self.init_stages >= VkContextManager.VKC_INIT_DEVICE:
@@ -546,15 +573,14 @@ class VkContextManager:
                 self.init_shaders(vs_txt, fs_txt)
             if self.init_stages >= VkContextManager.VKC_INIT_FRAMEBUFFER:
                 self.init_framebuffer()
-            if self.init_stages >= VkContextManager.VKC_INIT_VERTEX_BUFFER:
-                cube_coords = get_xyzw_uv_cube_coords()
+            if self.init_stages >= VkContextManager.VKC_INIT_VERTEX_BUFFER:                
                 self.init_vertex_buffer(cube_coords)
             if self.init_stages >= VkContextManager.VKC_INIT_DESCRIPTORS:
                 self.init_descriptor_pool()
                 self.init_descriptor_set()
             if self.init_stages >= VkContextManager.VKC_INIT_PIPELINE:
                 self.init_pipeline_cache()
-                self.init_pipeline()
+                self.init_pipeline(cube_coords[0].nbytes)
                 self.init_presentable_image()            
 
         except:
