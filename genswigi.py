@@ -579,7 +579,14 @@ class CSWIGOutputGenerator(COutputGenerator):
                 elif i in members_to_shared_ptrize:                    
                     if member_type_name in self.nonRAIIStruct:
                         swig_impl += '      raii_obj->%(member_name)s = %(member_name)s;\n' % locals()
-                        swig_impl += '      raii_obj->nonRaiiObj.%(member_name)s = &(%(member_name)s->nonRaiiObj);\n' % locals()
+                        swig_impl += '      if ( %(member_name)s ) \n' % locals()
+                        swig_impl += '      {\n'
+                        swig_impl += '          raii_obj->nonRaiiObj.%(member_name)s = &(%(member_name)s->nonRaiiObj);\n' % locals()
+                        swig_impl += '      }\n'
+                        swig_impl += '      else\n'
+                        swig_impl += '      {\n'
+                        swig_impl += '          raii_obj->nonRaiiObj.%(member_name)s = nullptr;\n' % locals()
+                        swig_impl += '      }\n'
                     else:
                         swig_impl += '      raii_obj->nonRaiiObj.%(member_name)s = nullptr;\n' % locals()
                         swig_impl += '      if ( %(member_name)s ) \n' % locals()
@@ -614,8 +621,12 @@ class CSWIGOutputGenerator(COutputGenerator):
                     swig_impl += '      obj.%(member_name)s = %(vkstructureenumstring)s;\n' % locals()
                 elif is_c_array:
                     swig_impl += '      std::copy(%(member_name)s, %(member_name)s + %(num_elem)s, obj.%(member_name)s);\n' % locals()
+                # this seems absurd in VkShaderModuleCreateInfo "pCode" is an unsigned int pointer but "codeSize" must still be specified in bytes
+                # the workaround is implemented here because we still need the ctor to be generated 
+                elif member_name == 'codeSize':
+                    swig_impl += '      obj.%(member_name)s = %(member_name)s * sizeof(unsigned int);\n' % locals()
                 else:
-                    swig_impl += '      obj.%(member_name)s = %(member_name)s;\n' % locals()                    
+                    swig_impl += '      obj.%(member_name)s = %(member_name)s;\n' % locals()
             swig_impl += '      return obj;\n'
         swig_impl += '   }\n'
         self.appendSection('command', fct_decl + '\n')
@@ -662,115 +673,6 @@ class CSWIGOutputGenerator(COutputGenerator):
             return None,None
             
         return free_command_name, free_command_params_name_type  
-
-    def genAllocationCommand(self, return_type_str, command_name, params, allocation_callback_ptr_index):
-        
-        # ignore deallocation, it will be done with RAII
-        if command_name.find('Destroy') != -1 or command_name.find('Free') != -1:
-            return 
-
-        free_command_name = command_name.replace('Create','Destroy')
-        free_command_name = free_command_name.replace('Allocate','Free')
-
-        # find the destroy or free command associated with this create or allocate command
-        all_commands = self.registry.findall("commands/command")
-        free_command_elem = None
-        for cmd in all_commands:
-            proto = cmd.find('proto')
-            inner_command_name = proto[1].text
-            if inner_command_name == free_command_name:
-                free_command_elem = cmd
-                break
-
-        free_command_params_name_type = []
-        if free_command_elem is not None:
-            free_command_params = free_command_elem.findall('param')
-            free_command_params_name_type = [ (get_param_name(p),get_param_type(p)) for p in free_command_params]
-
-        allocated_ptr_type = None
-        return_ptr_index = -1
-        param_to_const_referentize = set() # to switch the interface from const T * to const T&
-        for i,p in enumerate(params):
-            is_ptr, is_const, ptr_depth = is_param_pointer(p)
-            if is_ptr and not is_const:
-                allocated_ptr_type = get_param_type(p)
-                return_ptr_index = i
-            elif is_ptr and is_const and get_param_type(p) != 'char':
-                param_to_const_referentize.add(i)
-
-        assert(allocated_ptr_type is not None and return_ptr_index != -1)
-
-        # In 64 bits VK HANDLES are pointers
-        # define VK_DEFINE_HANDLE(object) typedef struct object##_T* object;
-        # ex: object = VkInstance 
-        # typedef struct VkInstance_T *VkInstance;
-                        
-        swig_command_name = remove_vk_prefix(command_name)
-        indentdecl = "std::shared_ptr<%(allocated_ptr_type)s_T> %(swig_command_name)s" % locals();
-        indentparams = ""
-        freeparams = ""
-        n = len(params)
-        written_param_cnt = 0
-        if n > 0:
-            indentdecl += '(\n'
-            for i in range(0,n):                
-                if i != allocation_callback_ptr_index and i != return_ptr_index:
-                    if i in param_to_const_referentize:
-                        param_type_name = get_param_type(params[i])
-                        paramdecl = '    const %(param_type_name)s &' % locals()
-                        paramdecl = paramdecl.rstrip()
-                        paramdecl = paramdecl.ljust(48)
-                        paramdecl += get_param_name(params[i])
-                        passedparam = '&' + get_param_name(params[i])
-                    else:
-                        paramdecl = self.makeCParamDecl(params[i], self.genOpts.alignFuncParam)    
-                        passedparam = get_param_name(params[i])                      
-
-                    written_param_cnt = written_param_cnt + 1
-                    if (written_param_cnt < n - 2):
-                        paramdecl += ',\n'
-                    else:
-                        paramdecl += ')'
-
-                    indentdecl += paramdecl                    
-                    if (get_param_name(params[i]),get_param_type(params[i])) in free_command_params_name_type :
-                        freeparams += get_param_name(params[i]) + ','
-                elif i == allocation_callback_ptr_index:
-                    passedparam = 'nullptr'
-                else:
-                    passedparam = '&local_object'
-
-                if i < n-1:
-                    passedparam += ',\n'
-                else:
-                    passedparam += ')'
-
-                indentparams += "                   " + passedparam                    
-        else:
-            indentdecl = '(void)'
-
-        if command_name in self.notLoadedBySDK:
-            command_name = 'pf' + command_name
-
-        if free_command_name in self.notLoadedBySDK:
-            free_command_name = 'pf' + free_command_name
-            
-        fct_decl = indentdecl + ';\n'
-        swig_impl = indentdecl + '\n'
-        swig_impl += '   {\n'
-        swig_impl += '      %(allocated_ptr_type)s local_object = nullptr;\n' % locals()
-        swig_impl += '      V( %(command_name)s(\n' % locals()
-        swig_impl += indentparams + ");\n"
-        if free_command_elem is not None:
-            swig_impl += '      return std::shared_ptr<%(allocated_ptr_type)s_T>(local_object, \n' % locals()
-            swig_impl += '              [=](%(allocated_ptr_type)s to_free) {%(free_command_name)s(%(freeparams)s to_free, nullptr);});\n' % locals();
-        else:
-            swig_impl += '      return std::shared_ptr<%(allocated_ptr_type)s_T>(local_object, \n' % locals()
-            swig_impl += '              [](%(allocated_ptr_type)s) {});\n' % locals();
-        swig_impl += '   }\n'
-        
-        self.appendSection('command', fct_decl + '\n')
-        self.swigFeatureImpl.append(swig_impl)
 
     def genCommand(self,
                    return_type_str, 

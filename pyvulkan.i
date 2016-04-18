@@ -209,6 +209,22 @@ Please read SWIG_DOC_
             $1 = &temp_vec;
         }
     }      
+
+    %typemap(in) const std::shared_ptr<TYPE##RAII> &
+    (void *argp, int res = 0, std::shared_ptr<TYPE##RAII> null_shared_ptr)
+    {
+        int newmem = 0;
+        res = SWIG_ConvertPtrAndOwn($input, &argp, $descriptor(std::shared_ptr<TYPE##RAII> *), %convertptr_flags, &newmem);
+        if (!SWIG_IsOK(res)) {
+            %argument_fail(res, "$type", $symname, $argnum);
+        }
+        if (!argp) {
+            $1 = &null_shared_ptr;
+        }
+        else {
+            $1 = %reinterpret_cast(argp, std::shared_ptr<TYPE##RAII> *);
+        }
+    }
 %enddef
 
 %include <std_shared_ptr.i>; 

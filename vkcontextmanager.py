@@ -485,7 +485,14 @@ class VkContextManager:
         assert(self.pipeline_cache is not None)
 
     def init_pipeline(self, vertex_buffer_stride_bytes):
-        pdsci = vk.PipelineDynamicStateCreateInfo(0, vk.VkDynamicStateVector())
+        psscis = vk.VkPipelineShaderStageCreateInfoVector()
+        psscis.append(vk.PipelineShaderStageCreateInfo(0, vk.VK_SHADER_STAGE_VERTEX_BIT, self.vertex_shader, "main", None))
+        psscis.append(vk.PipelineShaderStageCreateInfo(0, vk.VK_SHADER_STAGE_FRAGMENT_BIT, self.fragment_shader, "main", None))
+
+        dynamic_states = vk.VkDynamicStateVector()
+        dynamic_states.append( vk.VK_DYNAMIC_STATE_VIEWPORT )
+        dynamic_states.append( vk.VK_DYNAMIC_STATE_SCISSOR )        
+        pdsci = vk.PipelineDynamicStateCreateInfo(0, dynamic_states)
         vi_bindings = vk.VertexInputBindingDescription(0, vertex_buffer_stride_bytes, vk.VK_VERTEX_INPUT_RATE_VERTEX)
         vi_attribs = vk.VkVertexInputAttributeDescriptionVector()
         vi_attribs.append(vk.VertexInputAttributeDescription(0, 0, vk.VK_FORMAT_R32G32B32A32_SFLOAT, 0))
@@ -510,8 +517,8 @@ class VkContextManager:
         pmsci = vk.PipelineMultisampleStateCreateInfo(0, vk.VK_SAMPLE_COUNT_1_BIT, False, 0, None, False, False)
 
         pipeline_cis = vk.VkGraphicsPipelineCreateInfoVector()
-        #pipeline_ci = vk.GraphicsPipelineCreateInfo(0, self.sha
-        #self.pipeline = self.ESP( vk.createGraphicsPipelines(self.device, self.pipeline_cache, pipeline_cis) )
+        pipeline_cis.append( vk.GraphicsPipelineCreateInfo(0, psscis, pvisci, piasci, None, pvsci, prsci, pmsci, pdssci, pcbsci, pdsci, self.pipeline_layout, self.render_pass, 0, None, 0) )
+        self.pipeline = self.ESP( vk.createGraphicsPipelines(self.device, self.pipeline_cache, pipeline_cis) )
         
     def init_presentable_image(self):
         pass
