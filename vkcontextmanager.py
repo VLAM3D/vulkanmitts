@@ -120,8 +120,8 @@ class VkContextManager:
     def init_window(self):        
         self.widget = QWidget()
         self.widget.resize(640, 480)
-        self.stack.callback(self.delete_window)    
-
+        self.stack.callback(self.delete_window)   
+        
     def init_win32_swap_chain_ext(self):
         surface_ci = vk.Win32SurfaceCreateInfoKHR(0, vk.GetThisEXEModuleHandle(), self.widget.winId())       
         self.surface = self.ESP( vk.createWin32SurfaceKHR(self.instance, surface_ci) )
@@ -192,11 +192,11 @@ class VkContextManager:
                                            None) # old_swp_chain
         
         self.swap_chain = self.ESP( vk.createSwapchainKHR(self.device, swp_ci) )
-        images = vk.getSwapchainImagesKHR(self.device, self.swap_chain)
+        self.images = vk.getSwapchainImagesKHR(self.device, self.swap_chain)
         components = vk.ComponentMapping(vk.VK_COMPONENT_SWIZZLE_R, vk.VK_COMPONENT_SWIZZLE_G, vk.VK_COMPONENT_SWIZZLE_B, vk.VK_COMPONENT_SWIZZLE_A)
         subresource_range = vk.ImageSubresourceRange(vk.VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1)
         self.image_views = []
-        for img in images:
+        for img in self.images:
             ivci = vk.ImageViewCreateInfo(0, img, vk.VK_IMAGE_VIEW_TYPE_2D, self.format, components, subresource_range)
             set_image_layout(self.command_buffers[0], img, vk.VK_IMAGE_ASPECT_COLOR_BIT, vk.VK_IMAGE_LAYOUT_UNDEFINED, vk.VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL)
             self.image_views.append( self.ESP(vk.createImageView(self.device, ivci)) )
@@ -521,8 +521,44 @@ class VkContextManager:
         self.pipeline = self.ESP( vk.createGraphicsPipelines(self.device, self.pipeline_cache, pipeline_cis) )
         
     def init_presentable_image(self):
-        pass
-            
+        self.present_complete_semaphore = self.ESP( vk.createSemaphore(self.device, vk.SemaphoreCreateInfo(0)) )
+        self.current_buffer = vk.acquireNextImageKHR(self.device, self.swap_chain, 1000, self.present_complete_semaphore, None)
+
+    def init_clear_color_and_depth(self):
+        self.clear_val_color = [0.2, 0.2, 0.2, 0.2]
+        self.clear_val_depth = 1.0
+        self.clear_val_stencil = 0
+                
+    def make_render_pass_begin_info(self):
+        w,h = self.get_surface_extent()
+        return vk.RenderPassBeginInfo(self.render_pass, self.framebuffers[self.current_buffer], vk.Rect2D(vk.Offset2D(0,0), vk.Extent2D(w,h)), vk.VkClearValueVector()) 
+
+    def init_viewports(self):
+        w,h = self.get_surface_extent()
+        vk.cmdSetViewport(self.command_buffers[0], 0, vk.VkViewportVector(1, vk.Viewport(0,0,w, h, 0.0, 1.0)))
+
+    def init_scissors(self):
+        w,h = self.get_surface_extent()
+        vk.cmdSetScissor(self.command_buffers[0], 0, vk.VkRect2DVector(1, vk.Rect2D(vk.Offset2D(0,0), vk.Extent2D(w,h))))
+
+    def execute_pre_present_barrier(self):
+        pre_present_barrier = vk.ImageMemoryBarrier(vk.VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT, 
+                                                    vk.VK_ACCESS_MEMORY_READ_BIT,
+                                                    vk.VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
+                                                    vk.VK_IMAGE_LAYOUT_PRESENT_SRC_KHR, 
+                                                    0,
+                                                    0,
+                                                    self.images[self.current_buffer], 
+                                                    vk.ImageSubresourceRange(vk.VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1))
+        
+        vk.cmdPipelineBarrier(self.command_buffers[0], 
+                              vk.VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, 
+                              vk.VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, 
+                              0,
+                              vk.VkMemoryBarrierVector(), 
+                              vk.VkBufferMemoryBarrierVector(),
+                              vk.VkImageMemoryBarrierVector(1,pre_present_barrier))
+           
     # Init stages
     VKC_INIT_INSTANCE = 1
     VKC_INIT_DEVICE = 2
@@ -539,6 +575,8 @@ class VkContextManager:
     VKC_INIT_VERTEX_BUFFER = 13
     VKC_INIT_DESCRIPTORS = 14
     VKC_INIT_PIPELINE = 15
+    VKC_INIT_RENDER_PASS_BEGIN_INFO = 16
+    VKC_INIT_PRESENT_INFO = 17
     VKC_INIT_ALL = 9999
 
     def __init__(self, init_stages = VKC_INIT_ALL):
@@ -588,7 +626,36 @@ class VkContextManager:
             if self.init_stages >= VkContextManager.VKC_INIT_PIPELINE:
                 self.init_pipeline_cache()
                 self.init_pipeline(cube_coords[0].nbytes)
-                self.init_presentable_image()            
+                self.init_presentable_image()       
+            if self.init_stages >= VkContextManager.VKC_INIT_RENDER_PASS_BEGIN_INFO:
+                self.init_clear_color_and_depth()
+                rp_begin = self.make_render_pass_begin_info() 
+                vk.cmdBeginRenderPass(self.command_buffers[0], rp_begin, vk.VK_SUBPASS_CONTENTS_INLINE) 
+                vk.cmdBindPipeline(self.command_buffers[0], vk.VK_PIPELINE_BIND_POINT_GRAPHICS, self.pipeline[0])
+                vk.cmdBindDescriptorSets(self.command_buffers[0], vk.VK_PIPELINE_BIND_POINT_GRAPHICS, self.pipeline_layout, 0, self.descriptor_set,  [])
+                vk.cmdBindVertexBuffers(self.command_buffers[0], 0, vk.VkBufferVector(1,self.vertex_buffer), vk.VkDeviceSizeVector(1,0))                                
+                
+            if self.init_stages >= VkContextManager.VKC_INIT_PRESENT_INFO:
+                self.init_viewports()
+                self.init_scissors()
+                vk.cmdDraw(self.command_buffers[0], cube_coords.shape[0], 1, 0, 0)
+                vk.cmdEndRenderPass(self.command_buffers[0])
+                vk.endCommandBuffer(self.command_buffers[0])
+                self.execute_pre_present_barrier()
+                self.draw_fence = self.ESP(vk.createFence(self.device, vk.FenceCreateInfo(0)))
+                submit_info = vk.SubmitInfo( vk.VkSemaphoreVector(1,self.present_complete_semaphore), vk.VkPipelineStageFlagsVector(1,vk.VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT), self.command_buffers, vk.VkSemaphoreVector())                
+                vk.queueSubmit(self.device_queue, vk.VkSubmitInfoVector(1,submit_info), self.draw_fence)
+                command_buffer_finished = False
+                cmd_fences = vk.VkFenceVector(1,self.draw_fence)
+                while not command_buffer_finished:
+                    try:
+                        vk.waitForFences(self.device, cmd_fences, True, 1000000)
+                        command_buffer_finished = True
+                    except RuntimeError:
+                        pass
+                
+                present_info = vk.PresentInfoKHR(vk.VkSemaphoreVector(), vk.VkSwapchainKHRVector(1, self.swap_chain), [self.current_buffer], vk.VkResultVector())
+                vk.queuePresentKHR(self.device_queue, present_info)
 
         except:
             self.stack.close()
