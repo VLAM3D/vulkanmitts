@@ -6,14 +6,19 @@ from vkcontextmanager import VkContextManager, memory_type_from_properties, vkre
 from contextlib import contextmanager
 from cube_data import *
 
-class VkWidget(QWidget):
-    def __init__(self, parent=None):
-        super(VkWidget, self).__init__(parent)        
+class VkWindow(QWidget):
+    def __init__(self):
+        super(VkWindow, self).__init__()
+        self.setWindowTitle("Hello Vulkan")   
         self.cube_coords = get_xyzw_uv_cube_coords()
         self.vk_context = None
+
+    def closeEvent(self, event):        
+        self.stopVulkan()
+        super(VkWindow, self).closeEvent(event)
     
     def resizeEvent(self, event):
-        super(VkWidget, self).resizeEvent(event)
+        super(VkWindow, self).resizeEvent(event)
         if self.vk_context is not None:
             self.vk_context.stack.close()
         
@@ -21,7 +26,7 @@ class VkWidget(QWidget):
         self.vk_context.__enter__()
 
     def paintEvent(self, event):
-        super(VkWidget, self).paintEvent(event)
+        super(VkWindow, self).paintEvent(event)
         if self.vk_context is not None:
             self.paintVK()
 
@@ -38,7 +43,6 @@ class VkWidget(QWidget):
         try:
             vk.beginCommandBuffer(self.vk_context.command_buffers[0],vk.CommandBufferBeginInfo(vk.VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT, None))
             self.vk_context.init_presentable_image()       
-            self.vk_context.init_clear_color_and_depth()
             rp_begin = self.vk_context.make_render_pass_begin_info() 
             vk.cmdBeginRenderPass(self.vk_context.command_buffers[0], rp_begin, vk.VK_SUBPASS_CONTENTS_INLINE) 
             vk.cmdBindPipeline(self.vk_context.command_buffers[0], vk.VK_PIPELINE_BIND_POINT_GRAPHICS, self.vk_context.pipeline[0])
@@ -75,22 +79,9 @@ class VkWidget(QWidget):
 
     def sizeHint(self):
         return QSize(640, 480)     
-
-class Window(QWidget):
-    def __init__(self):
-        super(Window, self).__init__()
-        self.setWindowTitle("Hello Vulkan")   
-        self.vk_widget = VkWidget()
-        main_layout = QHBoxLayout()
-        main_layout.addWidget(self.vk_widget)
-        self.setLayout(main_layout)
-
-    def closeEvent(self, event):        
-        self.vk_widget.stopVulkan()
-        super(Window, self).closeEvent(event)
         
 if __name__ == '__main__':
     app = QApplication(sys.argv)
-    window = Window()
+    window = VkWindow()
     window.show()
     sys.exit(app.exec_())

@@ -522,19 +522,28 @@ class VkContextManager:
         
     def init_presentable_image(self):        
         self.current_buffer = vk.acquireNextImageKHR(self.device, self.swap_chain, 1000, self.present_complete_semaphore, None)
-
-    def init_clear_color_and_depth(self):
-        self.clear_val_color = [0.2, 0.2, 0.2, 0.2]
-        self.clear_val_depth = 1.0
-        self.clear_val_stencil = 0
-                
+               
     def make_render_pass_begin_info(self):
         w,h = self.get_surface_extent()
-        return vk.RenderPassBeginInfo(self.render_pass, self.framebuffers[self.current_buffer], vk.Rect2D(vk.Offset2D(0,0), vk.Extent2D(w,h)), vk.VkClearValueVector()) 
+        
+        clear_color_val = vk.VkClearColorValue()
+        clear_color_val.float32[0] = 1.0
+        clear_color_val.float32[1] = 0.0
+        clear_color_val.float32[2] = 0.0
+
+        clear_depth_val = vk.VkClearDepthStencilValue()
+        clear_depth_val.depth = 1.0
+        clear_depth_val.stencil = 0
+
+        clear_values = vk.VkClearValueVector()
+        clear_values.append( vk.ClearValue(clear_color_val, vk.VkClearDepthStencilValue()) )
+        clear_values.append( vk.ClearValue(vk.VkClearColorValue(), clear_depth_val) )
+
+        return vk.RenderPassBeginInfo(self.render_pass, self.framebuffers[self.current_buffer], vk.Rect2D(vk.Offset2D(0,0), vk.Extent2D(w,h)), clear_values) 
 
     def init_viewports(self):
         w,h = self.get_surface_extent()
-        vk.cmdSetViewport(self.command_buffers[0], 0, vk.VkViewportVector(1, vk.Viewport(0,0,w, h, 0.0, 1.0)))
+        vk.cmdSetViewport(self.command_buffers[0], 0, vk.VkViewportVector(1, vk.Viewport(0, 0, w, h, 0.0, 1.0)))
 
     def init_scissors(self):
         w,h = self.get_surface_extent()
@@ -633,7 +642,6 @@ class VkContextManager:
                 
             if self.init_stages >= VkContextManager.VKC_INIT_TEST_SINGLE_RENDER_PASS:                
                 self.init_presentable_image()       
-                self.init_clear_color_and_depth()
                 rp_begin = self.make_render_pass_begin_info() 
                 vk.cmdBeginRenderPass(self.command_buffers[0], rp_begin, vk.VK_SUBPASS_CONTENTS_INLINE) 
                 vk.cmdBindPipeline(self.command_buffers[0], vk.VK_PIPELINE_BIND_POINT_GRAPHICS, self.pipeline[0])
