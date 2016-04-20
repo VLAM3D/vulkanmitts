@@ -520,8 +520,7 @@ class VkContextManager:
         pipeline_cis.append( vk.GraphicsPipelineCreateInfo(0, psscis, pvisci, piasci, None, pvsci, prsci, pmsci, pdssci, pcbsci, pdsci, self.pipeline_layout, self.render_pass, 0, None, 0) )
         self.pipeline = self.ESP( vk.createGraphicsPipelines(self.device, self.pipeline_cache, pipeline_cis) )
         
-    def init_presentable_image(self):
-        self.present_complete_semaphore = self.ESP( vk.createSemaphore(self.device, vk.SemaphoreCreateInfo(0)) )
+    def init_presentable_image(self):        
         self.current_buffer = vk.acquireNextImageKHR(self.device, self.swap_chain, 1000, self.present_complete_semaphore, None)
 
     def init_clear_color_and_depth(self):
@@ -575,12 +574,15 @@ class VkContextManager:
     VKC_INIT_VERTEX_BUFFER = 13
     VKC_INIT_DESCRIPTORS = 14
     VKC_INIT_PIPELINE = 15
-    VKC_INIT_RENDER_PASS_BEGIN_INFO = 16
-    VKC_INIT_PRESENT_INFO = 17
+    VKC_INIT_TEST_SINGLE_RENDER_PASS = 16
     VKC_INIT_ALL = 9999
 
-    def __init__(self, init_stages = VKC_INIT_ALL):
+    def __del__(self):
+        self.stack.close()
+
+    def __init__(self, init_stages = VKC_INIT_PIPELINE, widget = None):
         self.init_stages = init_stages
+        self.widget = widget
 
     def __enter__(self):
         self.stack = ExitStack()
@@ -592,7 +594,8 @@ class VkContextManager:
             if self.init_stages >= VkContextManager.VKC_INIT_DEVICE:
                 self.init_device()        
             if self.init_stages >= VkContextManager.VKC_INIT_SWAP_CHAIN_EXT:
-                self.init_window()
+                if self.widget is None:
+                    self.init_window()
                 self.init_win32_swap_chain_ext()
             if self.init_stages >= VkContextManager.VKC_INIT_COMMAND_BUFFER:
                 self.init_command_buffers()
@@ -626,8 +629,10 @@ class VkContextManager:
             if self.init_stages >= VkContextManager.VKC_INIT_PIPELINE:
                 self.init_pipeline_cache()
                 self.init_pipeline(cube_coords[0].nbytes)
+                self.present_complete_semaphore = self.ESP( vk.createSemaphore(self.device, vk.SemaphoreCreateInfo(0)) )
+                
+            if self.init_stages >= VkContextManager.VKC_INIT_TEST_SINGLE_RENDER_PASS:                
                 self.init_presentable_image()       
-            if self.init_stages >= VkContextManager.VKC_INIT_RENDER_PASS_BEGIN_INFO:
                 self.init_clear_color_and_depth()
                 rp_begin = self.make_render_pass_begin_info() 
                 vk.cmdBeginRenderPass(self.command_buffers[0], rp_begin, vk.VK_SUBPASS_CONTENTS_INLINE) 
@@ -635,7 +640,6 @@ class VkContextManager:
                 vk.cmdBindDescriptorSets(self.command_buffers[0], vk.VK_PIPELINE_BIND_POINT_GRAPHICS, self.pipeline_layout, 0, self.descriptor_set,  [])
                 vk.cmdBindVertexBuffers(self.command_buffers[0], 0, vk.VkBufferVector(1,self.vertex_buffer), vk.VkDeviceSizeVector(1,0))                                
                 
-            if self.init_stages >= VkContextManager.VKC_INIT_PRESENT_INFO:
                 self.init_viewports()
                 self.init_scissors()
                 vk.cmdDraw(self.command_buffers[0], cube_coords.shape[0], 1, 0, 0)
