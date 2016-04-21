@@ -42,7 +42,7 @@ Please read SWIG_DOC_
 
 %}
 %init 
-%{
+%{ 
     import_array();
     load_vulkan_fct_ptrs();
 %}
@@ -284,15 +284,15 @@ Please read SWIG_DOC_
         auto res = x;\
         ThrowOnVkError(res, #x, __FILE__, __LINE__);\
     }while(0)
-%}
-
+%} 
+ 
 
 %template (StringVector) std::vector<std::string>;
  
 #define VKAPI_PTR
 typedef unsigned int uint32_t;
 typedef int int32_t;
-typedef size_t uint64_t;
+typedef unsigned long long uint64_t;
 
 struct HWND__
 {

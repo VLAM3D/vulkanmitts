@@ -408,15 +408,21 @@ class CSWIGOutputGenerator(COutputGenerator):
         count_member_to_vector_member = {}
         structure_type_member_index = -1
         for i,m in enumerate(members):            
-            if 'len' in m.keys():
+            if 'len' in m.keys():                
                 len_members = m.get('len').split(',')
                 for len_member in len_members:
                     nt_pair = (len_member, 'uint32_t')
                     if nt_pair in members_name_type:  
                         l_pair = (i, members_name_type.index(nt_pair))                  
+                        if typeName not in ['VkWriteDescriptorSet','VkDescriptorSetLayoutBinding']:
+                            members_to_remove.add(l_pair[1])                       
+                            if l_pair[1] not in count_member_to_vector_member:                            
+                                count_member_to_vector_member[ l_pair[1] ] = l_pair[0]
+                            else:                            
+                                print(typeName, ' member', members_name_type[i][0], ' size is not used ' )
+
                         members_to_vectorize.add(l_pair[0])
-                        members_to_remove.add(l_pair[1])   
-                        count_member_to_vector_member[ l_pair[1] ] = l_pair[0]
+
                         if members_name_type[i][1] != 'void' and members_name_type[i][1] not in self.hideFromSWIGTypes:
                             self.std_vector_types.add( members_name_type[i][1] )
             else:
@@ -575,7 +581,14 @@ class CSWIGOutputGenerator(COutputGenerator):
                         swig_impl += '           raii_obj->%(vec_ptr_name)s[i] = raii_obj->%(vec_name)s[i].c_str();\n' % locals()
                         swig_impl += '      raii_obj->nonRaiiObj.%(member_name)s = &raii_obj->%(vec_ptr_name)s[0];\n' % locals()
                     else:
-                        swig_impl += '      raii_obj->nonRaiiObj.%(member_name)s = &raii_obj->%(vec_name)s[0];\n' % locals()
+                        swig_impl += '      if ( raii_obj->%(vec_name)s.size() > 0)\n' % locals()
+                        swig_impl += '      {\n'
+                        swig_impl += '          raii_obj->nonRaiiObj.%(member_name)s = &raii_obj->%(vec_name)s[0];\n' % locals()
+                        swig_impl += '      }\n'
+                        swig_impl += '      else\n'
+                        swig_impl += '      {\n'
+                        swig_impl += '          raii_obj->nonRaiiObj.%(member_name)s = nullptr;\n' % locals()
+                        swig_impl += '      }\n'
                 elif i in members_to_shared_ptrize:                    
                     if member_type_name in self.nonRAIIStruct:
                         swig_impl += '      raii_obj->%(member_name)s = %(member_name)s;\n' % locals()

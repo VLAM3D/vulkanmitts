@@ -3450,6 +3450,7 @@ std::shared_ptr<VkSampler_T> createSampler(
 std::shared_ptr<VkDescriptorSetLayoutBindingRAII> DescriptorSetLayoutBinding(
     uint32_t                                    binding,
     VkDescriptorType                            descriptorType,
+    uint32_t                                    descriptorCount,
     VkShaderStageFlags                          stageFlags,
     const std::vector<VkSampler> &              vecImmutableSamplers);
 
@@ -3504,6 +3505,7 @@ std::shared_ptr<VkWriteDescriptorSetRAII> WriteDescriptorSet(
     VkDescriptorSet                             dstSet,
     uint32_t                                    dstBinding,
     uint32_t                                    dstArrayElement,
+    uint32_t                                    descriptorCount,
     VkDescriptorType                            descriptorType,
     const std::vector<VkDescriptorImageInfo> &  vecImageInfo,
     const std::vector<VkDescriptorBufferInfo> & vecBufferInfo,
@@ -5564,7 +5566,14 @@ std::shared_ptr<VkDeviceQueueCreateInfoRAII> DeviceQueueCreateInfo(
       raii_obj->nonRaiiObj.queueFamilyIndex = queueFamilyIndex;
       raii_obj->nonRaiiObj.queueCount = static_cast<uint32_t>(pQueuePriorities_dim1);
       raii_obj->vecQueuePriorities.assign(pQueuePriorities_in_array1, pQueuePriorities_in_array1 + pQueuePriorities_dim1);
-      raii_obj->nonRaiiObj.pQueuePriorities = &raii_obj->vecQueuePriorities[0];
+      if ( raii_obj->vecQueuePriorities.size() > 0)
+      {
+          raii_obj->nonRaiiObj.pQueuePriorities = &raii_obj->vecQueuePriorities[0];
+      }
+      else
+      {
+          raii_obj->nonRaiiObj.pQueuePriorities = nullptr;
+      }
       return raii_obj;
    }
 
@@ -5591,7 +5600,14 @@ std::shared_ptr<VkDeviceCreateInfoRAII> DeviceCreateInfo(
       raii_obj->nonRaiiObj.flags = flags;
       raii_obj->nonRaiiObj.queueCreateInfoCount = static_cast<uint32_t>(vecQueueCreateInfos.size());
       raii_obj->vecQueueCreateInfos = vecQueueCreateInfos;
-      raii_obj->nonRaiiObj.pQueueCreateInfos = &raii_obj->vecQueueCreateInfos[0];
+      if ( raii_obj->vecQueueCreateInfos.size() > 0)
+      {
+          raii_obj->nonRaiiObj.pQueueCreateInfos = &raii_obj->vecQueueCreateInfos[0];
+      }
+      else
+      {
+          raii_obj->nonRaiiObj.pQueueCreateInfos = nullptr;
+      }
       raii_obj->nonRaiiObj.enabledLayerCount = static_cast<uint32_t>(vecEnabledLayerNames.size());
       raii_obj->vecEnabledLayerNames = vecEnabledLayerNames;
       raii_obj->vecPtrEnabledLayerNames.resize(vecEnabledLayerNames.size());
@@ -5759,17 +5775,45 @@ std::shared_ptr<VkSubmitInfoRAII> SubmitInfo(
       std::shared_ptr<VkSubmitInfoRAII> raii_obj(new VkSubmitInfoRAII);
       raii_obj->nonRaiiObj.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
       raii_obj->nonRaiiObj.pNext = nullptr;
-      raii_obj->nonRaiiObj.waitSemaphoreCount = static_cast<uint32_t>(vecWaitDstStageMask.size());
+      raii_obj->nonRaiiObj.waitSemaphoreCount = static_cast<uint32_t>(vecWaitSemaphores.size());
       raii_obj->vecWaitSemaphores = vecWaitSemaphores;
-      raii_obj->nonRaiiObj.pWaitSemaphores = &raii_obj->vecWaitSemaphores[0];
+      if ( raii_obj->vecWaitSemaphores.size() > 0)
+      {
+          raii_obj->nonRaiiObj.pWaitSemaphores = &raii_obj->vecWaitSemaphores[0];
+      }
+      else
+      {
+          raii_obj->nonRaiiObj.pWaitSemaphores = nullptr;
+      }
       raii_obj->vecWaitDstStageMask = vecWaitDstStageMask;
-      raii_obj->nonRaiiObj.pWaitDstStageMask = &raii_obj->vecWaitDstStageMask[0];
+      if ( raii_obj->vecWaitDstStageMask.size() > 0)
+      {
+          raii_obj->nonRaiiObj.pWaitDstStageMask = &raii_obj->vecWaitDstStageMask[0];
+      }
+      else
+      {
+          raii_obj->nonRaiiObj.pWaitDstStageMask = nullptr;
+      }
       raii_obj->nonRaiiObj.commandBufferCount = static_cast<uint32_t>(vecCommandBuffers.size());
       raii_obj->vecCommandBuffers = vecCommandBuffers;
-      raii_obj->nonRaiiObj.pCommandBuffers = &raii_obj->vecCommandBuffers[0];
+      if ( raii_obj->vecCommandBuffers.size() > 0)
+      {
+          raii_obj->nonRaiiObj.pCommandBuffers = &raii_obj->vecCommandBuffers[0];
+      }
+      else
+      {
+          raii_obj->nonRaiiObj.pCommandBuffers = nullptr;
+      }
       raii_obj->nonRaiiObj.signalSemaphoreCount = static_cast<uint32_t>(vecSignalSemaphores.size());
       raii_obj->vecSignalSemaphores = vecSignalSemaphores;
-      raii_obj->nonRaiiObj.pSignalSemaphores = &raii_obj->vecSignalSemaphores[0];
+      if ( raii_obj->vecSignalSemaphores.size() > 0)
+      {
+          raii_obj->nonRaiiObj.pSignalSemaphores = &raii_obj->vecSignalSemaphores[0];
+      }
+      else
+      {
+          raii_obj->nonRaiiObj.pSignalSemaphores = nullptr;
+      }
       return raii_obj;
    }
 
@@ -6055,7 +6099,14 @@ std::shared_ptr<VkSparseBufferMemoryBindInfoRAII> SparseBufferMemoryBindInfo(
       raii_obj->nonRaiiObj.buffer = buffer;
       raii_obj->nonRaiiObj.bindCount = static_cast<uint32_t>(vecBinds.size());
       raii_obj->vecBinds = vecBinds;
-      raii_obj->nonRaiiObj.pBinds = &raii_obj->vecBinds[0];
+      if ( raii_obj->vecBinds.size() > 0)
+      {
+          raii_obj->nonRaiiObj.pBinds = &raii_obj->vecBinds[0];
+      }
+      else
+      {
+          raii_obj->nonRaiiObj.pBinds = nullptr;
+      }
       return raii_obj;
    }
 
@@ -6072,7 +6123,14 @@ std::shared_ptr<VkSparseImageOpaqueMemoryBindInfoRAII> SparseImageOpaqueMemoryBi
       raii_obj->nonRaiiObj.image = image;
       raii_obj->nonRaiiObj.bindCount = static_cast<uint32_t>(vecBinds.size());
       raii_obj->vecBinds = vecBinds;
-      raii_obj->nonRaiiObj.pBinds = &raii_obj->vecBinds[0];
+      if ( raii_obj->vecBinds.size() > 0)
+      {
+          raii_obj->nonRaiiObj.pBinds = &raii_obj->vecBinds[0];
+      }
+      else
+      {
+          raii_obj->nonRaiiObj.pBinds = nullptr;
+      }
       return raii_obj;
    }
 
@@ -6131,7 +6189,14 @@ std::shared_ptr<VkSparseImageMemoryBindInfoRAII> SparseImageMemoryBindInfo(
       raii_obj->nonRaiiObj.image = image;
       raii_obj->nonRaiiObj.bindCount = static_cast<uint32_t>(vecBinds.size());
       raii_obj->vecBinds = vecBinds;
-      raii_obj->nonRaiiObj.pBinds = &raii_obj->vecBinds[0];
+      if ( raii_obj->vecBinds.size() > 0)
+      {
+          raii_obj->nonRaiiObj.pBinds = &raii_obj->vecBinds[0];
+      }
+      else
+      {
+          raii_obj->nonRaiiObj.pBinds = nullptr;
+      }
       return raii_obj;
    }
 
@@ -6156,19 +6221,54 @@ std::shared_ptr<VkBindSparseInfoRAII> BindSparseInfo(
       raii_obj->nonRaiiObj.pNext = nullptr;
       raii_obj->nonRaiiObj.waitSemaphoreCount = static_cast<uint32_t>(vecWaitSemaphores.size());
       raii_obj->vecWaitSemaphores = vecWaitSemaphores;
-      raii_obj->nonRaiiObj.pWaitSemaphores = &raii_obj->vecWaitSemaphores[0];
+      if ( raii_obj->vecWaitSemaphores.size() > 0)
+      {
+          raii_obj->nonRaiiObj.pWaitSemaphores = &raii_obj->vecWaitSemaphores[0];
+      }
+      else
+      {
+          raii_obj->nonRaiiObj.pWaitSemaphores = nullptr;
+      }
       raii_obj->nonRaiiObj.bufferBindCount = static_cast<uint32_t>(vecBufferBinds.size());
       raii_obj->vecBufferBinds = vecBufferBinds;
-      raii_obj->nonRaiiObj.pBufferBinds = &raii_obj->vecBufferBinds[0];
+      if ( raii_obj->vecBufferBinds.size() > 0)
+      {
+          raii_obj->nonRaiiObj.pBufferBinds = &raii_obj->vecBufferBinds[0];
+      }
+      else
+      {
+          raii_obj->nonRaiiObj.pBufferBinds = nullptr;
+      }
       raii_obj->nonRaiiObj.imageOpaqueBindCount = static_cast<uint32_t>(vecImageOpaqueBinds.size());
       raii_obj->vecImageOpaqueBinds = vecImageOpaqueBinds;
-      raii_obj->nonRaiiObj.pImageOpaqueBinds = &raii_obj->vecImageOpaqueBinds[0];
+      if ( raii_obj->vecImageOpaqueBinds.size() > 0)
+      {
+          raii_obj->nonRaiiObj.pImageOpaqueBinds = &raii_obj->vecImageOpaqueBinds[0];
+      }
+      else
+      {
+          raii_obj->nonRaiiObj.pImageOpaqueBinds = nullptr;
+      }
       raii_obj->nonRaiiObj.imageBindCount = static_cast<uint32_t>(vecImageBinds.size());
       raii_obj->vecImageBinds = vecImageBinds;
-      raii_obj->nonRaiiObj.pImageBinds = &raii_obj->vecImageBinds[0];
+      if ( raii_obj->vecImageBinds.size() > 0)
+      {
+          raii_obj->nonRaiiObj.pImageBinds = &raii_obj->vecImageBinds[0];
+      }
+      else
+      {
+          raii_obj->nonRaiiObj.pImageBinds = nullptr;
+      }
       raii_obj->nonRaiiObj.signalSemaphoreCount = static_cast<uint32_t>(vecSignalSemaphores.size());
       raii_obj->vecSignalSemaphores = vecSignalSemaphores;
-      raii_obj->nonRaiiObj.pSignalSemaphores = &raii_obj->vecSignalSemaphores[0];
+      if ( raii_obj->vecSignalSemaphores.size() > 0)
+      {
+          raii_obj->nonRaiiObj.pSignalSemaphores = &raii_obj->vecSignalSemaphores[0];
+      }
+      else
+      {
+          raii_obj->nonRaiiObj.pSignalSemaphores = nullptr;
+      }
       return raii_obj;
    }
 
@@ -6387,7 +6487,14 @@ std::shared_ptr<VkBufferCreateInfoRAII> BufferCreateInfo(
       raii_obj->nonRaiiObj.sharingMode = sharingMode;
       raii_obj->nonRaiiObj.queueFamilyIndexCount = static_cast<uint32_t>(pQueueFamilyIndices_dim1);
       raii_obj->vecQueueFamilyIndices.assign(pQueueFamilyIndices_in_array1, pQueueFamilyIndices_in_array1 + pQueueFamilyIndices_dim1);
-      raii_obj->nonRaiiObj.pQueueFamilyIndices = &raii_obj->vecQueueFamilyIndices[0];
+      if ( raii_obj->vecQueueFamilyIndices.size() > 0)
+      {
+          raii_obj->nonRaiiObj.pQueueFamilyIndices = &raii_obj->vecQueueFamilyIndices[0];
+      }
+      else
+      {
+          raii_obj->nonRaiiObj.pQueueFamilyIndices = nullptr;
+      }
       return raii_obj;
    }
 
@@ -6471,7 +6578,14 @@ std::shared_ptr<VkImageCreateInfoRAII> ImageCreateInfo(
       raii_obj->nonRaiiObj.sharingMode = sharingMode;
       raii_obj->nonRaiiObj.queueFamilyIndexCount = static_cast<uint32_t>(pQueueFamilyIndices_dim1);
       raii_obj->vecQueueFamilyIndices.assign(pQueueFamilyIndices_in_array1, pQueueFamilyIndices_in_array1 + pQueueFamilyIndices_dim1);
-      raii_obj->nonRaiiObj.pQueueFamilyIndices = &raii_obj->vecQueueFamilyIndices[0];
+      if ( raii_obj->vecQueueFamilyIndices.size() > 0)
+      {
+          raii_obj->nonRaiiObj.pQueueFamilyIndices = &raii_obj->vecQueueFamilyIndices[0];
+      }
+      else
+      {
+          raii_obj->nonRaiiObj.pQueueFamilyIndices = nullptr;
+      }
       raii_obj->nonRaiiObj.initialLayout = initialLayout;
       return raii_obj;
    }
@@ -6688,7 +6802,14 @@ std::shared_ptr<VkSpecializationInfoRAII> SpecializationInfo(
       std::shared_ptr<VkSpecializationInfoRAII> raii_obj(new VkSpecializationInfoRAII);
       raii_obj->nonRaiiObj.mapEntryCount = static_cast<uint32_t>(vecMapEntries.size());
       raii_obj->vecMapEntries = vecMapEntries;
-      raii_obj->nonRaiiObj.pMapEntries = &raii_obj->vecMapEntries[0];
+      if ( raii_obj->vecMapEntries.size() > 0)
+      {
+          raii_obj->nonRaiiObj.pMapEntries = &raii_obj->vecMapEntries[0];
+      }
+      else
+      {
+          raii_obj->nonRaiiObj.pMapEntries = nullptr;
+      }
       raii_obj->nonRaiiObj.dataSize = dataSize;
       raii_obj->nonRaiiObj.pData = nullptr;
       return raii_obj;
@@ -6770,10 +6891,24 @@ std::shared_ptr<VkPipelineVertexInputStateCreateInfoRAII> PipelineVertexInputSta
       raii_obj->nonRaiiObj.flags = flags;
       raii_obj->nonRaiiObj.vertexBindingDescriptionCount = static_cast<uint32_t>(vecVertexBindingDescriptions.size());
       raii_obj->vecVertexBindingDescriptions = vecVertexBindingDescriptions;
-      raii_obj->nonRaiiObj.pVertexBindingDescriptions = &raii_obj->vecVertexBindingDescriptions[0];
+      if ( raii_obj->vecVertexBindingDescriptions.size() > 0)
+      {
+          raii_obj->nonRaiiObj.pVertexBindingDescriptions = &raii_obj->vecVertexBindingDescriptions[0];
+      }
+      else
+      {
+          raii_obj->nonRaiiObj.pVertexBindingDescriptions = nullptr;
+      }
       raii_obj->nonRaiiObj.vertexAttributeDescriptionCount = static_cast<uint32_t>(vecVertexAttributeDescriptions.size());
       raii_obj->vecVertexAttributeDescriptions = vecVertexAttributeDescriptions;
-      raii_obj->nonRaiiObj.pVertexAttributeDescriptions = &raii_obj->vecVertexAttributeDescriptions[0];
+      if ( raii_obj->vecVertexAttributeDescriptions.size() > 0)
+      {
+          raii_obj->nonRaiiObj.pVertexAttributeDescriptions = &raii_obj->vecVertexAttributeDescriptions[0];
+      }
+      else
+      {
+          raii_obj->nonRaiiObj.pVertexAttributeDescriptions = nullptr;
+      }
       return raii_obj;
    }
 
@@ -6868,10 +7003,24 @@ std::shared_ptr<VkPipelineViewportStateCreateInfoRAII> PipelineViewportStateCrea
       raii_obj->nonRaiiObj.flags = flags;
       raii_obj->nonRaiiObj.viewportCount = static_cast<uint32_t>(vecViewports.size());
       raii_obj->vecViewports = vecViewports;
-      raii_obj->nonRaiiObj.pViewports = &raii_obj->vecViewports[0];
+      if ( raii_obj->vecViewports.size() > 0)
+      {
+          raii_obj->nonRaiiObj.pViewports = &raii_obj->vecViewports[0];
+      }
+      else
+      {
+          raii_obj->nonRaiiObj.pViewports = nullptr;
+      }
       raii_obj->nonRaiiObj.scissorCount = static_cast<uint32_t>(vecScissors.size());
       raii_obj->vecScissors = vecScissors;
-      raii_obj->nonRaiiObj.pScissors = &raii_obj->vecScissors[0];
+      if ( raii_obj->vecScissors.size() > 0)
+      {
+          raii_obj->nonRaiiObj.pScissors = &raii_obj->vecScissors[0];
+      }
+      else
+      {
+          raii_obj->nonRaiiObj.pScissors = nullptr;
+      }
       return raii_obj;
    }
 
@@ -7017,7 +7166,14 @@ std::shared_ptr<VkPipelineColorBlendStateCreateInfoRAII> PipelineColorBlendState
       raii_obj->nonRaiiObj.logicOp = logicOp;
       raii_obj->nonRaiiObj.attachmentCount = static_cast<uint32_t>(vecAttachments.size());
       raii_obj->vecAttachments = vecAttachments;
-      raii_obj->nonRaiiObj.pAttachments = &raii_obj->vecAttachments[0];
+      if ( raii_obj->vecAttachments.size() > 0)
+      {
+          raii_obj->nonRaiiObj.pAttachments = &raii_obj->vecAttachments[0];
+      }
+      else
+      {
+          raii_obj->nonRaiiObj.pAttachments = nullptr;
+      }
       std::copy(blendConstants, blendConstants + 4, raii_obj->nonRaiiObj.blendConstants);
       return raii_obj;
    }
@@ -7037,7 +7193,14 @@ std::shared_ptr<VkPipelineDynamicStateCreateInfoRAII> PipelineDynamicStateCreate
       raii_obj->nonRaiiObj.flags = flags;
       raii_obj->nonRaiiObj.dynamicStateCount = static_cast<uint32_t>(vecDynamicStates.size());
       raii_obj->vecDynamicStates = vecDynamicStates;
-      raii_obj->nonRaiiObj.pDynamicStates = &raii_obj->vecDynamicStates[0];
+      if ( raii_obj->vecDynamicStates.size() > 0)
+      {
+          raii_obj->nonRaiiObj.pDynamicStates = &raii_obj->vecDynamicStates[0];
+      }
+      else
+      {
+          raii_obj->nonRaiiObj.pDynamicStates = nullptr;
+      }
       return raii_obj;
    }
 
@@ -7079,7 +7242,14 @@ std::shared_ptr<VkGraphicsPipelineCreateInfoRAII> GraphicsPipelineCreateInfo(
       raii_obj->nonRaiiObj.flags = flags;
       raii_obj->nonRaiiObj.stageCount = static_cast<uint32_t>(vecStages.size());
       raii_obj->vecStages = vecStages;
-      raii_obj->nonRaiiObj.pStages = &raii_obj->vecStages[0];
+      if ( raii_obj->vecStages.size() > 0)
+      {
+          raii_obj->nonRaiiObj.pStages = &raii_obj->vecStages[0];
+      }
+      else
+      {
+          raii_obj->nonRaiiObj.pStages = nullptr;
+      }
       raii_obj->pVertexInputState = pVertexInputState;
       if ( pVertexInputState ) 
       {
@@ -7252,10 +7422,24 @@ std::shared_ptr<VkPipelineLayoutCreateInfoRAII> PipelineLayoutCreateInfo(
       raii_obj->nonRaiiObj.flags = flags;
       raii_obj->nonRaiiObj.setLayoutCount = static_cast<uint32_t>(vecSetLayouts.size());
       raii_obj->vecSetLayouts = vecSetLayouts;
-      raii_obj->nonRaiiObj.pSetLayouts = &raii_obj->vecSetLayouts[0];
+      if ( raii_obj->vecSetLayouts.size() > 0)
+      {
+          raii_obj->nonRaiiObj.pSetLayouts = &raii_obj->vecSetLayouts[0];
+      }
+      else
+      {
+          raii_obj->nonRaiiObj.pSetLayouts = nullptr;
+      }
       raii_obj->nonRaiiObj.pushConstantRangeCount = static_cast<uint32_t>(vecPushConstantRanges.size());
       raii_obj->vecPushConstantRanges = vecPushConstantRanges;
-      raii_obj->nonRaiiObj.pPushConstantRanges = &raii_obj->vecPushConstantRanges[0];
+      if ( raii_obj->vecPushConstantRanges.size() > 0)
+      {
+          raii_obj->nonRaiiObj.pPushConstantRanges = &raii_obj->vecPushConstantRanges[0];
+      }
+      else
+      {
+          raii_obj->nonRaiiObj.pPushConstantRanges = nullptr;
+      }
       return raii_obj;
    }
 
@@ -7335,16 +7519,24 @@ struct VkDescriptorSetLayoutBindingRAII {
 std::shared_ptr<VkDescriptorSetLayoutBindingRAII> DescriptorSetLayoutBinding(
     uint32_t                                    binding,
     VkDescriptorType                            descriptorType,
+    uint32_t                                    descriptorCount,
     VkShaderStageFlags                          stageFlags,
     const std::vector<VkSampler> &              vecImmutableSamplers)
    {
       std::shared_ptr<VkDescriptorSetLayoutBindingRAII> raii_obj(new VkDescriptorSetLayoutBindingRAII);
       raii_obj->nonRaiiObj.binding = binding;
       raii_obj->nonRaiiObj.descriptorType = descriptorType;
-      raii_obj->nonRaiiObj.descriptorCount = static_cast<uint32_t>(vecImmutableSamplers.size());
+      raii_obj->nonRaiiObj.descriptorCount = descriptorCount;
       raii_obj->nonRaiiObj.stageFlags = stageFlags;
       raii_obj->vecImmutableSamplers = vecImmutableSamplers;
-      raii_obj->nonRaiiObj.pImmutableSamplers = &raii_obj->vecImmutableSamplers[0];
+      if ( raii_obj->vecImmutableSamplers.size() > 0)
+      {
+          raii_obj->nonRaiiObj.pImmutableSamplers = &raii_obj->vecImmutableSamplers[0];
+      }
+      else
+      {
+          raii_obj->nonRaiiObj.pImmutableSamplers = nullptr;
+      }
       return raii_obj;
    }
 
@@ -7363,7 +7555,14 @@ std::shared_ptr<VkDescriptorSetLayoutCreateInfoRAII> DescriptorSetLayoutCreateIn
       raii_obj->nonRaiiObj.flags = flags;
       raii_obj->nonRaiiObj.bindingCount = static_cast<uint32_t>(vecBindings.size());
       raii_obj->vecBindings = vecBindings;
-      raii_obj->nonRaiiObj.pBindings = &raii_obj->vecBindings[0];
+      if ( raii_obj->vecBindings.size() > 0)
+      {
+          raii_obj->nonRaiiObj.pBindings = &raii_obj->vecBindings[0];
+      }
+      else
+      {
+          raii_obj->nonRaiiObj.pBindings = nullptr;
+      }
       return raii_obj;
    }
 
@@ -7408,7 +7607,14 @@ std::shared_ptr<VkDescriptorPoolCreateInfoRAII> DescriptorPoolCreateInfo(
       raii_obj->nonRaiiObj.maxSets = maxSets;
       raii_obj->nonRaiiObj.poolSizeCount = static_cast<uint32_t>(vecPoolSizes.size());
       raii_obj->vecPoolSizes = vecPoolSizes;
-      raii_obj->nonRaiiObj.pPoolSizes = &raii_obj->vecPoolSizes[0];
+      if ( raii_obj->vecPoolSizes.size() > 0)
+      {
+          raii_obj->nonRaiiObj.pPoolSizes = &raii_obj->vecPoolSizes[0];
+      }
+      else
+      {
+          raii_obj->nonRaiiObj.pPoolSizes = nullptr;
+      }
       return raii_obj;
    }
 
@@ -7452,7 +7658,14 @@ std::shared_ptr<VkDescriptorSetAllocateInfoRAII> DescriptorSetAllocateInfo(
       raii_obj->nonRaiiObj.descriptorPool = descriptorPool;
       raii_obj->nonRaiiObj.descriptorSetCount = static_cast<uint32_t>(vecSetLayouts.size());
       raii_obj->vecSetLayouts = vecSetLayouts;
-      raii_obj->nonRaiiObj.pSetLayouts = &raii_obj->vecSetLayouts[0];
+      if ( raii_obj->vecSetLayouts.size() > 0)
+      {
+          raii_obj->nonRaiiObj.pSetLayouts = &raii_obj->vecSetLayouts[0];
+      }
+      else
+      {
+          raii_obj->nonRaiiObj.pSetLayouts = nullptr;
+      }
       return raii_obj;
    }
 
@@ -7491,6 +7704,7 @@ std::shared_ptr<VkWriteDescriptorSetRAII> WriteDescriptorSet(
     VkDescriptorSet                             dstSet,
     uint32_t                                    dstBinding,
     uint32_t                                    dstArrayElement,
+    uint32_t                                    descriptorCount,
     VkDescriptorType                            descriptorType,
     const std::vector<VkDescriptorImageInfo> &  vecImageInfo,
     const std::vector<VkDescriptorBufferInfo> & vecBufferInfo,
@@ -7502,14 +7716,35 @@ std::shared_ptr<VkWriteDescriptorSetRAII> WriteDescriptorSet(
       raii_obj->nonRaiiObj.dstSet = dstSet;
       raii_obj->nonRaiiObj.dstBinding = dstBinding;
       raii_obj->nonRaiiObj.dstArrayElement = dstArrayElement;
-      raii_obj->nonRaiiObj.descriptorCount = static_cast<uint32_t>(vecTexelBufferView.size());
+      raii_obj->nonRaiiObj.descriptorCount = descriptorCount;
       raii_obj->nonRaiiObj.descriptorType = descriptorType;
       raii_obj->vecImageInfo = vecImageInfo;
-      raii_obj->nonRaiiObj.pImageInfo = &raii_obj->vecImageInfo[0];
+      if ( raii_obj->vecImageInfo.size() > 0)
+      {
+          raii_obj->nonRaiiObj.pImageInfo = &raii_obj->vecImageInfo[0];
+      }
+      else
+      {
+          raii_obj->nonRaiiObj.pImageInfo = nullptr;
+      }
       raii_obj->vecBufferInfo = vecBufferInfo;
-      raii_obj->nonRaiiObj.pBufferInfo = &raii_obj->vecBufferInfo[0];
+      if ( raii_obj->vecBufferInfo.size() > 0)
+      {
+          raii_obj->nonRaiiObj.pBufferInfo = &raii_obj->vecBufferInfo[0];
+      }
+      else
+      {
+          raii_obj->nonRaiiObj.pBufferInfo = nullptr;
+      }
       raii_obj->vecTexelBufferView = vecTexelBufferView;
-      raii_obj->nonRaiiObj.pTexelBufferView = &raii_obj->vecTexelBufferView[0];
+      if ( raii_obj->vecTexelBufferView.size() > 0)
+      {
+          raii_obj->nonRaiiObj.pTexelBufferView = &raii_obj->vecTexelBufferView[0];
+      }
+      else
+      {
+          raii_obj->nonRaiiObj.pTexelBufferView = nullptr;
+      }
       return raii_obj;
    }
 
@@ -7568,7 +7803,14 @@ std::shared_ptr<VkFramebufferCreateInfoRAII> FramebufferCreateInfo(
       raii_obj->nonRaiiObj.renderPass = renderPass;
       raii_obj->nonRaiiObj.attachmentCount = static_cast<uint32_t>(vecAttachments.size());
       raii_obj->vecAttachments = vecAttachments;
-      raii_obj->nonRaiiObj.pAttachments = &raii_obj->vecAttachments[0];
+      if ( raii_obj->vecAttachments.size() > 0)
+      {
+          raii_obj->nonRaiiObj.pAttachments = &raii_obj->vecAttachments[0];
+      }
+      else
+      {
+          raii_obj->nonRaiiObj.pAttachments = nullptr;
+      }
       raii_obj->nonRaiiObj.width = width;
       raii_obj->nonRaiiObj.height = height;
       raii_obj->nonRaiiObj.layers = layers;
@@ -7646,12 +7888,33 @@ std::shared_ptr<VkSubpassDescriptionRAII> SubpassDescription(
       raii_obj->nonRaiiObj.pipelineBindPoint = pipelineBindPoint;
       raii_obj->nonRaiiObj.inputAttachmentCount = static_cast<uint32_t>(vecInputAttachments.size());
       raii_obj->vecInputAttachments = vecInputAttachments;
-      raii_obj->nonRaiiObj.pInputAttachments = &raii_obj->vecInputAttachments[0];
-      raii_obj->nonRaiiObj.colorAttachmentCount = static_cast<uint32_t>(vecResolveAttachments.size());
+      if ( raii_obj->vecInputAttachments.size() > 0)
+      {
+          raii_obj->nonRaiiObj.pInputAttachments = &raii_obj->vecInputAttachments[0];
+      }
+      else
+      {
+          raii_obj->nonRaiiObj.pInputAttachments = nullptr;
+      }
+      raii_obj->nonRaiiObj.colorAttachmentCount = static_cast<uint32_t>(vecColorAttachments.size());
       raii_obj->vecColorAttachments = vecColorAttachments;
-      raii_obj->nonRaiiObj.pColorAttachments = &raii_obj->vecColorAttachments[0];
+      if ( raii_obj->vecColorAttachments.size() > 0)
+      {
+          raii_obj->nonRaiiObj.pColorAttachments = &raii_obj->vecColorAttachments[0];
+      }
+      else
+      {
+          raii_obj->nonRaiiObj.pColorAttachments = nullptr;
+      }
       raii_obj->vecResolveAttachments = vecResolveAttachments;
-      raii_obj->nonRaiiObj.pResolveAttachments = &raii_obj->vecResolveAttachments[0];
+      if ( raii_obj->vecResolveAttachments.size() > 0)
+      {
+          raii_obj->nonRaiiObj.pResolveAttachments = &raii_obj->vecResolveAttachments[0];
+      }
+      else
+      {
+          raii_obj->nonRaiiObj.pResolveAttachments = nullptr;
+      }
       raii_obj->nonRaiiObj.pDepthStencilAttachment = nullptr;
       if ( pDepthStencilAttachment ) 
       { 
@@ -7661,7 +7924,14 @@ std::shared_ptr<VkSubpassDescriptionRAII> SubpassDescription(
       } 
       raii_obj->nonRaiiObj.preserveAttachmentCount = static_cast<uint32_t>(pPreserveAttachments_dim1);
       raii_obj->vecPreserveAttachments.assign(pPreserveAttachments_in_array1, pPreserveAttachments_in_array1 + pPreserveAttachments_dim1);
-      raii_obj->nonRaiiObj.pPreserveAttachments = &raii_obj->vecPreserveAttachments[0];
+      if ( raii_obj->vecPreserveAttachments.size() > 0)
+      {
+          raii_obj->nonRaiiObj.pPreserveAttachments = &raii_obj->vecPreserveAttachments[0];
+      }
+      else
+      {
+          raii_obj->nonRaiiObj.pPreserveAttachments = nullptr;
+      }
       return raii_obj;
    }
 
@@ -7704,13 +7974,34 @@ std::shared_ptr<VkRenderPassCreateInfoRAII> RenderPassCreateInfo(
       raii_obj->nonRaiiObj.flags = flags;
       raii_obj->nonRaiiObj.attachmentCount = static_cast<uint32_t>(vecAttachments.size());
       raii_obj->vecAttachments = vecAttachments;
-      raii_obj->nonRaiiObj.pAttachments = &raii_obj->vecAttachments[0];
+      if ( raii_obj->vecAttachments.size() > 0)
+      {
+          raii_obj->nonRaiiObj.pAttachments = &raii_obj->vecAttachments[0];
+      }
+      else
+      {
+          raii_obj->nonRaiiObj.pAttachments = nullptr;
+      }
       raii_obj->nonRaiiObj.subpassCount = static_cast<uint32_t>(vecSubpasses.size());
       raii_obj->vecSubpasses = vecSubpasses;
-      raii_obj->nonRaiiObj.pSubpasses = &raii_obj->vecSubpasses[0];
+      if ( raii_obj->vecSubpasses.size() > 0)
+      {
+          raii_obj->nonRaiiObj.pSubpasses = &raii_obj->vecSubpasses[0];
+      }
+      else
+      {
+          raii_obj->nonRaiiObj.pSubpasses = nullptr;
+      }
       raii_obj->nonRaiiObj.dependencyCount = static_cast<uint32_t>(vecDependencies.size());
       raii_obj->vecDependencies = vecDependencies;
-      raii_obj->nonRaiiObj.pDependencies = &raii_obj->vecDependencies[0];
+      if ( raii_obj->vecDependencies.size() > 0)
+      {
+          raii_obj->nonRaiiObj.pDependencies = &raii_obj->vecDependencies[0];
+      }
+      else
+      {
+          raii_obj->nonRaiiObj.pDependencies = nullptr;
+      }
       return raii_obj;
    }
 
@@ -8655,7 +8946,14 @@ std::shared_ptr<VkRenderPassBeginInfoRAII> RenderPassBeginInfo(
       raii_obj->nonRaiiObj.renderArea = renderArea;
       raii_obj->nonRaiiObj.clearValueCount = static_cast<uint32_t>(vecClearValues.size());
       raii_obj->vecClearValues = vecClearValues;
-      raii_obj->nonRaiiObj.pClearValues = &raii_obj->vecClearValues[0];
+      if ( raii_obj->vecClearValues.size() > 0)
+      {
+          raii_obj->nonRaiiObj.pClearValues = &raii_obj->vecClearValues[0];
+      }
+      else
+      {
+          raii_obj->nonRaiiObj.pClearValues = nullptr;
+      }
       return raii_obj;
    }
 
@@ -8880,7 +9178,14 @@ std::shared_ptr<VkSwapchainCreateInfoKHRRAII> SwapchainCreateInfoKHR(
       raii_obj->nonRaiiObj.imageSharingMode = imageSharingMode;
       raii_obj->nonRaiiObj.queueFamilyIndexCount = static_cast<uint32_t>(pQueueFamilyIndices_dim1);
       raii_obj->vecQueueFamilyIndices.assign(pQueueFamilyIndices_in_array1, pQueueFamilyIndices_in_array1 + pQueueFamilyIndices_dim1);
-      raii_obj->nonRaiiObj.pQueueFamilyIndices = &raii_obj->vecQueueFamilyIndices[0];
+      if ( raii_obj->vecQueueFamilyIndices.size() > 0)
+      {
+          raii_obj->nonRaiiObj.pQueueFamilyIndices = &raii_obj->vecQueueFamilyIndices[0];
+      }
+      else
+      {
+          raii_obj->nonRaiiObj.pQueueFamilyIndices = nullptr;
+      }
       raii_obj->nonRaiiObj.preTransform = preTransform;
       raii_obj->nonRaiiObj.compositeAlpha = compositeAlpha;
       raii_obj->nonRaiiObj.presentMode = presentMode;
@@ -8962,14 +9267,42 @@ std::shared_ptr<VkPresentInfoKHRRAII> PresentInfoKHR(
       raii_obj->nonRaiiObj.pNext = nullptr;
       raii_obj->nonRaiiObj.waitSemaphoreCount = static_cast<uint32_t>(vecWaitSemaphores.size());
       raii_obj->vecWaitSemaphores = vecWaitSemaphores;
-      raii_obj->nonRaiiObj.pWaitSemaphores = &raii_obj->vecWaitSemaphores[0];
-      raii_obj->nonRaiiObj.swapchainCount = static_cast<uint32_t>(vecResults.size());
+      if ( raii_obj->vecWaitSemaphores.size() > 0)
+      {
+          raii_obj->nonRaiiObj.pWaitSemaphores = &raii_obj->vecWaitSemaphores[0];
+      }
+      else
+      {
+          raii_obj->nonRaiiObj.pWaitSemaphores = nullptr;
+      }
+      raii_obj->nonRaiiObj.swapchainCount = static_cast<uint32_t>(vecSwapchains.size());
       raii_obj->vecSwapchains = vecSwapchains;
-      raii_obj->nonRaiiObj.pSwapchains = &raii_obj->vecSwapchains[0];
+      if ( raii_obj->vecSwapchains.size() > 0)
+      {
+          raii_obj->nonRaiiObj.pSwapchains = &raii_obj->vecSwapchains[0];
+      }
+      else
+      {
+          raii_obj->nonRaiiObj.pSwapchains = nullptr;
+      }
       raii_obj->vecImageIndices.assign(pImageIndices_in_array1, pImageIndices_in_array1 + pImageIndices_dim1);
-      raii_obj->nonRaiiObj.pImageIndices = &raii_obj->vecImageIndices[0];
+      if ( raii_obj->vecImageIndices.size() > 0)
+      {
+          raii_obj->nonRaiiObj.pImageIndices = &raii_obj->vecImageIndices[0];
+      }
+      else
+      {
+          raii_obj->nonRaiiObj.pImageIndices = nullptr;
+      }
       raii_obj->vecResults = vecResults;
-      raii_obj->nonRaiiObj.pResults = &raii_obj->vecResults[0];
+      if ( raii_obj->vecResults.size() > 0)
+      {
+          raii_obj->nonRaiiObj.pResults = &raii_obj->vecResults[0];
+      }
+      else
+      {
+          raii_obj->nonRaiiObj.pResults = nullptr;
+      }
       return raii_obj;
    }
 
@@ -9547,215 +9880,215 @@ void  debugReportMessageEXT(
    }
 %}
 
-%template (VkCommandBufferBeginInfoPtr) std::shared_ptr<VkCommandBufferBeginInfoRAII>;
-
-%template (VkApplicationInfoPtr) std::shared_ptr<VkApplicationInfoRAII>;
-
-%template (VkDisplayPropertiesKHRPtr) std::shared_ptr<VkDisplayPropertiesKHRRAII>;
-
 %template (VkSubmitInfoPtr) std::shared_ptr<VkSubmitInfoRAII>;
-
-%template (VkSubpassDescriptionPtr) std::shared_ptr<VkSubpassDescriptionRAII>;
-
-%template (VkWriteDescriptorSetPtr) std::shared_ptr<VkWriteDescriptorSetRAII>;
-
-%template (VkFramebufferCreateInfoPtr) std::shared_ptr<VkFramebufferCreateInfoRAII>;
-
-%template (VkPipelineLayoutCreateInfoPtr) std::shared_ptr<VkPipelineLayoutCreateInfoRAII>;
-
-%template (VkSwapchainCreateInfoKHRPtr) std::shared_ptr<VkSwapchainCreateInfoKHRRAII>;
-
-%template (VkPipelineViewportStateCreateInfoPtr) std::shared_ptr<VkPipelineViewportStateCreateInfoRAII>;
-
-%template (VkDescriptorPoolCreateInfoPtr) std::shared_ptr<VkDescriptorPoolCreateInfoRAII>;
-
-%template (VkInstanceCreateInfoPtr) std::shared_ptr<VkInstanceCreateInfoRAII>;
-
-%template (VkDeviceCreateInfoPtr) std::shared_ptr<VkDeviceCreateInfoRAII>;
-
-%template (VkBufferCreateInfoPtr) std::shared_ptr<VkBufferCreateInfoRAII>;
-
-%template (VkSpecializationInfoPtr) std::shared_ptr<VkSpecializationInfoRAII>;
-
-%template (VkBindSparseInfoPtr) std::shared_ptr<VkBindSparseInfoRAII>;
-
-%template (VkRenderPassCreateInfoPtr) std::shared_ptr<VkRenderPassCreateInfoRAII>;
-
-%template (VkGraphicsPipelineCreateInfoPtr) std::shared_ptr<VkGraphicsPipelineCreateInfoRAII>;
-
-%template (VkDescriptorSetLayoutBindingPtr) std::shared_ptr<VkDescriptorSetLayoutBindingRAII>;
-
-%template (VkPipelineShaderStageCreateInfoPtr) std::shared_ptr<VkPipelineShaderStageCreateInfoRAII>;
-
-%template (VkSparseBufferMemoryBindInfoPtr) std::shared_ptr<VkSparseBufferMemoryBindInfoRAII>;
-
-%template (VkDeviceQueueCreateInfoPtr) std::shared_ptr<VkDeviceQueueCreateInfoRAII>;
-
-%template (VkDescriptorSetLayoutCreateInfoPtr) std::shared_ptr<VkDescriptorSetLayoutCreateInfoRAII>;
-
-%template (VkSparseImageMemoryBindInfoPtr) std::shared_ptr<VkSparseImageMemoryBindInfoRAII>;
-
-%template (VkDescriptorSetAllocateInfoPtr) std::shared_ptr<VkDescriptorSetAllocateInfoRAII>;
-
-%template (VkSparseImageOpaqueMemoryBindInfoPtr) std::shared_ptr<VkSparseImageOpaqueMemoryBindInfoRAII>;
-
-%template (VkPipelineDynamicStateCreateInfoPtr) std::shared_ptr<VkPipelineDynamicStateCreateInfoRAII>;
 
 %template (VkImageCreateInfoPtr) std::shared_ptr<VkImageCreateInfoRAII>;
 
-%template (VkRenderPassBeginInfoPtr) std::shared_ptr<VkRenderPassBeginInfoRAII>;
+%template (VkInstanceCreateInfoPtr) std::shared_ptr<VkInstanceCreateInfoRAII>;
 
 %template (VkPipelineVertexInputStateCreateInfoPtr) std::shared_ptr<VkPipelineVertexInputStateCreateInfoRAII>;
 
+%template (VkSpecializationInfoPtr) std::shared_ptr<VkSpecializationInfoRAII>;
+
+%template (VkApplicationInfoPtr) std::shared_ptr<VkApplicationInfoRAII>;
+
+%template (VkRenderPassBeginInfoPtr) std::shared_ptr<VkRenderPassBeginInfoRAII>;
+
+%template (VkFramebufferCreateInfoPtr) std::shared_ptr<VkFramebufferCreateInfoRAII>;
+
+%template (VkDescriptorSetAllocateInfoPtr) std::shared_ptr<VkDescriptorSetAllocateInfoRAII>;
+
+%template (VkDescriptorSetLayoutBindingPtr) std::shared_ptr<VkDescriptorSetLayoutBindingRAII>;
+
+%template (VkBindSparseInfoPtr) std::shared_ptr<VkBindSparseInfoRAII>;
+
+%template (VkDeviceQueueCreateInfoPtr) std::shared_ptr<VkDeviceQueueCreateInfoRAII>;
+
 %template (VkPresentInfoKHRPtr) std::shared_ptr<VkPresentInfoKHRRAII>;
+
+%template (VkPipelineShaderStageCreateInfoPtr) std::shared_ptr<VkPipelineShaderStageCreateInfoRAII>;
+
+%template (VkSubpassDescriptionPtr) std::shared_ptr<VkSubpassDescriptionRAII>;
+
+%template (VkDisplayPropertiesKHRPtr) std::shared_ptr<VkDisplayPropertiesKHRRAII>;
+
+%template (VkDeviceCreateInfoPtr) std::shared_ptr<VkDeviceCreateInfoRAII>;
+
+%template (VkSparseImageMemoryBindInfoPtr) std::shared_ptr<VkSparseImageMemoryBindInfoRAII>;
+
+%template (VkPipelineLayoutCreateInfoPtr) std::shared_ptr<VkPipelineLayoutCreateInfoRAII>;
+
+%template (VkPipelineViewportStateCreateInfoPtr) std::shared_ptr<VkPipelineViewportStateCreateInfoRAII>;
+
+%template (VkCommandBufferBeginInfoPtr) std::shared_ptr<VkCommandBufferBeginInfoRAII>;
+
+%template (VkDescriptorSetLayoutCreateInfoPtr) std::shared_ptr<VkDescriptorSetLayoutCreateInfoRAII>;
+
+%template (VkSparseBufferMemoryBindInfoPtr) std::shared_ptr<VkSparseBufferMemoryBindInfoRAII>;
+
+%template (VkGraphicsPipelineCreateInfoPtr) std::shared_ptr<VkGraphicsPipelineCreateInfoRAII>;
+
+%template (VkSwapchainCreateInfoKHRPtr) std::shared_ptr<VkSwapchainCreateInfoKHRRAII>;
+
+%template (VkPipelineDynamicStateCreateInfoPtr) std::shared_ptr<VkPipelineDynamicStateCreateInfoRAII>;
+
+%template (VkSparseImageOpaqueMemoryBindInfoPtr) std::shared_ptr<VkSparseImageOpaqueMemoryBindInfoRAII>;
+
+%template (VkRenderPassCreateInfoPtr) std::shared_ptr<VkRenderPassCreateInfoRAII>;
+
+%template (VkBufferCreateInfoPtr) std::shared_ptr<VkBufferCreateInfoRAII>;
+
+%template (VkDescriptorPoolCreateInfoPtr) std::shared_ptr<VkDescriptorPoolCreateInfoRAII>;
 
 %template (VkPipelineColorBlendStateCreateInfoPtr) std::shared_ptr<VkPipelineColorBlendStateCreateInfoRAII>;
 
-%template (VkPhysicalDeviceVector) std::vector<VkPhysicalDevice>;
+%template (VkWriteDescriptorSetPtr) std::shared_ptr<VkWriteDescriptorSetRAII>;
 
-%template (VkClearValueVector) std::vector<VkClearValue>;
-
-%template (VkSwapchainKHRVector) std::vector<VkSwapchainKHR>;
-
-%template (VkDisplayKHRVector) std::vector<VkDisplayKHR>;
-
-%template (VkSparseImageMemoryBindVector) std::vector<VkSparseImageMemoryBind>;
-
-%template (VkSpecializationMapEntryVector) std::vector<VkSpecializationMapEntry>;
-
-%template (VkBufferViewVector) std::vector<VkBufferView>;
-
-%template (VkDisplayPropertiesKHRVector) std::vector< std::shared_ptr<VkDisplayPropertiesKHRRAII> >;
+%template (VkSamplerVector) std::vector<VkSampler>;
 
 %template (VkSubmitInfoVector) std::vector< std::shared_ptr<VkSubmitInfoRAII> >;
 
-%template (VkFenceVector) std::vector<VkFence>;
-
-%template (VkPushConstantRangeVector) std::vector<VkPushConstantRange>;
-
-%template (VkSubpassDescriptionVector) std::vector< std::shared_ptr<VkSubpassDescriptionRAII> >;
-
-%template (VkWriteDescriptorSetVector) std::vector< std::shared_ptr<VkWriteDescriptorSetRAII> >;
-
-%template (VkDescriptorSetLayoutVector) std::vector<VkDescriptorSetLayout>;
-
-%template (VkDescriptorImageInfoVector) std::vector<VkDescriptorImageInfo>;
+%template (VkSubpassDependencyVector) std::vector<VkSubpassDependency>;
 
 %template (VkBufferCopyVector) std::vector<VkBufferCopy>;
-
-%template (VkImageCopyVector) std::vector<VkImageCopy>;
-
-%template (VkBufferImageCopyVector) std::vector<VkBufferImageCopy>;
-
-%template (VkSemaphoreVector) std::vector<VkSemaphore>;
-
-%template (VkSubpassDependencyVector) std::vector<VkSubpassDependency>;
 
 %template (VkBufferMemoryBarrierVector) std::vector<VkBufferMemoryBarrier>;
 
 %template (VkImageMemoryBarrierVector) std::vector<VkImageMemoryBarrier>;
 
-%template (VkSwapchainCreateInfoKHRVector) std::vector< std::shared_ptr<VkSwapchainCreateInfoKHRRAII> >;
-
-%template (VkSurfaceFormatKHRVector) std::vector<VkSurfaceFormatKHR>;
-
-%template (VkImageSubresourceRangeVector) std::vector<VkImageSubresourceRange>;
-
-%template (VkPresentModeKHRVector) std::vector<VkPresentModeKHR>;
-
-%template (VkPipelineStageFlagsVector) std::vector<VkPipelineStageFlags>;
-
-%template (VkQueueFamilyPropertiesVector) std::vector<VkQueueFamilyProperties>;
-
-%template (VkAttachmentReferenceVector) std::vector<VkAttachmentReference>;
-
-%template (VkPipelineVector) std::vector<VkPipeline>;
-
-%template (VkImageResolveVector) std::vector<VkImageResolve>;
-
-%template (VkImageVector) std::vector<VkImage>;
-
-%template (VkClearRectVector) std::vector<VkClearRect>;
-
-%template (VkBindSparseInfoVector) std::vector< std::shared_ptr<VkBindSparseInfoRAII> >;
-
-%template (VkMappedMemoryRangeVector) std::vector<VkMappedMemoryRange>;
-
-%template (VkResultVector) std::vector<VkResult>;
-
-%template (VkBufferVector) std::vector<VkBuffer>;
-
-%template (VkPipelineCacheVector) std::vector<VkPipelineCache>;
-
-%template (VkGraphicsPipelineCreateInfoVector) std::vector< std::shared_ptr<VkGraphicsPipelineCreateInfoRAII> >;
-
-%template (VkDescriptorSetLayoutBindingVector) std::vector< std::shared_ptr<VkDescriptorSetLayoutBindingRAII> >;
-
-%template (VkDescriptorBufferInfoVector) std::vector<VkDescriptorBufferInfo>;
-
-%template (floatVector) std::vector<float>;
+%template (VkClearValueVector) std::vector<VkClearValue>;
 
 %template (VkImageBlitVector) std::vector<VkImageBlit>;
 
-%template (VkPipelineShaderStageCreateInfoVector) std::vector< std::shared_ptr<VkPipelineShaderStageCreateInfoRAII> >;
-
-%template (VkImageViewVector) std::vector<VkImageView>;
-
-%template (VkRect2DVector) std::vector<VkRect2D>;
-
-%template (VkDescriptorPoolSizeVector) std::vector<VkDescriptorPoolSize>;
-
-%template (VkExtensionPropertiesVector) std::vector<VkExtensionProperties>;
-
-%template (VkDeviceSizeVector) std::vector<VkDeviceSize>;
-
-%template (VkSparseBufferMemoryBindInfoVector) std::vector< std::shared_ptr<VkSparseBufferMemoryBindInfoRAII> >;
-
-%template (VkClearAttachmentVector) std::vector<VkClearAttachment>;
-
-%template (VkDeviceQueueCreateInfoVector) std::vector< std::shared_ptr<VkDeviceQueueCreateInfoRAII> >;
-
-%template (VkViewportVector) std::vector<VkViewport>;
-
-%template (VkSparseImageMemoryBindInfoVector) std::vector< std::shared_ptr<VkSparseImageMemoryBindInfoRAII> >;
-
-%template (VkAttachmentDescriptionVector) std::vector<VkAttachmentDescription>;
-
 %template (VkSparseMemoryBindVector) std::vector<VkSparseMemoryBind>;
 
-%template (VkCopyDescriptorSetVector) std::vector<VkCopyDescriptorSet>;
-
-%template (VkSparseImageOpaqueMemoryBindInfoVector) std::vector< std::shared_ptr<VkSparseImageOpaqueMemoryBindInfoRAII> >;
-
-%template (VkSparseImageMemoryRequirementsVector) std::vector<VkSparseImageMemoryRequirements>;
-
-%template (VkPipelineColorBlendAttachmentStateVector) std::vector<VkPipelineColorBlendAttachmentState>;
-
-%template (VkEventVector) std::vector<VkEvent>;
-
-%template (VkDynamicStateVector) std::vector<VkDynamicState>;
+%template (VkResultVector) std::vector<VkResult>;
 
 %template (VkSparseImageFormatPropertiesVector) std::vector<VkSparseImageFormatProperties>;
 
+%template (VkSpecializationMapEntryVector) std::vector<VkSpecializationMapEntry>;
+
+%template (VkSemaphoreVector) std::vector<VkSemaphore>;
+
+%template (VkEventVector) std::vector<VkEvent>;
+
+%template (VkPipelineCacheVector) std::vector<VkPipelineCache>;
+
+%template (VkCopyDescriptorSetVector) std::vector<VkCopyDescriptorSet>;
+
+%template (VkDescriptorImageInfoVector) std::vector<VkDescriptorImageInfo>;
+
+%template (VkClearAttachmentVector) std::vector<VkClearAttachment>;
+
+%template (VkSurfaceFormatKHRVector) std::vector<VkSurfaceFormatKHR>;
+
+%template (VkDescriptorSetLayoutBindingVector) std::vector< std::shared_ptr<VkDescriptorSetLayoutBindingRAII> >;
+
+%template (VkBufferViewVector) std::vector<VkBufferView>;
+
+%template (VkBindSparseInfoVector) std::vector< std::shared_ptr<VkBindSparseInfoRAII> >;
+
+%template (VkDisplayKHRVector) std::vector<VkDisplayKHR>;
+
 %template (VkDisplayPlanePropertiesKHRVector) std::vector<VkDisplayPlanePropertiesKHR>;
+
+%template (VkDeviceQueueCreateInfoVector) std::vector< std::shared_ptr<VkDeviceQueueCreateInfoRAII> >;
+
+%template (floatVector) std::vector<float>;
 
 %template (VkComputePipelineCreateInfoVector) std::vector<VkComputePipelineCreateInfo>;
 
-%template (VkLayerPropertiesVector) std::vector<VkLayerProperties>;
+%template (VkPushConstantRangeVector) std::vector<VkPushConstantRange>;
 
-%template (VkMemoryBarrierVector) std::vector<VkMemoryBarrier>;
+%template (VkAttachmentReferenceVector) std::vector<VkAttachmentReference>;
+
+%template (VkImageCopyVector) std::vector<VkImageCopy>;
+
+%template (VkViewportVector) std::vector<VkViewport>;
+
+%template (VkDescriptorPoolSizeVector) std::vector<VkDescriptorPoolSize>;
+
+%template (VkAttachmentDescriptionVector) std::vector<VkAttachmentDescription>;
+
+%template (VkPresentModeKHRVector) std::vector<VkPresentModeKHR>;
+
+%template (VkMappedMemoryRangeVector) std::vector<VkMappedMemoryRange>;
+
+%template (VkDeviceSizeVector) std::vector<VkDeviceSize>;
+
+%template (VkSparseImageMemoryBindVector) std::vector<VkSparseImageMemoryBind>;
+
+%template (VkPipelineShaderStageCreateInfoVector) std::vector< std::shared_ptr<VkPipelineShaderStageCreateInfoRAII> >;
+
+%template (VkSubpassDescriptionVector) std::vector< std::shared_ptr<VkSubpassDescriptionRAII> >;
+
+%template (VkPipelineStageFlagsVector) std::vector<VkPipelineStageFlags>;
+
+%template (VkSwapchainKHRVector) std::vector<VkSwapchainKHR>;
+
+%template (VkDisplayPropertiesKHRVector) std::vector< std::shared_ptr<VkDisplayPropertiesKHRRAII> >;
 
 %template (VkVertexInputAttributeDescriptionVector) std::vector<VkVertexInputAttributeDescription>;
 
+%template (VkDynamicStateVector) std::vector<VkDynamicState>;
+
+%template (VkPipelineColorBlendAttachmentStateVector) std::vector<VkPipelineColorBlendAttachmentState>;
+
+%template (VkImageViewVector) std::vector<VkImageView>;
+
+%template (VkImageResolveVector) std::vector<VkImageResolve>;
+
+%template (VkDescriptorBufferInfoVector) std::vector<VkDescriptorBufferInfo>;
+
+%template (VkSparseImageMemoryBindInfoVector) std::vector< std::shared_ptr<VkSparseImageMemoryBindInfoRAII> >;
+
+%template (VkFenceVector) std::vector<VkFence>;
+
+%template (VkQueueFamilyPropertiesVector) std::vector<VkQueueFamilyProperties>;
+
+%template (VkSparseBufferMemoryBindInfoVector) std::vector< std::shared_ptr<VkSparseBufferMemoryBindInfoRAII> >;
+
+%template (VkClearRectVector) std::vector<VkClearRect>;
+
+%template (VkImageSubresourceRangeVector) std::vector<VkImageSubresourceRange>;
+
 %template (VkDisplayModePropertiesKHRVector) std::vector<VkDisplayModePropertiesKHR>;
+
+%template (VkBufferImageCopyVector) std::vector<VkBufferImageCopy>;
+
+%template (VkRect2DVector) std::vector<VkRect2D>;
+
+%template (VkGraphicsPipelineCreateInfoVector) std::vector< std::shared_ptr<VkGraphicsPipelineCreateInfoRAII> >;
+
+%template (VkPipelineVector) std::vector<VkPipeline>;
+
+%template (VkPhysicalDeviceVector) std::vector<VkPhysicalDevice>;
+
+%template (VkMemoryBarrierVector) std::vector<VkMemoryBarrier>;
+
+%template (VkSwapchainCreateInfoKHRVector) std::vector< std::shared_ptr<VkSwapchainCreateInfoKHRRAII> >;
+
+%template (VkLayerPropertiesVector) std::vector<VkLayerProperties>;
+
+%template (VkSparseImageOpaqueMemoryBindInfoVector) std::vector< std::shared_ptr<VkSparseImageOpaqueMemoryBindInfoRAII> >;
+
+%template (VkBufferVector) std::vector<VkBuffer>;
 
 %template (VkVertexInputBindingDescriptionVector) std::vector<VkVertexInputBindingDescription>;
 
-%template (VkSamplerVector) std::vector<VkSampler>;
+%template (VkSparseImageMemoryRequirementsVector) std::vector<VkSparseImageMemoryRequirements>;
 
-%template (VkSwapchainKHRHandleVector) std::vector< std::shared_ptr< VkSwapchainKHR_T > >;
+%template (VkImageVector) std::vector<VkImage>;
+
+%template (VkExtensionPropertiesVector) std::vector<VkExtensionProperties>;
+
+%template (VkWriteDescriptorSetVector) std::vector< std::shared_ptr<VkWriteDescriptorSetRAII> >;
+
+%template (VkDescriptorSetLayoutVector) std::vector<VkDescriptorSetLayout>;
 
 %template (VkPipelineHandleVector) std::vector< std::shared_ptr< VkPipeline_T > >;
+
+%template (VkSwapchainKHRHandleVector) std::vector< std::shared_ptr< VkSwapchainKHR_T > >;
 
 // Skipped commands that must be manually wrapped
 //vkGetInstanceProcAddr
