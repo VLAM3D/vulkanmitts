@@ -380,6 +380,7 @@ class VkContextManager:
         MVP = (P * V * M).astype(np.single)
 
         self.uniform_buffer = self.ESP( vk.createBuffer(self.device, vk.BufferCreateInfo(0, MVP.nbytes, vk.VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, vk.VK_SHARING_MODE_EXCLUSIVE, [])) )
+        self.uniform_buffer_bytes = MVP.nbytes
 
         mem_reqs = vk.getBufferMemoryRequirements(self.device, self.uniform_buffer)
         memory_type_index = memory_type_from_properties(self.physical_devices[0], mem_reqs.memoryTypeBits, vk.VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT)
@@ -391,8 +392,8 @@ class VkContextManager:
 
     def init_descriptor_and_pipeline_layouts(self):
         layout_bindings = vk.VkDescriptorSetLayoutBindingVector()
-        layout_bindings.append( vk.DescriptorSetLayoutBinding(0, vk.VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, vk.VK_SHADER_STAGE_VERTEX_BIT, vk.VkSamplerVector()) )
-        layout_bindings.append( vk.DescriptorSetLayoutBinding(0, vk.VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, vk.VK_SHADER_STAGE_VERTEX_BIT, vk.VkSamplerVector()) )
+        layout_bindings.append( vk.DescriptorSetLayoutBinding(0, vk.VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1, vk.VK_SHADER_STAGE_VERTEX_BIT, vk.VkSamplerVector()) )
+        layout_bindings.append( vk.DescriptorSetLayoutBinding(1, vk.VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1, vk.VK_SHADER_STAGE_FRAGMENT_BIT, vk.VkSamplerVector()) )
         self.desc_layout = self.ESP(vk.createDescriptorSetLayout(self.device, vk.DescriptorSetLayoutCreateInfo(0, layout_bindings)))
         self.pipeline_layout = self.ESP(vk.createPipelineLayout(self.device, vk.PipelineLayoutCreateInfo(0, vk.VkDescriptorSetLayoutVector(1,self.desc_layout), vk.VkPushConstantRangeVector())))
 
@@ -467,13 +468,15 @@ class VkContextManager:
         writes.append( vk.WriteDescriptorSet(self.descriptor_set[0], 
                                              0, # dstBindings 
                                              0, # dstArrayElements
-                                             vk.VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 
+                                             1,
+                                             vk.VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
                                              vk.VkDescriptorImageInfoVector(), 
-                                             vk.VkDescriptorBufferInfoVector(),
+                                             vk.VkDescriptorBufferInfoVector(1,vk.DescriptorBufferInfo(self.uniform_buffer, 0, self.uniform_buffer_bytes)),
                                              vk.VkBufferViewVector()) )
         writes.append( vk.WriteDescriptorSet(self.descriptor_set[0], 
                                              1, # dstBindings 
                                              0, # dstArrayElements
+                                             1,
                                              vk.VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 
                                              vk.VkDescriptorImageInfoVector(1,vk.DescriptorImageInfo(self.sampler, self.tex_img_view, vk.VK_IMAGE_LAYOUT_GENERAL)), 
                                              vk.VkDescriptorBufferInfoVector(),
@@ -521,7 +524,7 @@ class VkContextManager:
         self.pipeline = self.ESP( vk.createGraphicsPipelines(self.device, self.pipeline_cache, pipeline_cis) )
         
     def init_presentable_image(self):        
-        self.current_buffer = vk.acquireNextImageKHR(self.device, self.swap_chain, 1000, self.present_complete_semaphore, None)
+        self.current_buffer = vk.acquireNextImageKHR(self.device, self.swap_chain, 0xffffffff, self.present_complete_semaphore, None)
                
     def make_render_pass_begin_info(self):
         w,h = self.get_surface_extent()
@@ -554,8 +557,8 @@ class VkContextManager:
                                                     vk.VK_ACCESS_MEMORY_READ_BIT,
                                                     vk.VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
                                                     vk.VK_IMAGE_LAYOUT_PRESENT_SRC_KHR, 
-                                                    0,
-                                                    0,
+                                                    vk.VK_QUEUE_FAMILY_IGNORED,
+                                                    vk.VK_QUEUE_FAMILY_IGNORED,
                                                     self.images[self.current_buffer], 
                                                     vk.ImageSubresourceRange(vk.VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1))
         
