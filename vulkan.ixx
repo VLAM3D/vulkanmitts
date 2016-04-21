@@ -3834,12 +3834,6 @@ void  cmdFillBuffer(
         VkDeviceSize size,
         uint32_t data);
 
-VkClearColorValue ClearColorValue(
-    float                                       float32[4],
-    int32_t                                     int32[4],
-    uint32_t                                    uint32[4]);
-
-
 void  cmdClearColorImage(
         VkCommandBuffer commandBuffer,
         VkImage image,
@@ -3858,11 +3852,6 @@ void  cmdClearDepthStencilImage(
         VkImageLayout imageLayout,
         const VkClearDepthStencilValue & pDepthStencil,
         const std::vector<VkImageSubresourceRange> & pRanges);
-
-VkClearValue ClearValue(
-    VkClearColorValue                           color,
-    VkClearDepthStencilValue                    depthStencil);
-
 
 VkClearAttachment ClearAttachment(
     VkImageAspectFlags                          aspectMask,
@@ -8580,18 +8569,6 @@ void  cmdFillBuffer(
           data  );
    }
 
-VkClearColorValue ClearColorValue(
-    float                                       float32[4],
-    int32_t                                     int32[4],
-    uint32_t                                    uint32[4])
-   {
-      VkClearColorValue obj;
-      std::copy(float32, float32 + 4, obj.float32);
-      std::copy(int32, int32 + 4, obj.int32);
-      std::copy(uint32, uint32 + 4, obj.uint32);
-      return obj;
-   }
-
 void  cmdClearColorImage(
         VkCommandBuffer commandBuffer,
         VkImage image,
@@ -8632,16 +8609,6 @@ void  cmdClearDepthStencilImage(
           &pDepthStencil,
           static_cast<uint32_t>(pRanges.size()),
           &pRanges[0]  );
-   }
-
-VkClearValue ClearValue(
-    VkClearColorValue                           color,
-    VkClearDepthStencilValue                    depthStencil)
-   {
-      VkClearValue obj;
-      obj.color = color;
-      obj.depthStencil = depthStencil;
-      return obj;
    }
 
 VkClearAttachment ClearAttachment(
@@ -9880,215 +9847,215 @@ void  debugReportMessageEXT(
    }
 %}
 
-%template (VkSubmitInfoPtr) std::shared_ptr<VkSubmitInfoRAII>;
-
-%template (VkImageCreateInfoPtr) std::shared_ptr<VkImageCreateInfoRAII>;
-
-%template (VkInstanceCreateInfoPtr) std::shared_ptr<VkInstanceCreateInfoRAII>;
-
-%template (VkPipelineVertexInputStateCreateInfoPtr) std::shared_ptr<VkPipelineVertexInputStateCreateInfoRAII>;
-
-%template (VkSpecializationInfoPtr) std::shared_ptr<VkSpecializationInfoRAII>;
-
-%template (VkApplicationInfoPtr) std::shared_ptr<VkApplicationInfoRAII>;
-
-%template (VkRenderPassBeginInfoPtr) std::shared_ptr<VkRenderPassBeginInfoRAII>;
-
-%template (VkFramebufferCreateInfoPtr) std::shared_ptr<VkFramebufferCreateInfoRAII>;
-
-%template (VkDescriptorSetAllocateInfoPtr) std::shared_ptr<VkDescriptorSetAllocateInfoRAII>;
-
-%template (VkDescriptorSetLayoutBindingPtr) std::shared_ptr<VkDescriptorSetLayoutBindingRAII>;
-
-%template (VkBindSparseInfoPtr) std::shared_ptr<VkBindSparseInfoRAII>;
-
-%template (VkDeviceQueueCreateInfoPtr) std::shared_ptr<VkDeviceQueueCreateInfoRAII>;
-
-%template (VkPresentInfoKHRPtr) std::shared_ptr<VkPresentInfoKHRRAII>;
-
-%template (VkPipelineShaderStageCreateInfoPtr) std::shared_ptr<VkPipelineShaderStageCreateInfoRAII>;
-
-%template (VkSubpassDescriptionPtr) std::shared_ptr<VkSubpassDescriptionRAII>;
-
-%template (VkDisplayPropertiesKHRPtr) std::shared_ptr<VkDisplayPropertiesKHRRAII>;
-
-%template (VkDeviceCreateInfoPtr) std::shared_ptr<VkDeviceCreateInfoRAII>;
-
 %template (VkSparseImageMemoryBindInfoPtr) std::shared_ptr<VkSparseImageMemoryBindInfoRAII>;
-
-%template (VkPipelineLayoutCreateInfoPtr) std::shared_ptr<VkPipelineLayoutCreateInfoRAII>;
-
-%template (VkPipelineViewportStateCreateInfoPtr) std::shared_ptr<VkPipelineViewportStateCreateInfoRAII>;
-
-%template (VkCommandBufferBeginInfoPtr) std::shared_ptr<VkCommandBufferBeginInfoRAII>;
-
-%template (VkDescriptorSetLayoutCreateInfoPtr) std::shared_ptr<VkDescriptorSetLayoutCreateInfoRAII>;
-
-%template (VkSparseBufferMemoryBindInfoPtr) std::shared_ptr<VkSparseBufferMemoryBindInfoRAII>;
-
-%template (VkGraphicsPipelineCreateInfoPtr) std::shared_ptr<VkGraphicsPipelineCreateInfoRAII>;
-
-%template (VkSwapchainCreateInfoKHRPtr) std::shared_ptr<VkSwapchainCreateInfoKHRRAII>;
-
-%template (VkPipelineDynamicStateCreateInfoPtr) std::shared_ptr<VkPipelineDynamicStateCreateInfoRAII>;
-
-%template (VkSparseImageOpaqueMemoryBindInfoPtr) std::shared_ptr<VkSparseImageOpaqueMemoryBindInfoRAII>;
-
-%template (VkRenderPassCreateInfoPtr) std::shared_ptr<VkRenderPassCreateInfoRAII>;
-
-%template (VkBufferCreateInfoPtr) std::shared_ptr<VkBufferCreateInfoRAII>;
 
 %template (VkDescriptorPoolCreateInfoPtr) std::shared_ptr<VkDescriptorPoolCreateInfoRAII>;
 
+%template (VkBindSparseInfoPtr) std::shared_ptr<VkBindSparseInfoRAII>;
+
+%template (VkDisplayPropertiesKHRPtr) std::shared_ptr<VkDisplayPropertiesKHRRAII>;
+
+%template (VkPipelineVertexInputStateCreateInfoPtr) std::shared_ptr<VkPipelineVertexInputStateCreateInfoRAII>;
+
+%template (VkInstanceCreateInfoPtr) std::shared_ptr<VkInstanceCreateInfoRAII>;
+
+%template (VkBufferCreateInfoPtr) std::shared_ptr<VkBufferCreateInfoRAII>;
+
+%template (VkPipelineViewportStateCreateInfoPtr) std::shared_ptr<VkPipelineViewportStateCreateInfoRAII>;
+
+%template (VkRenderPassBeginInfoPtr) std::shared_ptr<VkRenderPassBeginInfoRAII>;
+
+%template (VkDescriptorSetLayoutCreateInfoPtr) std::shared_ptr<VkDescriptorSetLayoutCreateInfoRAII>;
+
 %template (VkPipelineColorBlendStateCreateInfoPtr) std::shared_ptr<VkPipelineColorBlendStateCreateInfoRAII>;
+
+%template (VkSubpassDescriptionPtr) std::shared_ptr<VkSubpassDescriptionRAII>;
+
+%template (VkPresentInfoKHRPtr) std::shared_ptr<VkPresentInfoKHRRAII>;
+
+%template (VkDescriptorSetAllocateInfoPtr) std::shared_ptr<VkDescriptorSetAllocateInfoRAII>;
+
+%template (VkSwapchainCreateInfoKHRPtr) std::shared_ptr<VkSwapchainCreateInfoKHRRAII>;
+
+%template (VkPipelineShaderStageCreateInfoPtr) std::shared_ptr<VkPipelineShaderStageCreateInfoRAII>;
+
+%template (VkSparseBufferMemoryBindInfoPtr) std::shared_ptr<VkSparseBufferMemoryBindInfoRAII>;
+
+%template (VkSparseImageOpaqueMemoryBindInfoPtr) std::shared_ptr<VkSparseImageOpaqueMemoryBindInfoRAII>;
+
+%template (VkSpecializationInfoPtr) std::shared_ptr<VkSpecializationInfoRAII>;
+
+%template (VkGraphicsPipelineCreateInfoPtr) std::shared_ptr<VkGraphicsPipelineCreateInfoRAII>;
+
+%template (VkFramebufferCreateInfoPtr) std::shared_ptr<VkFramebufferCreateInfoRAII>;
+
+%template (VkDescriptorSetLayoutBindingPtr) std::shared_ptr<VkDescriptorSetLayoutBindingRAII>;
+
+%template (VkPipelineDynamicStateCreateInfoPtr) std::shared_ptr<VkPipelineDynamicStateCreateInfoRAII>;
+
+%template (VkPipelineLayoutCreateInfoPtr) std::shared_ptr<VkPipelineLayoutCreateInfoRAII>;
+
+%template (VkRenderPassCreateInfoPtr) std::shared_ptr<VkRenderPassCreateInfoRAII>;
+
+%template (VkImageCreateInfoPtr) std::shared_ptr<VkImageCreateInfoRAII>;
+
+%template (VkApplicationInfoPtr) std::shared_ptr<VkApplicationInfoRAII>;
 
 %template (VkWriteDescriptorSetPtr) std::shared_ptr<VkWriteDescriptorSetRAII>;
 
-%template (VkSamplerVector) std::vector<VkSampler>;
+%template (VkSubmitInfoPtr) std::shared_ptr<VkSubmitInfoRAII>;
 
-%template (VkSubmitInfoVector) std::vector< std::shared_ptr<VkSubmitInfoRAII> >;
+%template (VkDeviceQueueCreateInfoPtr) std::shared_ptr<VkDeviceQueueCreateInfoRAII>;
 
-%template (VkSubpassDependencyVector) std::vector<VkSubpassDependency>;
+%template (VkCommandBufferBeginInfoPtr) std::shared_ptr<VkCommandBufferBeginInfoRAII>;
 
-%template (VkBufferCopyVector) std::vector<VkBufferCopy>;
+%template (VkDeviceCreateInfoPtr) std::shared_ptr<VkDeviceCreateInfoRAII>;
 
-%template (VkBufferMemoryBarrierVector) std::vector<VkBufferMemoryBarrier>;
+%template (VkImageViewVector) std::vector<VkImageView>;
+
+%template (VkSparseImageMemoryBindInfoVector) std::vector< std::shared_ptr<VkSparseImageMemoryBindInfoRAII> >;
+
+%template (VkBindSparseInfoVector) std::vector< std::shared_ptr<VkBindSparseInfoRAII> >;
+
+%template (VkImageVector) std::vector<VkImage>;
+
+%template (VkDisplayPropertiesKHRVector) std::vector< std::shared_ptr<VkDisplayPropertiesKHRRAII> >;
+
+%template (VkDisplayKHRVector) std::vector<VkDisplayKHR>;
+
+%template (VkImageCopyVector) std::vector<VkImageCopy>;
+
+%template (VkBufferImageCopyVector) std::vector<VkBufferImageCopy>;
 
 %template (VkImageMemoryBarrierVector) std::vector<VkImageMemoryBarrier>;
 
-%template (VkClearValueVector) std::vector<VkClearValue>;
+%template (VkLayerPropertiesVector) std::vector<VkLayerProperties>;
+
+%template (VkDescriptorBufferInfoVector) std::vector<VkDescriptorBufferInfo>;
+
+%template (VkSubpassDependencyVector) std::vector<VkSubpassDependency>;
+
+%template (VkDisplayModePropertiesKHRVector) std::vector<VkDisplayModePropertiesKHR>;
+
+%template (VkPipelineColorBlendAttachmentStateVector) std::vector<VkPipelineColorBlendAttachmentState>;
+
+%template (VkPipelineStageFlagsVector) std::vector<VkPipelineStageFlags>;
+
+%template (VkClearRectVector) std::vector<VkClearRect>;
+
+%template (VkPresentModeKHRVector) std::vector<VkPresentModeKHR>;
+
+%template (VkImageSubresourceRangeVector) std::vector<VkImageSubresourceRange>;
+
+%template (VkFenceVector) std::vector<VkFence>;
+
+%template (VkRect2DVector) std::vector<VkRect2D>;
+
+%template (VkSurfaceFormatKHRVector) std::vector<VkSurfaceFormatKHR>;
+
+%template (VkCopyDescriptorSetVector) std::vector<VkCopyDescriptorSet>;
+
+%template (VkPipelineCacheVector) std::vector<VkPipelineCache>;
+
+%template (VkVertexInputBindingDescriptionVector) std::vector<VkVertexInputBindingDescription>;
+
+%template (VkPushConstantRangeVector) std::vector<VkPushConstantRange>;
 
 %template (VkImageBlitVector) std::vector<VkImageBlit>;
 
-%template (VkSparseMemoryBindVector) std::vector<VkSparseMemoryBind>;
+%template (VkExtensionPropertiesVector) std::vector<VkExtensionProperties>;
 
-%template (VkResultVector) std::vector<VkResult>;
+%template (VkDisplayPlanePropertiesKHRVector) std::vector<VkDisplayPlanePropertiesKHR>;
+
+%template (VkDescriptorSetLayoutVector) std::vector<VkDescriptorSetLayout>;
+
+%template (VkDynamicStateVector) std::vector<VkDynamicState>;
+
+%template (VkSubpassDescriptionVector) std::vector< std::shared_ptr<VkSubpassDescriptionRAII> >;
+
+%template (VkPipelineVector) std::vector<VkPipeline>;
 
 %template (VkSparseImageFormatPropertiesVector) std::vector<VkSparseImageFormatProperties>;
 
 %template (VkSpecializationMapEntryVector) std::vector<VkSpecializationMapEntry>;
 
-%template (VkSemaphoreVector) std::vector<VkSemaphore>;
-
-%template (VkEventVector) std::vector<VkEvent>;
-
-%template (VkPipelineCacheVector) std::vector<VkPipelineCache>;
-
-%template (VkCopyDescriptorSetVector) std::vector<VkCopyDescriptorSet>;
-
-%template (VkDescriptorImageInfoVector) std::vector<VkDescriptorImageInfo>;
-
-%template (VkClearAttachmentVector) std::vector<VkClearAttachment>;
-
-%template (VkSurfaceFormatKHRVector) std::vector<VkSurfaceFormatKHR>;
-
-%template (VkDescriptorSetLayoutBindingVector) std::vector< std::shared_ptr<VkDescriptorSetLayoutBindingRAII> >;
-
-%template (VkBufferViewVector) std::vector<VkBufferView>;
-
-%template (VkBindSparseInfoVector) std::vector< std::shared_ptr<VkBindSparseInfoRAII> >;
-
-%template (VkDisplayKHRVector) std::vector<VkDisplayKHR>;
-
-%template (VkDisplayPlanePropertiesKHRVector) std::vector<VkDisplayPlanePropertiesKHR>;
-
-%template (VkDeviceQueueCreateInfoVector) std::vector< std::shared_ptr<VkDeviceQueueCreateInfoRAII> >;
-
-%template (floatVector) std::vector<float>;
-
-%template (VkComputePipelineCreateInfoVector) std::vector<VkComputePipelineCreateInfo>;
-
-%template (VkPushConstantRangeVector) std::vector<VkPushConstantRange>;
+%template (VkSamplerVector) std::vector<VkSampler>;
 
 %template (VkAttachmentReferenceVector) std::vector<VkAttachmentReference>;
 
-%template (VkImageCopyVector) std::vector<VkImageCopy>;
-
-%template (VkViewportVector) std::vector<VkViewport>;
-
-%template (VkDescriptorPoolSizeVector) std::vector<VkDescriptorPoolSize>;
-
-%template (VkAttachmentDescriptionVector) std::vector<VkAttachmentDescription>;
-
-%template (VkPresentModeKHRVector) std::vector<VkPresentModeKHR>;
-
-%template (VkMappedMemoryRangeVector) std::vector<VkMappedMemoryRange>;
-
-%template (VkDeviceSizeVector) std::vector<VkDeviceSize>;
-
-%template (VkSparseImageMemoryBindVector) std::vector<VkSparseImageMemoryBind>;
-
-%template (VkPipelineShaderStageCreateInfoVector) std::vector< std::shared_ptr<VkPipelineShaderStageCreateInfoRAII> >;
-
-%template (VkSubpassDescriptionVector) std::vector< std::shared_ptr<VkSubpassDescriptionRAII> >;
-
-%template (VkPipelineStageFlagsVector) std::vector<VkPipelineStageFlags>;
-
-%template (VkSwapchainKHRVector) std::vector<VkSwapchainKHR>;
-
-%template (VkDisplayPropertiesKHRVector) std::vector< std::shared_ptr<VkDisplayPropertiesKHRRAII> >;
-
-%template (VkVertexInputAttributeDescriptionVector) std::vector<VkVertexInputAttributeDescription>;
-
-%template (VkDynamicStateVector) std::vector<VkDynamicState>;
-
-%template (VkPipelineColorBlendAttachmentStateVector) std::vector<VkPipelineColorBlendAttachmentState>;
-
-%template (VkImageViewVector) std::vector<VkImageView>;
-
-%template (VkImageResolveVector) std::vector<VkImageResolve>;
-
-%template (VkDescriptorBufferInfoVector) std::vector<VkDescriptorBufferInfo>;
-
-%template (VkSparseImageMemoryBindInfoVector) std::vector< std::shared_ptr<VkSparseImageMemoryBindInfoRAII> >;
-
-%template (VkFenceVector) std::vector<VkFence>;
-
-%template (VkQueueFamilyPropertiesVector) std::vector<VkQueueFamilyProperties>;
-
-%template (VkSparseBufferMemoryBindInfoVector) std::vector< std::shared_ptr<VkSparseBufferMemoryBindInfoRAII> >;
-
-%template (VkClearRectVector) std::vector<VkClearRect>;
-
-%template (VkImageSubresourceRangeVector) std::vector<VkImageSubresourceRange>;
-
-%template (VkDisplayModePropertiesKHRVector) std::vector<VkDisplayModePropertiesKHR>;
-
-%template (VkBufferImageCopyVector) std::vector<VkBufferImageCopy>;
-
-%template (VkRect2DVector) std::vector<VkRect2D>;
-
-%template (VkGraphicsPipelineCreateInfoVector) std::vector< std::shared_ptr<VkGraphicsPipelineCreateInfoRAII> >;
-
-%template (VkPipelineVector) std::vector<VkPipeline>;
-
-%template (VkPhysicalDeviceVector) std::vector<VkPhysicalDevice>;
-
 %template (VkMemoryBarrierVector) std::vector<VkMemoryBarrier>;
 
-%template (VkSwapchainCreateInfoKHRVector) std::vector< std::shared_ptr<VkSwapchainCreateInfoKHRRAII> >;
-
-%template (VkLayerPropertiesVector) std::vector<VkLayerProperties>;
-
-%template (VkSparseImageOpaqueMemoryBindInfoVector) std::vector< std::shared_ptr<VkSparseImageOpaqueMemoryBindInfoRAII> >;
-
-%template (VkBufferVector) std::vector<VkBuffer>;
-
-%template (VkVertexInputBindingDescriptionVector) std::vector<VkVertexInputBindingDescription>;
+%template (VkSemaphoreVector) std::vector<VkSemaphore>;
 
 %template (VkSparseImageMemoryRequirementsVector) std::vector<VkSparseImageMemoryRequirements>;
 
-%template (VkImageVector) std::vector<VkImage>;
+%template (VkSwapchainCreateInfoKHRVector) std::vector< std::shared_ptr<VkSwapchainCreateInfoKHRRAII> >;
 
-%template (VkExtensionPropertiesVector) std::vector<VkExtensionProperties>;
+%template (VkPipelineShaderStageCreateInfoVector) std::vector< std::shared_ptr<VkPipelineShaderStageCreateInfoRAII> >;
+
+%template (VkDescriptorImageInfoVector) std::vector<VkDescriptorImageInfo>;
+
+%template (VkSparseImageMemoryBindVector) std::vector<VkSparseImageMemoryBind>;
+
+%template (VkQueueFamilyPropertiesVector) std::vector<VkQueueFamilyProperties>;
+
+%template (VkMappedMemoryRangeVector) std::vector<VkMappedMemoryRange>;
+
+%template (VkPhysicalDeviceVector) std::vector<VkPhysicalDevice>;
+
+%template (VkBufferViewVector) std::vector<VkBufferView>;
+
+%template (VkSparseBufferMemoryBindInfoVector) std::vector< std::shared_ptr<VkSparseBufferMemoryBindInfoRAII> >;
+
+%template (VkSparseImageOpaqueMemoryBindInfoVector) std::vector< std::shared_ptr<VkSparseImageOpaqueMemoryBindInfoRAII> >;
+
+%template (VkSwapchainKHRVector) std::vector<VkSwapchainKHR>;
+
+%template (VkGraphicsPipelineCreateInfoVector) std::vector< std::shared_ptr<VkGraphicsPipelineCreateInfoRAII> >;
+
+%template (VkComputePipelineCreateInfoVector) std::vector<VkComputePipelineCreateInfo>;
+
+%template (floatVector) std::vector<float>;
+
+%template (VkResultVector) std::vector<VkResult>;
+
+%template (VkVertexInputAttributeDescriptionVector) std::vector<VkVertexInputAttributeDescription>;
+
+%template (VkBufferCopyVector) std::vector<VkBufferCopy>;
+
+%template (VkClearValueVector) std::vector<VkClearValue>;
+
+%template (VkSparseMemoryBindVector) std::vector<VkSparseMemoryBind>;
+
+%template (VkDescriptorSetLayoutBindingVector) std::vector< std::shared_ptr<VkDescriptorSetLayoutBindingRAII> >;
+
+%template (VkBufferVector) std::vector<VkBuffer>;
+
+%template (VkImageResolveVector) std::vector<VkImageResolve>;
+
+%template (VkEventVector) std::vector<VkEvent>;
+
+%template (VkViewportVector) std::vector<VkViewport>;
+
+%template (VkClearAttachmentVector) std::vector<VkClearAttachment>;
+
+%template (VkDeviceSizeVector) std::vector<VkDeviceSize>;
 
 %template (VkWriteDescriptorSetVector) std::vector< std::shared_ptr<VkWriteDescriptorSetRAII> >;
 
-%template (VkDescriptorSetLayoutVector) std::vector<VkDescriptorSetLayout>;
+%template (VkAttachmentDescriptionVector) std::vector<VkAttachmentDescription>;
 
-%template (VkPipelineHandleVector) std::vector< std::shared_ptr< VkPipeline_T > >;
+%template (VkSubmitInfoVector) std::vector< std::shared_ptr<VkSubmitInfoRAII> >;
+
+%template (VkDescriptorPoolSizeVector) std::vector<VkDescriptorPoolSize>;
+
+%template (VkDeviceQueueCreateInfoVector) std::vector< std::shared_ptr<VkDeviceQueueCreateInfoRAII> >;
+
+%template (VkBufferMemoryBarrierVector) std::vector<VkBufferMemoryBarrier>;
 
 %template (VkSwapchainKHRHandleVector) std::vector< std::shared_ptr< VkSwapchainKHR_T > >;
+
+%template (VkPipelineHandleVector) std::vector< std::shared_ptr< VkPipeline_T > >;
 
 // Skipped commands that must be manually wrapped
 //vkGetInstanceProcAddr

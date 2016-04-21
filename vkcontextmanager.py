@@ -93,6 +93,15 @@ class VkContextManager:
         self.stack.callback(delete_this, obj)
         return obj
 
+    def init_global_layer_properties(self):
+        self.instance_layer_properties = []
+        layer_properties = vk.enumerateInstanceLayerProperties()
+        assert(layer_properties is not None)
+        for lp in layer_properties:
+            ext_props = vk.enumerateInstanceExtensionProperties(lp.layerName)
+            assert(ext_props is not None)
+            self.instance_layer_properties.extend(ext_props)  
+
     def init_instance(self):
         self.instance_ext_names = [vk.VK_KHR_SURFACE_EXTENSION_NAME, vk.VK_KHR_WIN32_SURFACE_EXTENSION_NAME]        
         app = vk.ApplicationInfo("foo", 1, "bar", 1, vk.makeVersion(1,0,3))
@@ -101,9 +110,13 @@ class VkContextManager:
         self.instance = self.ESP( vk.createInstance(instance_create_info) )
         assert(self.instance is not None)
 
-    def init_device(self):
-        self.device_extension_names = [vk.VK_KHR_SWAPCHAIN_EXTENSION_NAME]
+    def init_enumerate_device(self):
         self.physical_devices = vk.enumeratePhysicalDevices(self.instance)
+        self.memory_properties = vk.getPhysicalDeviceMemoryProperties(self.physical_devices[0])
+        self.gpu_props = vk.getPhysicalDeviceProperties(self.physical_devices[0])
+
+    def init_device(self):
+        self.device_extension_names = [vk.VK_KHR_SWAPCHAIN_EXTENSION_NAME]        
         queue_props = vk.getPhysicalDeviceQueueFamilyProperties(self.physical_devices[0])
         graphic_queues_indices = [ i for i,qp in enumerate(queue_props) if qp.queueFlags & vk.VK_QUEUE_GRAPHICS_BIT]
         self.device_queue_index = graphic_queues_indices[0]
@@ -150,22 +163,22 @@ class VkContextManager:
 
         assert(B8G8R8A8_format_found)
 
-    def end_command_buffer(self):
-        self.command_buffers[0]
-
     def init_command_buffers(self):
         self.command_pool = self.ESP( vk.createCommandPool(self.device, vk.CommandPoolCreateInfo(vk.VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT, self.graphics_queue_family_index)) )
         cbai = vk.CommandBufferAllocateInfo(self.command_pool, vk.VK_COMMAND_BUFFER_LEVEL_PRIMARY, 1)
         self.command_buffers = self.ESP( vk.allocateCommandBuffers(self.device, cbai) )
         assert(self.command_buffers is not None)
-        vk.beginCommandBuffer(self.command_buffers[0], vk.CommandBufferBeginInfo(0,None))        
-        self.stack.callback(self.end_command_buffer)
+        vk.beginCommandBuffer(self.command_buffers[0], vk.CommandBufferBeginInfo(0,None))
 
     def init_device_queue(self):
         self.device_queue = vk.getDeviceQueue(self.device, self.graphics_queue_family_index, 0)
 
     def init_swap_chain(self):
         present_modes = vk.getPhysicalDeviceSurfacePresentModesKHR(self.physical_devices[0], self.surface)
+        present_mode = vk.VK_PRESENT_MODE_FIFO_KHR
+        for pm in present_modes:
+            if pm == vk.VK_PRESENT_MODE_MAILBOX_KHR:
+                present_mode = pm
         surface_caps = vk.getPhysicalDeviceSurfaceCapabilitiesKHR(self.physical_devices[0], self.surface)
         req_image_count = surface_caps.minImageCount + 1
         if surface_caps.maxImageCount > 0 and req_image_count > surface_caps.maxImageCount:
@@ -178,16 +191,16 @@ class VkContextManager:
         swp_ci = vk.SwapchainCreateInfoKHR(0, 
                                            self.surface, 
                                            req_image_count, 
-                                           self.format, 
+                                           self.format,
                                            self.color_space, 
                                            surface_caps.currentExtent, # image extent
                                            1, # image array layers
                                            vk.VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | vk.VK_IMAGE_USAGE_TRANSFER_DST_BIT , # image usage
-                                           vk.VK_SHARING_MODE_EXCLUSIVE, # image sharing mode, 
+                                           vk.VK_SHARING_MODE_EXCLUSIVE, # image sharing mode
                                            [], 
                                            pre_transform, 
                                            vk.VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR, # composite  alpha, 
-                                           present_modes[0], # present mode
+                                           present_mode, # present mode
                                            True, # clipped
                                            None) # old_swp_chain
         
@@ -197,8 +210,8 @@ class VkContextManager:
         subresource_range = vk.ImageSubresourceRange(vk.VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1)
         self.image_views = []
         for img in self.images:
-            ivci = vk.ImageViewCreateInfo(0, img, vk.VK_IMAGE_VIEW_TYPE_2D, self.format, components, subresource_range)
             set_image_layout(self.command_buffers[0], img, vk.VK_IMAGE_ASPECT_COLOR_BIT, vk.VK_IMAGE_LAYOUT_UNDEFINED, vk.VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL)
+            ivci = vk.ImageViewCreateInfo(0, img, vk.VK_IMAGE_VIEW_TYPE_2D, self.format, components, subresource_range)            
             self.image_views.append( self.ESP(vk.createImageView(self.device, ivci)) )
 
     def get_surface_extent(self):    
@@ -206,7 +219,7 @@ class VkContextManager:
         return surface_caps.currentExtent.width, surface_caps.currentExtent.height
 
     def init_depth_buffer(self):
-        self.depth_format = vk.VK_FORMAT_D24_UNORM_S8_UINT
+        self.depth_format = vk.VK_FORMAT_D16_UNORM
         fp = vk.getPhysicalDeviceFormatProperties(self.physical_devices[0], self.depth_format)        
         tiling = 0        
         if fp.optimalTilingFeatures & vk.VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT:
@@ -214,7 +227,7 @@ class VkContextManager:
         elif fp.linearTilingFeatures & vk.VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT:
             tiling = vk.VK_IMAGE_TILING_LINEAR
         else:
-            raise RuntimeError('VK_FORMAT_D24_UNORM_S8_UINT not supported on this physical device')
+            raise RuntimeError('VK_FORMAT_D16_UNORM not supported on this physical device')
         
         w,h = self.get_surface_extent()
         ici = vk.ImageCreateInfo(   0, 
@@ -225,7 +238,7 @@ class VkContextManager:
                                     1, 
                                     vk.VK_SAMPLE_COUNT_1_BIT, 
                                     tiling, 
-                                    vk.VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT | vk.VK_IMAGE_USAGE_TRANSFER_SRC_BIT,
+                                    vk.VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT,
                                     vk.VK_SHARING_MODE_EXCLUSIVE, 
                                     [], 
                                     vk.VK_IMAGE_LAYOUT_UNDEFINED)
@@ -239,10 +252,10 @@ class VkContextManager:
         self.depth_mem = self.ESP( vk.allocateMemory(self.device, vk.MemoryAllocateInfo(mem_reqs.size, mem_type_index) ) )
         vk.bindImageMemory(self.device, self.depth_image, self.depth_mem, 0)
 
-        set_image_layout(self.command_buffers[0], self.depth_image, vk.VK_IMAGE_ASPECT_DEPTH_BIT, vk.VK_IMAGE_LAYOUT_UNDEFINED, vk.VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL)
+        set_image_layout(self.command_buffers[0], self.depth_image, vk.VK_IMAGE_ASPECT_DEPTH_BIT|vk.VK_IMAGE_ASPECT_STENCIL_BIT, vk.VK_IMAGE_LAYOUT_UNDEFINED, vk.VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL)
 
         components = vk.ComponentMapping(vk.VK_COMPONENT_SWIZZLE_R, vk.VK_COMPONENT_SWIZZLE_G, vk.VK_COMPONENT_SWIZZLE_B, vk.VK_COMPONENT_SWIZZLE_A)
-        subresource_range = vk.ImageSubresourceRange(vk.VK_IMAGE_ASPECT_DEPTH_BIT, 0, 1, 0, 1)
+        subresource_range = vk.ImageSubresourceRange(vk.VK_IMAGE_ASPECT_DEPTH_BIT|vk.VK_IMAGE_ASPECT_STENCIL_BIT, 0, 1, 0, 1)
         self.depth_view = self.ESP( vk.createImageView(self.device, vk.ImageViewCreateInfo(0, self.depth_image, vk.VK_IMAGE_VIEW_TYPE_2D, self.depth_format, components, subresource_range)) )
 
     def init_image(self, texture_file_path = None):
@@ -377,7 +390,8 @@ class VkContextManager:
         P = np.matrix( perspective(45.0, 1.0, 0.1, 100.0) )
         V = np.matrix( look_at( np.array([5, 3, 10]), np.array([0, 0, 0]), np.array([0, -1, 0]) ) )
         M = np.matrix( np.eye(4) )
-        MVP = (P * V * M).astype(np.single)
+        #MVP = M.astype(np.single)
+        MVP = (M * V * P).astype(np.single)
 
         self.uniform_buffer = self.ESP( vk.createBuffer(self.device, vk.BufferCreateInfo(0, MVP.nbytes, vk.VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, vk.VK_SHARING_MODE_EXCLUSIVE, [])) )
         self.uniform_buffer_bytes = MVP.nbytes
@@ -422,7 +436,7 @@ class VkContextManager:
                                                         vk.VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL) )
 
         color_attachments = vk.VkAttachmentReferenceVector(1,vk.AttachmentReference(0,vk.VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL))
-        depth_attachment = vk.AttachmentReference(0,vk.VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL)
+        depth_attachment = vk.AttachmentReference(1,vk.VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL)
         
         subpasses = vk.VkSubpassDescriptionVector()
         subpasses.append(  vk.SubpassDescription(0, vk.VK_PIPELINE_BIND_POINT_GRAPHICS, vk.VkAttachmentReferenceVector(), color_attachments, vk.VkAttachmentReferenceVector(), depth_attachment, []) )
@@ -511,7 +525,7 @@ class VkContextManager:
                                                                                                                                            vk.VK_BLEND_FACTOR_ZERO,
                                                                                                                                            vk.VK_BLEND_FACTOR_ZERO,
                                                                                                                                            vk.VK_BLEND_OP_ADD,
-                                                                                                                                           0)),
+                                                                                                                                           0xF)),
                                                       [1.0,1.0,1.0,1.0])
 
         pvsci = vk.PipelineViewportStateCreateInfo(0, vk.VkViewportVector(), vk.VkRect2DVector())
@@ -524,23 +538,22 @@ class VkContextManager:
         self.pipeline = self.ESP( vk.createGraphicsPipelines(self.device, self.pipeline_cache, pipeline_cis) )
         
     def init_presentable_image(self):        
-        self.current_buffer = vk.acquireNextImageKHR(self.device, self.swap_chain, 0xffffffff, self.present_complete_semaphore, None)
+        self.current_buffer = vk.acquireNextImageKHR(self.device, self.swap_chain, 0xffffffffffffffff, self.present_complete_semaphore, None)
                
     def make_render_pass_begin_info(self):
         w,h = self.get_surface_extent()
         
-        clear_color_val = vk.VkClearColorValue()
-        clear_color_val.float32[0] = 1.0
-        clear_color_val.float32[1] = 0.0
-        clear_color_val.float32[2] = 0.0
+        clear_color_val = vk.VkClearValue()
+        clear_color_val.color.float32 = [1.0,0.2,0.2,0.2]
 
-        clear_depth_val = vk.VkClearDepthStencilValue()
-        clear_depth_val.depth = 1.0
-        clear_depth_val.stencil = 0
+        clear_depth_val = vk.VkClearValue()
+        clear_depth_val.depthStencil.depth = 1.0
+        clear_depth_val.depthStencil.stencil = 0
 
         clear_values = vk.VkClearValueVector()
-        clear_values.append( vk.ClearValue(clear_color_val, vk.VkClearDepthStencilValue()) )
-        clear_values.append( vk.ClearValue(vk.VkClearColorValue(), clear_depth_val) )
+        
+        clear_values.append( clear_color_val )
+        clear_values.append( clear_depth_val )
 
         return vk.RenderPassBeginInfo(self.render_pass, self.framebuffers[self.current_buffer], vk.Rect2D(vk.Offset2D(0,0), vk.Extent2D(w,h)), clear_values) 
 
@@ -602,13 +615,15 @@ class VkContextManager:
             cube_coords = get_xyzw_uv_cube_coords()
 
             if self.init_stages >= VkContextManager.VKC_INIT_INSTANCE:
+                self.init_global_layer_properties()
                 self.init_instance()
-            if self.init_stages >= VkContextManager.VKC_INIT_DEVICE:
-                self.init_device()        
+                self.init_enumerate_device()
             if self.init_stages >= VkContextManager.VKC_INIT_SWAP_CHAIN_EXT:
                 if self.widget is None:
                     self.init_window()
                 self.init_win32_swap_chain_ext()
+            if self.init_stages >= VkContextManager.VKC_INIT_DEVICE:
+                self.init_device()                    
             if self.init_stages >= VkContextManager.VKC_INIT_COMMAND_BUFFER:
                 self.init_command_buffers()
                 self.init_device_queue()

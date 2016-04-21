@@ -398,6 +398,10 @@ class CSWIGOutputGenerator(COutputGenerator):
     def genStruct(self, typeinfo, typeName):
         COutputGenerator.genStruct(self, typeinfo, typeName)
 
+        # don't write constructor for unions 
+        if typeinfo.elem.get('category') != 'struct':
+            return 
+
         members = typeinfo.elem.findall('.//member')
         n = len(members)
 

@@ -1,6 +1,7 @@
 from ctypes import *
 from ctypes.wintypes import *
 from vkcontextmanager import VkContextManager
+import time
 
 WNDPROCTYPE = WINFUNCTYPE(c_int, HWND, c_uint, WPARAM, LPARAM)
 
@@ -119,7 +120,7 @@ def win32_vk_main(vulkan_render_fct):
 
             if present:
                 vulkan_render_fct(vkc)
-                present = False
+                present = False                
     
         print('done.')
     
