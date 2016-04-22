@@ -1,3 +1,7 @@
+# Spinning texture cube in Win32 window
+# Copyright (C) 2016 by VLAM3D Software inc. https://www.vlam3d.com
+# This code is licensed under the MIT license (MIT) (http://opensource.org/licenses/MIT)
+
 import sys
 import pyvulkan as vk
 import numpy as np

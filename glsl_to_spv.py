@@ -1,3 +1,7 @@
+# glsl_to_spv Helper function to compile GLSL to SPIR-V using pyglslang
+# Copyright (C) 2016 by VLAM3D Software inc. https://www.vlam3d.com
+# This code is licensed under the MIT license (MIT) (http://opensource.org/licenses/MIT)
+
 import pyglslang
 from contextlib import contextmanager
 
