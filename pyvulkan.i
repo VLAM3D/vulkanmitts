@@ -490,7 +490,7 @@ std::shared_ptr< std::vector<VkCommandBuffer> > allocateCommandBuffers(VkDevice 
 %typemap(argout, fragment = "NumPy_Backward_Compatibility,NumPy_Utilities,pyvulkan_mapmemory")
 (void** ppData_contiguous, VkDeviceSize* buffer_size)
 {
-    npy_intp dims[1] = { *$2 };
+    npy_intp dims[1] = { static_cast<npy_intp>(*$2) };
     PyObject* obj = PyArray_SimpleNewFromData(1, dims, NPY_UBYTE, (void*)(*$1));
     PyArrayObject* array = (PyArrayObject*)obj;
 

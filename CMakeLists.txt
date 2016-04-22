@@ -36,14 +36,14 @@ set(VULKAN_LIB ${VULKAN_LIB_DIR}/vulkan-1.lib)
 message (STATUS "Vulkan lib: " ${VULKAN_LIB} )
 
 ####
-# GLSLANG DEPENDENCIES
+# GLSLANG DEPENDENCIES 
 
 if (WIN32)
     set (GLSLANG_SEARCH_PATH "${GLSLANG_DIR}/glslang/Release"
                              "${GLSLANG_DIR}/glslang/OSDependent/Windows/Release"
                              "${GLSLANG_DIR}/OGLCompilersDLL/Release"
                              "${GLSLANG_DIR}/SPIRV/Release" )
-    set (SPIRV_TOOLS_SEARCH_PATH "${SPIRVTOOLS_DIR}/Release")
+    set (SPIRV_TOOLS_SEARCH_PATH "${SPIRVTOOLS_DIR}/source/Release")
 else()
     set (GLSLANG_SEARCH_PATH "${GLSLANG_DIR}/install/lib" "${GLSLANG_DIR}/x86_64/lib/glslang" )
     set (SPIRV_TOOLS_SEARCH_PATH "${SPIRVTOOLS_DIR}" "${SPIRVTOOLS_DIR}/x86_64/lib/spirv-tools" )
@@ -61,7 +61,7 @@ if (WIN32)
                                    "${GLSLANG_DIR}/glslang/OSDependent/Windows/Debug"
                                    "${GLSLANG_DIR}/OGLCompilersDLL/Debug"
                                    "${GLSLANG_DIR}/SPIRV/Debug")
-    set (SPIRV_TOOLS_DEBUG_SEARCH_PATH "${SPIRVTOOLS_DIR}/Debug")
+    set (SPIRV_TOOLS_DEBUG_SEARCH_PATH "${SPIRVTOOLS_DIR}/source/Debug")
 
     add_library(glslang     STATIC IMPORTED)
     add_library(OGLCompiler STATIC IMPORTED)

@@ -24,11 +24,11 @@ The build is based on CMake but currently it only works on Windows with Python x
 
 ### Command line
 
-Example for a cloned repo in c:\dev\pyvulkan using Visual Studio 2013, this is for an out of source CMake build, in a empty folder c:\build\pyvulkan
+Example for a cloned repo in c:\dev\pyvulkan using Visual Studio 2015, this is for an out of source CMake build, in a empty folder c:\build\pyvulkan
 
 ```
 cd c:\build\pyvulkan
-cmake ..\..\dev\pyvulkan -G "Visual Studio 12 2013 Win64" -DSWIG_DIR=C:\DEV\swigwin-3.0.8 -DSWIG_EXECUTABLE=C:\dev\swigwin-3.0.8\swig.exe -DNUMPY_SWIG_DIR=C:\dev\pyvulkan\numpy_swig\ -DCMAKE_INSTALL_PREFIX=c:\build\pyvulkan -DVULKAN_INCLUDE_DIR=C:\dev\Vulkan-Docs\src -DVULKAN_LIB_DIR=c:/VulkanSDK/1.0.5.0/Bin
+cmake ..\..\dev\pyvulkan -G "Visual Studio 14 2015 Win64" -DSWIG_DIR=C:\DEV\swigwin-3.0.8 -DSWIG_EXECUTABLE=C:\dev\swigwin-3.0.8\swig.exe -DNUMPY_SWIG_DIR=C:\dev\pyvulkan\numpy_swig\ -DCMAKE_INSTALL_PREFIX=c:\build\pyvulkan  -DVULKAN_INCLUDE_DIR=C:\dev\Vulkan-Docs\src -DVULKAN_LIB_DIR=c:/VulkanSDK/1.0.8.0/Bin -DGLSLANG_INCLUDE_DIR=c:/VulkanSDK/1.0.8.0/glslang/glslang/Public;c:/VulkanSDK/1.0.8.0/glslang/glslang/Include -DGLSLANG_DIR=C:/VulkanSDK/1.0.8.0/glslang/build -DSPIRVTOOLS_DIR=C:/VulkanSDK/1.0.8.0/spirv-tools/build
 
 ```
 
