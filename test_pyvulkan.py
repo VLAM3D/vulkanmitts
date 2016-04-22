@@ -1,7 +1,6 @@
-# Making Vulkan Initialization Exception Safe 
+# pyvulkan unit test
 # Copyright (C) 2016 by VLAM3D Software inc. https://www.vlam3d.com
 # This code is licensed under the MIT license (MIT) (http://opensource.org/licenses/MIT)
-
 import sys
 import unittest
 import pyvulkan as vk
