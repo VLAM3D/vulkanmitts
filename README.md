@@ -2,10 +2,10 @@
 
 ## Overview
 
-These python bindings are for most part generated from vk.xml in [Vulkan-Docs](https://github.com/KhronosGroup/Vulkan-Docs) using a script derived from [generator.py](https://github.com/KhronosGroup/Vulkan-Docs/blob/1.0/src/spec/generator.py). 
+These python bindings are for the most part generated from vk.xml in [Vulkan-Docs](https://github.com/KhronosGroup/Vulkan-Docs) using a script derived from [generator.py](https://github.com/KhronosGroup/Vulkan-Docs/blob/1.0/src/spec/generator.py). 
 
 * genswigi.py generates two SWIG interfaces files vulkan.ixx and shared_ptr.ixx;
-* swig.exe generates the actual bindings from pyvulkan.i which includes these generated interface file.
+* swig.exe generates the actual bindings from pyvulkan.i which includes these generated interface files.
 
 Because of they are generated from the spec, the bindings are 100% complete, but not 100% tested.
 
@@ -13,7 +13,7 @@ Also included is pyglslang, Python binding for the glslang library that implemen
 
 ## How to build
 
-The build is based on CMake but currently it only works on Windows with Python x64 3.x, other variants should be relatively easy to add, but 32bit variants will be tricky to implement because Vulkan's handle type are not uniform on 32bit architecture.
+The build is based on CMake but currently it only works on Windows with Python x64 3.x, other variants should be relatively easy to add, but 32bit variants will be tricky to implement because Vulkan's handle types are not uniform on 32bit architecture.
 
 ### Dependencies
 
@@ -36,7 +36,7 @@ cmake ..\..\dev\pyvulkan -G "Visual Studio 12 2013 Win64" -DSWIG_DIR=C:\DEV\swig
 
 Coverage is very limited. Currently we have the equivalent of the "template" sample in the Lunar SDK. It's a textured cube. 
 
-More tests case are welcome.
+More test cases are welcome.
 
 
 
