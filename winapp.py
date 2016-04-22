@@ -23,6 +23,7 @@ CW_USEDEFAULT = 0x80000000
 WM_DESTROY = 2
 WM_QUIT = 0x0012
 WM_KEYDOWN = 0x0100
+WM_TIMER = 0x0113
 
 WHITE_BRUSH = 0
 
@@ -31,6 +32,7 @@ PM_REMOVE = 0x0001
 VK_ESCAPE = 0x1B
 
 IDI_WINLOGO = 32517
+IDC_ARROW = 32512
 
 class WNDCLASSEX(Structure):
     _fields_ = [("cbSize", c_uint),
@@ -67,7 +69,7 @@ class Win32Window:
     def winId(self):
         return self.hWnd
   
-def win32_vk_main(vulkan_render_fct):
+def win32_vk_main(vulkan_render_fct, redraw_interval_ms):
 
     WndProc = WNDPROCTYPE(PyWndProcedure)
     hInst = windll.kernel32.GetModuleHandleW(0)
@@ -82,7 +84,7 @@ def win32_vk_main(vulkan_render_fct):
     wndClass.cbWndExtra = 0
     wndClass.hInstance = hInst
     wndClass.hIcon = 0
-    wndClass.hCursor = 0
+    wndClass.hCursor = windll.user32.LoadCursorW(0, IDC_ARROW);
     wndClass.lpszMenuName = 0
     wndClass.hbrBackground = windll.gdi32.GetStockObject(WHITE_BRUSH)
     wndClass.lpszClassName = wclassName
@@ -104,23 +106,31 @@ def win32_vk_main(vulkan_render_fct):
     print('Creating Vulkan Context')
     with VkContextManager(VkContextManager.VKC_INIT_PIPELINE, Win32Window(hWnd)) as vkc: 
         print('Entering message loop')
-        present = True
+        set_timer = True
         while True:
-            quit = False            
+            quit = False   
+            redraw = True         
             while windll.user32.PeekMessageW(lpmsg, 0, 0, 0, PM_REMOVE) != 0:
                 if msg.message == WM_QUIT:
                     quit = True
                     break
+
+                if msg.message == WM_TIMER and msg.wParam == 0xDEADBEEF:
+                    redraw = True
             
                 windll.user32.TranslateMessage(lpmsg)
                 windll.user32.DispatchMessageW(lpmsg)
 
             if quit:
                 break
-
-            if present:
+            
+            if redraw:
                 vulkan_render_fct(vkc)
-                present = False                
+                redraw = False 
+
+            if set_timer:
+                windll.user32.SetTimer(hWnd, 0xDEADBEEF, redraw_interval_ms, 0)
+                set_timer = False
     
         print('done.')
     

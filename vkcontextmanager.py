@@ -390,7 +390,6 @@ class VkContextManager:
         P = np.matrix( perspective(45.0, 1.0, 0.1, 100.0) )
         V = np.matrix( look_at( np.array([5, 3, 10]), np.array([0, 0, 0]), np.array([0, -1, 0]) ) )
         M = np.matrix( np.eye(4) )
-        #MVP = M.astype(np.single)
         MVP = (M * V * P).astype(np.single)
 
         self.uniform_buffer = self.ESP( vk.createBuffer(self.device, vk.BufferCreateInfo(0, MVP.nbytes, vk.VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, vk.VK_SHARING_MODE_EXCLUSIVE, [])) )
@@ -599,21 +598,22 @@ class VkContextManager:
     VKC_INIT_VERTEX_BUFFER = 13
     VKC_INIT_DESCRIPTORS = 14
     VKC_INIT_PIPELINE = 15
-    VKC_INIT_TEST_SINGLE_RENDER_PASS = 16
     VKC_INIT_ALL = 9999
 
     def __del__(self):
         self.stack.close()
 
-    def __init__(self, init_stages = VKC_INIT_PIPELINE, widget = None):
+    def __init__(self, init_stages = VKC_INIT_PIPELINE, widget = None, vertex_data = None, texture_file_path = None):
         self.init_stages = init_stages
         self.widget = widget
+        self.vertex_data = vertex_data        
+        if vertex_data is None:
+            self.vertex_data = get_xyzw_uv_cube_coords()
+        self.texture_file_path = texture_file_path
 
     def __enter__(self):
         self.stack = ExitStack()
         try:
-            cube_coords = get_xyzw_uv_cube_coords()
-
             if self.init_stages >= VkContextManager.VKC_INIT_INSTANCE:
                 self.init_global_layer_properties()
                 self.init_instance()
@@ -632,7 +632,7 @@ class VkContextManager:
             if self.init_stages >= VkContextManager.VKC_INIT_DEPTH_BUFFER:
                 self.init_depth_buffer()
             if self.init_stages >= VkContextManager.VKC_INIT_TEXTURE:
-                self.init_image()
+                self.init_image(self.texture_file_path)
                 self.init_sampler()
             if self.init_stages >= VkContextManager.VKC_INIT_UNIFORM_BUFFER:
                 self.init_uniform_buffer()
@@ -649,43 +649,14 @@ class VkContextManager:
             if self.init_stages >= VkContextManager.VKC_INIT_FRAMEBUFFER:
                 self.init_framebuffer()
             if self.init_stages >= VkContextManager.VKC_INIT_VERTEX_BUFFER:                
-                self.init_vertex_buffer(cube_coords)
+                self.init_vertex_buffer(self.vertex_data)
             if self.init_stages >= VkContextManager.VKC_INIT_DESCRIPTORS:
                 self.init_descriptor_pool()
                 self.init_descriptor_set()
             if self.init_stages >= VkContextManager.VKC_INIT_PIPELINE:
                 self.init_pipeline_cache()
-                self.init_pipeline(cube_coords[0].nbytes)
+                self.init_pipeline(self.vertex_data[0].nbytes)
                 self.present_complete_semaphore = self.ESP( vk.createSemaphore(self.device, vk.SemaphoreCreateInfo(0)) )
-                
-            if self.init_stages >= VkContextManager.VKC_INIT_TEST_SINGLE_RENDER_PASS:                
-                self.init_presentable_image()       
-                rp_begin = self.make_render_pass_begin_info() 
-                vk.cmdBeginRenderPass(self.command_buffers[0], rp_begin, vk.VK_SUBPASS_CONTENTS_INLINE) 
-                vk.cmdBindPipeline(self.command_buffers[0], vk.VK_PIPELINE_BIND_POINT_GRAPHICS, self.pipeline[0])
-                vk.cmdBindDescriptorSets(self.command_buffers[0], vk.VK_PIPELINE_BIND_POINT_GRAPHICS, self.pipeline_layout, 0, self.descriptor_set,  [])
-                vk.cmdBindVertexBuffers(self.command_buffers[0], 0, vk.VkBufferVector(1,self.vertex_buffer), vk.VkDeviceSizeVector(1,0))                                
-                
-                self.init_viewports()
-                self.init_scissors()
-                vk.cmdDraw(self.command_buffers[0], cube_coords.shape[0], 1, 0, 0)
-                vk.cmdEndRenderPass(self.command_buffers[0])
-                vk.endCommandBuffer(self.command_buffers[0])
-                self.execute_pre_present_barrier()
-                self.draw_fence = self.ESP(vk.createFence(self.device, vk.FenceCreateInfo(0)))
-                submit_info = vk.SubmitInfo( vk.VkSemaphoreVector(1,self.present_complete_semaphore), vk.VkPipelineStageFlagsVector(1,vk.VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT), self.command_buffers, vk.VkSemaphoreVector())                
-                vk.queueSubmit(self.device_queue, vk.VkSubmitInfoVector(1,submit_info), self.draw_fence)
-                command_buffer_finished = False
-                cmd_fences = vk.VkFenceVector(1,self.draw_fence)
-                while not command_buffer_finished:
-                    try:
-                        vk.waitForFences(self.device, cmd_fences, True, 1000000)
-                        command_buffer_finished = True
-                    except RuntimeError:
-                        pass
-                
-                present_info = vk.PresentInfoKHR(vk.VkSemaphoreVector(), vk.VkSwapchainKHRVector(1, self.swap_chain), [self.current_buffer], vk.VkResultVector())
-                vk.queuePresentKHR(self.device_queue, present_info)
 
         except:
             self.stack.close()

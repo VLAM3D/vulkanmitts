@@ -5,6 +5,8 @@ from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 from vkcontextmanager import VkContextManager, memory_type_from_properties
 from contextlib import contextmanager
+from hello_pyvulkan import render_textured_cube
+from cube_data import *
 
 # SWIG generates thin Python class wrappers around an opaque PyObject stored in the 'this' member of the wrapper
 # deleting this makes sure the resources are released, the wrapper remains as an empty shell in Python dictionaries 
@@ -299,8 +301,10 @@ class TestDepthStencil(unittest.TestCase):
 
 class TestRenderCube(unittest.TestCase):
     def test_render_colored_cube(self):        
-        with VkContextManager() as vkc: 
-            self.assertIsNotNone(vkc)
+        cube_coords = get_xyzw_uv_cube_coords()
+        with VkContextManager(vertex_data = cube_coords) as vkc: 
+            self.assertIsNotNone(vkc)            
+            render_textured_cube(vkc,cube_coords,[1])
       
 if __name__ == '__main__':
     app = QApplication(sys.argv) # the QApplication must be at this scope to avoid a crash in QT when some test case fails

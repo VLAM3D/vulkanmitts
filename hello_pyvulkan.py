@@ -1,10 +1,22 @@
 import sys
 import pyvulkan as vk
+import numpy as np
 from cube_data import *
 from winapp import win32_vk_main
-from vkcontextmanager import vkreleasing
+from vkcontextmanager import vkreleasing, vkunmapping
+from transforms import *
 
-def render_textured_cube(vkc, cube_coords):
+def animate_cube(vkc, frame_no):
+    P = np.matrix( perspective(45.0, 1.0, 0.1, 100.0) )
+    V = np.matrix( look_at( np.array([5, 3, 10]), np.array([0, 0, 0]), np.array([0, -1, 0]) ) )
+    M = np.eye(4)
+    yrotate(M, float(frame_no[0] % 7200) / 20.0 ) 
+    MVP = (M * V * P).astype(np.single)
+
+    with vkunmapping( vk.mapMemory(vkc.device, vkc.uniform_buffer_mem , 0, MVP.nbytes, 0) ) as mapped_array:
+        np.copyto(np.frombuffer(mapped_array.mem, dtype=np.single, count=len(MVP.flat)), MVP.flat)
+
+def render_textured_cube(vkc, cube_coords, frame_no):
     vkc.init_presentable_image()       
     rp_begin = vkc.make_render_pass_begin_info() 
     vk.resetCommandBuffer(vkc.command_buffers[0],0)
@@ -35,10 +47,14 @@ def render_textured_cube(vkc, cube_coords):
             except RuntimeError:
                 pass
                 
-        vk.queuePresentKHR(vkc.device_queue, present_info)        
+        vk.queuePresentKHR(vkc.device_queue, present_info)    
+        frame_no[0] = frame_no[0] + 1    
+
+        animate_cube(vkc, frame_no)
         
 if __name__ == '__main__':
     cube_coords = get_xyzw_uv_cube_coords()
+    frame_no = [0] # using a list in the closure because Int is immutable 
     def render_textured_cube_closure(vkc):
-        render_textured_cube(vkc, cube_coords)
-    win32_vk_main(render_textured_cube_closure)
+        render_textured_cube(vkc, cube_coords, frame_no)
+    win32_vk_main(render_textured_cube_closure, 16)
