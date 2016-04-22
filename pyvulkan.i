@@ -38,7 +38,6 @@ Please read SWIG_DOC_
 #include <numpy/arrayobject.h>
 #include <vulkan/vk_platform.h>
 #include <vulkan/vulkan.h> 
-#include "vk_cpp_wo_warnings.h" 
 
 %}
 %init 
