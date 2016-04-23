@@ -1,3 +1,6 @@
+[![Anaconda-Server Badge](https://anaconda.org/mlamarre/pyglslang/badges/installer/conda.svg)](https://conda.anaconda.org/mlamarre)
+[![Anaconda-Server Badge](https://anaconda.org/mlamarre/pyvulkan/badges/installer/conda.svg)](https://conda.anaconda.org/mlamarre)
+
 # Vulkan Python Bindings
 
 ## Overview
