@@ -9,3 +9,4 @@ CMakeHelloWorld
 **/*.a
 build/**
 __pycache__
+*.pyc

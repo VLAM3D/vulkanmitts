@@ -1,6 +1,14 @@
 mkdir build
 cd build
 
+if "%PY_VER%"=="2.7" (
+   set MSVC_VER=14.0
+   set VS_VERSION="14.0"
+   set VS_MAJOR="14"
+   set VS_YEAR="2015"
+   set CMAKE_GENERATOR="Visual Studio 14 2015 Win64"
+)
+
 set CMAKE_FLAGS=-DCMAKE_INSTALL_PREFIX=%PREFIX%
 set CMAKE_FLAGS=%CMAKE_FLAGS% -DSWIG_DIR=C:\DEV\swigwin-3.0.8
 set CMAKE_FLAGS=%CMAKE_FLAGS% -DSWIG_EXECUTABLE=C:\dev\swigwin-3.0.8\swig.exe

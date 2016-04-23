@@ -1,4 +1,3 @@
-[![Anaconda-Server Badge](https://anaconda.org/mlamarre/pyglslang/badges/installer/conda.svg)](https://conda.anaconda.org/mlamarre)
 [![Anaconda-Server Badge](https://anaconda.org/mlamarre/pyvulkan/badges/installer/conda.svg)](https://conda.anaconda.org/mlamarre)
 
 # Vulkan Python Bindings
@@ -16,14 +15,16 @@ Also included is pyglslang, Python binding for the glslang library that implemen
 
 ## How to build
 
-The build is based on CMake but currently it only works on Windows with Python x64 3.x, other variants should be relatively easy to add, but 32bit variants will be tricky to implement because Vulkan's handle types are not uniform on 32bit architecture.
+The build is based on CMake but currently it only works on Windows with Python x64 (2.7 and 3.5), other variants should be relatively easy to add, but 32bit variants will be tricky to implement because Vulkan's handle types are not uniform on 32bit architecture.
+
+Conda recipes are available in the conda-recipes subfolder but they rely on some absolute path right now for the dependencies.
 
 ### Dependencies
 
 * Numpy
 * [Vulkan-Docs](https://github.com/KhronosGroup/Vulkan-Docs)
-* SWIG 
-* Lunar Vulkan SDK (tested with 1.0.5)
+* [SWIG](https://github.com/swig/swig)
+* Lunar Vulkan SDK (tested with 1.0.8)
 
 ### Command line
 
@@ -36,6 +37,8 @@ cmake ..\..\dev\pyvulkan -G "Visual Studio 14 2015 Win64" -DSWIG_DIR=C:\DEV\swig
 ```
 
 ### Tests
+
+Tests only works with Python 3.4 and up because of the use of contextlib.ExitStack. This class cleans Vulkan code tremendously. Porting the tests to 2.7 would require writing an equivalent class. 
 
 Coverage is very limited. Currently we have the equivalent of the "template" sample in the Lunar SDK. It's a textured cube. 
 
