@@ -172,7 +172,12 @@ class CSWIGOutputGenerator(COutputGenerator):
                                 'vkCreateSharedSwapchainsKHR', 
                                 'vkCreateDebugReportCallbackEXT',
                                 'vkDestroyDebugReportCallbackEXT',
-                                'vkDebugReportMessageEXT']        
+                                'vkDebugReportMessageEXT',
+                                'vkDebugMarkerSetObjectTagEXT',
+                                'vkDebugMarkerSetObjectNameEXT',
+                                'vkCmdDebugMarkerBeginEXT',
+                                'vkCmdDebugMarkerEndEXT',
+                                'vkCmdDebugMarkerInsertEXT']
         self.loadPtrs = """
     void load_vulkan_fct_ptrs()
     {
@@ -197,7 +202,7 @@ class CSWIGOutputGenerator(COutputGenerator):
         self.loadPtrs += "%}\n"
     
     def findBaseTypes(self):
-        all_types = self.registry.findall("types/type")
+        all_types = self.registry.reg.findall("types/type")
         for type in all_types:
             if 'category' in type.keys() and 'basetype' in type.get('category'):
                 for child in type:
@@ -205,7 +210,7 @@ class CSWIGOutputGenerator(COutputGenerator):
                         self.copyableBaseTypes.add(child.text)
 
     def findHandleTypes(self):
-        all_types = self.registry.findall("types/type")
+        all_types = self.registry.reg.findall("types/type")
         for type in all_types:
             if 'category' in type.keys() and 'handle' in type.get('category'):
                 for child in type:
@@ -214,7 +219,7 @@ class CSWIGOutputGenerator(COutputGenerator):
                             self.handleTypes.add(child.text)
 
     def findStructTypes(self):
-        all_types = self.registry.findall("types/type")
+        all_types = self.registry.reg.findall("types/type")
         for type in all_types:
             if 'category' in type.keys() and 'struct' in type.get('category'):
                 typename = type.get('name')
@@ -222,8 +227,8 @@ class CSWIGOutputGenerator(COutputGenerator):
                     self.structTypes.add(typename)
     
     def findParamsAndMembersCArray(self):
-        all_params = self.registry.findall("commands/command/param")
-        all_params.extend(self.registry.findall("types/type/member"))
+        all_params = self.registry.reg.findall("commands/command/param")
+        all_params.extend(self.registry.reg.findall("types/type/member"))
         for param in all_params:
             is_c_array, num_element = is_param_c_array(param)
             if is_c_array:
@@ -233,7 +238,7 @@ class CSWIGOutputGenerator(COutputGenerator):
                     self.structCArrayTypes.add(type)
 
     def findNonRAIIStruct(self):
-        all_types = self.registry.findall("types/type")
+        all_types = self.registry.reg.findall("types/type")
         for type in all_types: 
             if 'category' in type.keys() and 'struct' in type.get('category'):
                 typename = type.get('name')
@@ -277,7 +282,7 @@ class CSWIGOutputGenerator(COutputGenerator):
 
     def getVkStructureTypes(self):
         self.structure_type_enum_strings = set()
-        all_enums = self.registry.findall("enums")
+        all_enums = self.registry.reg.findall("enums")
         vk_error_code_comments = []
         for enum in all_enums:
             if 'VkStructureType' in enum.get('name'):
@@ -287,7 +292,7 @@ class CSWIGOutputGenerator(COutputGenerator):
                         self.structure_type_enum_strings.add(enum_string)                        
 
     def writeVkErrorStringImpl(self):
-        all_enums = self.registry.findall("enums")
+        all_enums = self.registry.reg.findall("enums")
         vk_error_code_comments = []
         for enum in all_enums:
             if 'VkResult' in enum.get('name'):
@@ -673,7 +678,7 @@ class CSWIGOutputGenerator(COutputGenerator):
             free_command_name = free_command_name.replace('Allocate','Free')
 
         # find the destroy or free command associated with this create or allocate command
-        all_commands = self.registry.findall("commands/command")
+        all_commands = self.registry.reg.findall("commands/command")
         free_command_elem = None
         for cmd in all_commands:
             proto = cmd.find('proto')

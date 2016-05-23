@@ -15,10 +15,10 @@ set CMAKE_FLAGS=%CMAKE_FLAGS% -DSWIG_EXECUTABLE=C:\dev\swigwin-3.0.8\swig.exe
 set CMAKE_FLAGS=%CMAKE_FLAGS% -DNUMPY_SWIG_DIR=C:\dev\pyvulkan\numpy_swig\
 set CMAKE_FLAGS=%CMAKE_FLAGS% -DCMAKE_BUILD_TYPE=Release
 set CMAKE_FLAGS=%CMAKE_FLAGS% -DVULKAN_INCLUDE_DIR=C:\dev\Vulkan-Docs\src
-set CMAKE_FLAGS=%CMAKE_FLAGS% -DVULKAN_LIB_DIR=c:/VulkanSDK/1.0.8.0/Bin
-set CMAKE_FLAGS=%CMAKE_FLAGS% -DGLSLANG_INCLUDE_DIR=c:/VulkanSDK/1.0.8.0/glslang/glslang/Public;c:/VulkanSDK/1.0.8.0/glslang/glslang/Include
-set CMAKE_FLAGS=%CMAKE_FLAGS% -DGLSLANG_DIR=C:/VulkanSDK/1.0.8.0/glslang/build
-set CMAKE_FLAGS=%CMAKE_FLAGS% -DSPIRVTOOLS_DIR=C:/VulkanSDK/1.0.8.0/spirv-tools/build
+set CMAKE_FLAGS=%CMAKE_FLAGS% -DVULKAN_LIB_DIR=c:/VulkanSDK/1.0.13.0/Bin
+set CMAKE_FLAGS=%CMAKE_FLAGS% -DGLSLANG_INCLUDE_DIR=c:/VulkanSDK/1.0.13.0/glslang/glslang/Public;c:/VulkanSDK/1.0.13.0/glslang/glslang/Include
+set CMAKE_FLAGS=%CMAKE_FLAGS% -DGLSLANG_DIR=C:/VulkanSDK/1.0.13.0/glslang/build
+set CMAKE_FLAGS=%CMAKE_FLAGS% -DSPIRVTOOLS_DIR=C:/VulkanSDK/1.0.13.0/spirv-tools/build
 
 cmake -G %CMAKE_GENERATOR% %CMAKE_FLAGS% ..
 

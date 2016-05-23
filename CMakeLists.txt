@@ -42,7 +42,8 @@ if (WIN32)
     set (GLSLANG_SEARCH_PATH "${GLSLANG_DIR}/glslang/Release"
                              "${GLSLANG_DIR}/glslang/OSDependent/Windows/Release"
                              "${GLSLANG_DIR}/OGLCompilersDLL/Release"
-                             "${GLSLANG_DIR}/SPIRV/Release" )
+                             "${GLSLANG_DIR}/SPIRV/Release"
+							 "${GLSLANG_DIR}/HLSL/Release" )
     set (SPIRV_TOOLS_SEARCH_PATH "${SPIRVTOOLS_DIR}/source/Release")
 else()
     set (GLSLANG_SEARCH_PATH "${GLSLANG_DIR}/install/lib" "${GLSLANG_DIR}/x86_64/lib/glslang" )
@@ -53,6 +54,7 @@ find_library(GLSLANG_LIB NAMES glslang HINTS ${GLSLANG_SEARCH_PATH} )
 find_library(OGLCompiler_LIB NAMES OGLCompiler HINTS ${GLSLANG_SEARCH_PATH} )
 find_library(OSDependent_LIB NAMES OSDependent HINTS ${GLSLANG_SEARCH_PATH} )
 find_library(SPIRV_LIB NAMES SPIRV HINTS ${GLSLANG_SEARCH_PATH} )
+find_library(HLSL_LIB NAMES HLSL HINTS ${GLSLANG_SEARCH_PATH} )
 find_library(SPIRV_TOOLS_LIB NAMES SPIRV-Tools HINTS ${SPIRV_TOOLS_SEARCH_PATH} )
 
 # On Windows, we must pair Debug and Release appropriately
@@ -60,20 +62,23 @@ if (WIN32)
     set (GLSLANG_DEBUG_SEARCH_PATH "${GLSLANG_DIR}/glslang/Debug"
                                    "${GLSLANG_DIR}/glslang/OSDependent/Windows/Debug"
                                    "${GLSLANG_DIR}/OGLCompilersDLL/Debug"
-                                   "${GLSLANG_DIR}/SPIRV/Debug")
+                                   "${GLSLANG_DIR}/SPIRV/Debug"
+								   "${GLSLANG_DIR}/HLSL/Debug")
     set (SPIRV_TOOLS_DEBUG_SEARCH_PATH "${SPIRVTOOLS_DIR}/source/Debug")
 
     add_library(glslang     STATIC IMPORTED)
     add_library(OGLCompiler STATIC IMPORTED)
     add_library(OSDependent STATIC IMPORTED)
     add_library(SPIRV       STATIC IMPORTED)
-    add_library(SPIRV-Tools STATIC IMPORTED)
-
+    add_library(HLSL        STATIC IMPORTED)
+	add_library(SPIRV-Tools STATIC IMPORTED)
+	
     find_library(GLSLANG_DLIB NAMES glslang HINTS ${GLSLANG_DEBUG_SEARCH_PATH} )
     find_library(OGLCompiler_DLIB NAMES OGLCompiler HINTS ${GLSLANG_DEBUG_SEARCH_PATH} )
     find_library(OSDependent_DLIB NAMES OSDependent HINTS ${GLSLANG_DEBUG_SEARCH_PATH} )
     find_library(SPIRV_DLIB NAMES SPIRV HINTS ${GLSLANG_DEBUG_SEARCH_PATH} )
-    find_library(SPIRV_TOOLS_DLIB NAMES SPIRV-Tools HINTS ${SPIRV_TOOLS_DEBUG_SEARCH_PATH} )
+    find_library(HLSL_DLIB NAMES HLSL HINTS ${GLSLANG_DEBUG_SEARCH_PATH} )
+	find_library(SPIRV_TOOLS_DLIB NAMES SPIRV-Tools HINTS ${SPIRV_TOOLS_DEBUG_SEARCH_PATH} )	
 
     set_target_properties(glslang PROPERTIES
                          IMPORTED_LOCATION       "${GLSLANG_LIB}"
@@ -87,14 +92,17 @@ if (WIN32)
     set_target_properties(SPIRV PROPERTIES
                          IMPORTED_LOCATION       "${SPIRV_LIB}"
                          IMPORTED_LOCATION_DEBUG "${SPIRV_DLIB}")
+	set_target_properties(HLSL PROPERTIES
+                         IMPORTED_LOCATION       "${HLSL_LIB}"
+                         IMPORTED_LOCATION_DEBUG "${HLSL_DLIB}")
     set_target_properties(SPIRV-Tools PROPERTIES
                          IMPORTED_LOCATION       "${SPIRV_TOOLS_LIB}"
                          IMPORTED_LOCATION_DEBUG "${SPIRV_TOOLS_DLIB}")
 
-    set (GLSLANG_LIBRARIES glslang OGLCompiler OSDependent SPIRV)
+    set (GLSLANG_LIBRARIES glslang OGLCompiler OSDependent SPIRV HLSL)
     set (SPIRV_TOOLS_LIBRARIES SPIRV-Tools)
 else ()
-    set (GLSLANG_LIBRARIES ${GLSLANG_LIB} ${OGLCompiler_LIB} ${OSDependent_LIB} ${SPIRV_LIB})
+    set (GLSLANG_LIBRARIES ${GLSLANG_LIB} ${OGLCompiler_LIB} ${OSDependent_LIB} ${SPIRV_LIB} ${HLSL_LIB})
     set (SPIRV_TOOLS_LIBRARIES ${SPIRV_TOOLS_LIB})
 endif()
 
