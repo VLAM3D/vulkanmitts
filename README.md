@@ -52,12 +52,15 @@ cmake ..\..\dev\pyvulkan -G "Visual Studio 14 2015 Win64" -DSWIG_DIR=C:\DEV\swig
 
 ### Conda build commands
 
+If you forked the project to make your own conda package, edit the *bld.bat* and *meta.yaml* files under *conda-recipes* subfolders with you local path and forked github URL.
 
-'''
+Here's an example build command:
+
+```
 cd c:\dev\pyvulkan\conda-recipes
 conda build pyglslang
 conda build pyvulkan
-'''
+```
 
 ### Tests
 
