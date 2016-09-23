@@ -67,6 +67,7 @@ class PhysicalDeviceTestCase(unittest.TestCase):
         self.assertIsNotNone(self.app)
         instance_create_info = vk.InstanceCreateInfo(0, self.app, [], self.instance_ext_names)
         self.instance = vk.createInstance(instance_create_info)
+        vk.load_vulkan_fct_ptrs(self.instance)
         self.assertIsNotNone(self.instance)
         self.physical_devices = vk.enumeratePhysicalDevices(self.instance)
 
@@ -147,6 +148,7 @@ class SwapChainTestCase(unittest.TestCase):
         self.assertIsNotNone(self.app)
         instance_create_info = vk.InstanceCreateInfo(0, self.app, [], self.instance_ext_names)
         self.instance = vk.createInstance(instance_create_info)
+        vk.load_vulkan_fct_ptrs(self.instance)
         self.physical_devices = vk.enumeratePhysicalDevices(self.instance)
         queue_props = vk.getPhysicalDeviceQueueFamilyProperties(self.physical_devices[0])
         graphic_queues_indices = [ i for i,qp in enumerate(queue_props) if qp.queueFlags & vk.VK_QUEUE_GRAPHICS_BIT]
@@ -308,4 +310,4 @@ class TestRenderCube(unittest.TestCase):
 if __name__ == '__main__':
     app = QApplication(sys.argv) # the QApplication must be at this scope to avoid a crash in QT when some test case fails
     # set defaultTest to invoke a specific test case
-    unittest.main()
+    unittest.main(verbosity=2)

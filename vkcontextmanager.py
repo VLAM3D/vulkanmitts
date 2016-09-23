@@ -6,8 +6,6 @@ import pyvulkan as vk
 import pyglslang
 from PIL import Image
 import numpy as np
-from PyQt4.QtGui import *
-from PyQt4.QtCore import *
 from contextlib2 import contextmanager,ExitStack
 from transforms import *
 from glsl_to_spv import *
@@ -111,11 +109,17 @@ class VkContextManager:
             self.instance_layer_properties.extend(ext_props)  
 
     def init_instance(self):
-        self.instance_ext_names = [vk.VK_KHR_SURFACE_EXTENSION_NAME, vk.VK_KHR_WIN32_SURFACE_EXTENSION_NAME]        
+        self.instance_ext_names = [vk.VK_KHR_SURFACE_EXTENSION_NAME, vk.VK_KHR_WIN32_SURFACE_EXTENSION_NAME, vk.VK_EXT_DEBUG_REPORT_EXTENSION_NAME]        
         app = vk.ApplicationInfo("foo", 1, "bar", 1, vk.makeVersion(1,0,3))
         assert(app is not None)
-        instance_create_info = vk.InstanceCreateInfo(0, app, [], self.instance_ext_names)
+        instance_create_info = vk.InstanceCreateInfo(0, app, ['VK_LAYER_LUNARG_standard_validation'], self.instance_ext_names)
         self.instance = self.ESP( vk.createInstance(instance_create_info) )
+        vk.load_vulkan_fct_ptrs(self.instance)
+        full_degug = vk.VK_DEBUG_REPORT_ERROR_BIT_EXT | vk.VK_DEBUG_REPORT_WARNING_BIT_EXT | vk.VK_DEBUG_REPORT_PERFORMANCE_WARNING_BIT_EXT
+        errors_only = vk.VK_DEBUG_REPORT_ERROR_BIT_EXT
+        nothing = 0
+        # even when setting any error reporting this tests that the functions pointers are correctly loaded
+        self.error_reporting = self.ESP(vk.install_stdout_error_reporting(self.instance,nothing))
         assert(self.instance is not None)
 
     def init_enumerate_device(self):
@@ -138,25 +142,34 @@ class VkContextManager:
     def delete_window(self):
         self.widget = None
 
-    def init_window(self):        
+    def init_window(self):   
+        from PyQt4.QtGui import QWidget
         self.widget = QWidget()
-        self.widget.resize(640, 480)
+        self.widget.resize(self.output_size[0], self.output_size[1])
         self.stack.callback(self.delete_window)   
+        
+    def init_graphic_queue(self):
+        # test that we can find a queue with the graphics bit and that can present
+        queue_props = vk.getPhysicalDeviceQueueFamilyProperties(self.physical_devices[0])
+
+        support_present = []        
+        if self.surface is not None:        
+            for i in range(0,len(queue_props)):
+                support_present.append( vk.getPhysicalDeviceSurfaceSupportKHR(self.physical_devices[0], i, self.surface) != 0)
+        else:
+            support_present = [True for i in range(0,len(queue_props))]
+
+        graphic_queues_indices = [ i for i,qp in enumerate(queue_props) if qp.queueFlags & vk.VK_QUEUE_GRAPHICS_BIT and support_present[i] ]
+        assert(len(graphic_queues_indices)>=1)
+        self.graphics_queue_family_index = graphic_queues_indices[0]
         
     def init_win32_swap_chain_ext(self):
         surface_ci = vk.Win32SurfaceCreateInfoKHR(0, vk.GetThisEXEModuleHandle(), self.widget.winId())       
         self.surface = self.ESP( vk.createWin32SurfaceKHR(self.instance, surface_ci) )
         assert(self.surface is not None)
 
-        # test that we can find a queue with the graphics bit and that can present
-        queue_props = vk.getPhysicalDeviceQueueFamilyProperties(self.physical_devices[0])
-        support_present = []
-        for i in range(0,len(queue_props)):
-            support_present.append( vk.getPhysicalDeviceSurfaceSupportKHR(self.physical_devices[0], i, self.surface) != 0)
-
-        graphic_queues_indices = [ i for i,qp in enumerate(queue_props) if qp.queueFlags & vk.VK_QUEUE_GRAPHICS_BIT and support_present[i] ]
-        assert(len(graphic_queues_indices)>=1)
-        self.graphics_queue_family_index = graphic_queues_indices[0]
+        self.init_graphic_queue()
+               
         surface_formats = vk.getPhysicalDeviceSurfaceFormatsKHR(self.physical_devices[0], self.surface)
         B8G8R8A8_format_found = False
         self.format = None
@@ -171,6 +184,12 @@ class VkContextManager:
 
         assert(B8G8R8A8_format_found)
 
+    def init_without_surface(self):
+        self.format = vk.VK_FORMAT_B8G8R8A8_UNORM
+        self.color_space = None # not required without surface and swap chain
+        self.surface = None # not required
+        self.init_graphic_queue()
+
     def init_command_buffers(self):
         self.command_pool = self.ESP( vk.createCommandPool(self.device, vk.CommandPoolCreateInfo(vk.VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT, self.graphics_queue_family_index)) )
         cbai = vk.CommandBufferAllocateInfo(self.command_pool, vk.VK_COMMAND_BUFFER_LEVEL_PRIMARY, 1)
@@ -182,6 +201,7 @@ class VkContextManager:
         self.device_queue = vk.getDeviceQueue(self.device, self.graphics_queue_family_index, 0)
 
     def init_swap_chain(self):
+        assert(self.surface_type != VkContextManager.VKC_OFFSCREEN and self.surface is not None)
         present_modes = vk.getPhysicalDeviceSurfacePresentModesKHR(self.physical_devices[0], self.surface)
         present_mode = vk.VK_PRESENT_MODE_FIFO_KHR
         for pm in present_modes:
@@ -222,9 +242,45 @@ class VkContextManager:
             ivci = vk.ImageViewCreateInfo(0, img, vk.VK_IMAGE_VIEW_TYPE_2D, self.format, components, subresource_range)            
             self.image_views.append( self.ESP(vk.createImageView(self.device, ivci)) )
 
-    def get_surface_extent(self):    
-        surface_caps = vk.getPhysicalDeviceSurfaceCapabilitiesKHR(self.physical_devices[0], self.surface)
-        return surface_caps.currentExtent.width, surface_caps.currentExtent.height
+    def init_ouput_images(self):
+        self.swap_chain = None        
+        w,h = self.get_surface_extent()
+        ici = vk.ImageCreateInfo(   0, 
+                                    vk.VK_IMAGE_TYPE_2D, 
+                                    self.format, # the output format
+                                    vk.Extent3D(w,h,1),
+                                    1, 
+                                    1, 
+                                    vk.VK_SAMPLE_COUNT_1_BIT, 
+                                    vk.VK_IMAGE_TILING_OPTIMAL, 
+                                    vk.VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT,
+                                    vk.VK_SHARING_MODE_EXCLUSIVE, 
+                                    [], 
+                                    vk.VK_IMAGE_LAYOUT_UNDEFINED)
+
+        self.offscreen_output_image =  self.ESP( vk.createImage(self.device, ici) )
+        mem_reqs = vk.getImageMemoryRequirements(self.device, self.offscreen_output_image);
+        
+        mem_type_index = memory_type_from_properties(self.physical_devices[0], mem_reqs.memoryTypeBits, 0)
+        assert(mem_type_index is not None)
+
+        self.offscreen_output_image_men = self.ESP( vk.allocateMemory(self.device, vk.MemoryAllocateInfo(mem_reqs.size, mem_type_index) ) )
+        vk.bindImageMemory(self.device, self.offscreen_output_image, self.offscreen_output_image_men, 0)
+
+        set_image_layout(self.command_buffers[0], self.offscreen_output_image, vk.VK_IMAGE_ASPECT_COLOR_BIT, vk.VK_IMAGE_LAYOUT_UNDEFINED, vk.VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL)
+        components = vk.ComponentMapping(vk.VK_COMPONENT_SWIZZLE_R, vk.VK_COMPONENT_SWIZZLE_G, vk.VK_COMPONENT_SWIZZLE_B, vk.VK_COMPONENT_SWIZZLE_A)
+        subresource_range = vk.ImageSubresourceRange(vk.VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1)        
+        self.offscreen_output_image_view = self.ESP( vk.createImageView(self.device, vk.ImageViewCreateInfo(0, self.offscreen_output_image, vk.VK_IMAGE_VIEW_TYPE_2D, self.format, components, subresource_range)) )
+        self.images = [self.offscreen_output_image]
+        self.image_views = [self.offscreen_output_image_view]
+
+    def get_surface_extent(self):           
+        if self.surface_type == VkContextManager.VKC_WIN32: 
+            assert(self.surface is not None)
+            surface_caps = vk.getPhysicalDeviceSurfaceCapabilitiesKHR(self.physical_devices[0], self.surface)
+            return surface_caps.currentExtent.width, surface_caps.currentExtent.height
+        
+        return self.output_size[0],self.output_size[1]
 
     def init_depth_buffer(self):
         self.depth_format = vk.VK_FORMAT_D16_UNORM
@@ -544,8 +600,12 @@ class VkContextManager:
         pipeline_cis.append( vk.GraphicsPipelineCreateInfo(0, psscis, pvisci, piasci, None, pvsci, prsci, pmsci, pdssci, pcbsci, pdsci, self.pipeline_layout, self.render_pass, 0, None, 0) )
         self.pipeline = self.ESP( vk.createGraphicsPipelines(self.device, self.pipeline_cache, pipeline_cis) )
         
-    def init_presentable_image(self):        
-        self.current_buffer = vk.acquireNextImageKHR(self.device, self.swap_chain, 0xffffffffffffffff, self.present_complete_semaphore, None)
+    def init_presentable_image(self):  
+        if self.swap_chain is not None:      
+            self.current_buffer = vk.acquireNextImageKHR(self.device, self.swap_chain, 0xffffffffffffffff, self.present_complete_semaphore, None)
+        else:
+            # with the offscreen image and no swap chain, we don't do double buffering so current buffer is always 0
+            self.current_buffer = 0
                
     def make_render_pass_begin_info(self):
         w,h = self.get_surface_extent()
@@ -608,11 +668,17 @@ class VkContextManager:
     VKC_INIT_PIPELINE = 15
     VKC_INIT_ALL = 9999
 
+    # Surface Type to use
+    VKC_OFFSCREEN = 0
+    VKC_WIN32 = 1
+
     def __del__(self):
         self.stack.close()
 
-    def __init__(self, init_stages = VKC_INIT_PIPELINE, widget = None, vertex_data = None, texture_file_path = None):
+    def __init__(self, init_stages = VKC_INIT_PIPELINE, surface_type = VKC_WIN32, widget = None, vertex_data = None, texture_file_path = None):
+        self.output_size = (640,480)
         self.init_stages = init_stages
+        self.surface_type = surface_type
         self.widget = widget
         self.vertex_data = vertex_data        
         if vertex_data is None:
@@ -625,18 +691,25 @@ class VkContextManager:
             if self.init_stages >= VkContextManager.VKC_INIT_INSTANCE:
                 self.init_global_layer_properties()
                 self.init_instance()
-                self.init_enumerate_device()
+                self.init_enumerate_device()                
             if self.init_stages >= VkContextManager.VKC_INIT_SWAP_CHAIN_EXT:
-                if self.widget is None:
-                    self.init_window()
-                self.init_win32_swap_chain_ext()
+                if self.surface_type == VkContextManager.VKC_WIN32:
+                    if self.widget is None:
+                        self.init_window()
+                    self.init_win32_swap_chain_ext()
+                else:
+                    assert(self.widget is None)
+                    self.init_without_surface()
             if self.init_stages >= VkContextManager.VKC_INIT_DEVICE:
                 self.init_device()                    
             if self.init_stages >= VkContextManager.VKC_INIT_COMMAND_BUFFER:
                 self.init_command_buffers()
                 self.init_device_queue()
             if self.init_stages >= VkContextManager.VKC_INIT_SWAP_CHAIN:
-                self.init_swap_chain()
+                if self.surface_type == VkContextManager.VKC_OFFSCREEN:
+                    self.init_ouput_images()
+                else:
+                    self.init_swap_chain()
             if self.init_stages >= VkContextManager.VKC_INIT_DEPTH_BUFFER:
                 self.init_depth_buffer()
             if self.init_stages >= VkContextManager.VKC_INIT_TEXTURE:

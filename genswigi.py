@@ -186,21 +186,8 @@ class CSWIGOutputGenerator(COutputGenerator):
                                 'vkGetPhysicalDeviceExternalImageFormatPropertiesNV',
                                 'vkGetMemoryWin32HandleNV']
         self.loadPtrs = """
-    void load_vulkan_fct_ptrs()
+    void load_vulkan_fct_ptrs(VkInstance instance)
     {
-        VkApplicationInfo appInfo = {};
-	    appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
-	    appInfo.pApplicationName = "genswigi";
-	    appInfo.pEngineName = "genswigi";
-	    appInfo.apiVersion = VK_MAKE_VERSION(1, 0, 3);
-
-	    VkInstanceCreateInfo instanceCreateInfo = {};
-	    instanceCreateInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
-	    instanceCreateInfo.pNext = NULL;
-	    instanceCreateInfo.pApplicationInfo = &appInfo;
-	
-        VkInstance instance;
-        vkCreateInstance(&instanceCreateInfo, nullptr, &instance);
 """
         for command_name in self.notLoadedBySDK:
             self.loadPtrs += '	    pf%(command_name)s = reinterpret_cast<PFN_%(command_name)s>(vkGetInstanceProcAddr(instance, "%(command_name)s"));\n' % locals()
@@ -325,12 +312,13 @@ class CSWIGOutputGenerator(COutputGenerator):
             write('             case %s : return vk_err_messages[%d];' % (nc[0],i) , file=self.outFile)
         write('         }', file=self.outFile)
         write('         return nullptr;', file=self.outFile)
-        write('     }', file=self.outFile)
+        write('     }\n', file=self.outFile)
 
-    def endFile(self):        
+    def endFile(self):     
+        write("void load_vulkan_fct_ptrs(VkInstance instance);\n", file=self.outFile)
         write("%{\n", file=self.outFile)
         self.writeVkErrorStringImpl()
-        write(' \n'.join(self.fctPtrDecl), end='', file=self.outFile)
+        write('\n    '.join(self.fctPtrDecl), end='\n', file=self.outFile)
         write(self.loadPtrs, file=self.outFile)
         write('%{\n', file=self.outFile)
         write('\n'.join(self.swigImpl), end='', file=self.outFile)
@@ -813,6 +801,13 @@ class CSWIGOutputGenerator(COutputGenerator):
         swig_impl = indentdecl + '\n'
         swig_impl += '   {\n'        
         
+        # FUNCTION BODY : Validation
+        if command_name in self.notLoadedBySDK:
+            swig_impl += '      if ( nullptr == pf%(command_name)s )\n' % locals()
+            swig_impl += '          throw std::runtime_error("Trying to use an unavailable function\\n"\n'
+            swig_impl += '                                   "Review you instance create info\\n"\n'
+            swig_impl += '                                   "and call load_vulkan_fct_ptrs() with the new instance");\n\n' % locals()
+
         # FUNCTION BODY : STACK VARIABLES DECLARATIONS
         for i in argout_params_to_vectorize:
             argout_param_name, argout_param_type = params_name_type[i]

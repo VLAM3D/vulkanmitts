@@ -5186,6 +5186,8 @@ std::shared_ptr<VkValidationFlagsEXTRAII> ValidationFlagsEXT(
     const std::vector<VkValidationCheckEXT> &   vecDisabledValidationChecks);
 
 
+void load_vulkan_fct_ptrs(VkInstance instance);
+
 %{
 
      const char* vkGetErrorString(VkResult retval)
@@ -5246,41 +5248,30 @@ std::shared_ptr<VkValidationFlagsEXTRAII> ValidationFlagsEXT(
          }
          return nullptr;
      }
-PFN_vkGetPhysicalDeviceDisplayPropertiesKHR pfvkGetPhysicalDeviceDisplayPropertiesKHR; 
-PFN_vkGetPhysicalDeviceDisplayPlanePropertiesKHR pfvkGetPhysicalDeviceDisplayPlanePropertiesKHR; 
-PFN_vkGetDisplayPlaneSupportedDisplaysKHR pfvkGetDisplayPlaneSupportedDisplaysKHR; 
-PFN_vkGetDisplayModePropertiesKHR pfvkGetDisplayModePropertiesKHR; 
-PFN_vkCreateDisplayModeKHR pfvkCreateDisplayModeKHR; 
-PFN_vkGetDisplayPlaneCapabilitiesKHR pfvkGetDisplayPlaneCapabilitiesKHR; 
-PFN_vkCreateDisplayPlaneSurfaceKHR pfvkCreateDisplayPlaneSurfaceKHR; 
-PFN_vkCreateSharedSwapchainsKHR pfvkCreateSharedSwapchainsKHR; 
-PFN_vkCreateDebugReportCallbackEXT pfvkCreateDebugReportCallbackEXT; 
-PFN_vkDestroyDebugReportCallbackEXT pfvkDestroyDebugReportCallbackEXT; 
-PFN_vkDebugReportMessageEXT pfvkDebugReportMessageEXT; 
-PFN_vkDebugMarkerSetObjectTagEXT pfvkDebugMarkerSetObjectTagEXT; 
-PFN_vkDebugMarkerSetObjectNameEXT pfvkDebugMarkerSetObjectNameEXT; 
-PFN_vkCmdDebugMarkerBeginEXT pfvkCmdDebugMarkerBeginEXT; 
-PFN_vkCmdDebugMarkerEndEXT pfvkCmdDebugMarkerEndEXT; 
-PFN_vkCmdDebugMarkerInsertEXT pfvkCmdDebugMarkerInsertEXT; 
-PFN_vkCmdDrawIndirectCountAMD pfvkCmdDrawIndirectCountAMD; 
-PFN_vkCmdDrawIndexedIndirectCountAMD pfvkCmdDrawIndexedIndirectCountAMD; 
-PFN_vkGetPhysicalDeviceExternalImageFormatPropertiesNV pfvkGetPhysicalDeviceExternalImageFormatPropertiesNV; 
-PFN_vkGetMemoryWin32HandleNV pfvkGetMemoryWin32HandleNV;
-    void load_vulkan_fct_ptrs()
-    {
-        VkApplicationInfo appInfo = {};
-	    appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
-	    appInfo.pApplicationName = "genswigi";
-	    appInfo.pEngineName = "genswigi";
-	    appInfo.apiVersion = VK_MAKE_VERSION(1, 0, 3);
 
-	    VkInstanceCreateInfo instanceCreateInfo = {};
-	    instanceCreateInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
-	    instanceCreateInfo.pNext = NULL;
-	    instanceCreateInfo.pApplicationInfo = &appInfo;
-	
-        VkInstance instance;
-        vkCreateInstance(&instanceCreateInfo, nullptr, &instance);
+PFN_vkGetPhysicalDeviceDisplayPropertiesKHR pfvkGetPhysicalDeviceDisplayPropertiesKHR;
+    PFN_vkGetPhysicalDeviceDisplayPlanePropertiesKHR pfvkGetPhysicalDeviceDisplayPlanePropertiesKHR;
+    PFN_vkGetDisplayPlaneSupportedDisplaysKHR pfvkGetDisplayPlaneSupportedDisplaysKHR;
+    PFN_vkGetDisplayModePropertiesKHR pfvkGetDisplayModePropertiesKHR;
+    PFN_vkCreateDisplayModeKHR pfvkCreateDisplayModeKHR;
+    PFN_vkGetDisplayPlaneCapabilitiesKHR pfvkGetDisplayPlaneCapabilitiesKHR;
+    PFN_vkCreateDisplayPlaneSurfaceKHR pfvkCreateDisplayPlaneSurfaceKHR;
+    PFN_vkCreateSharedSwapchainsKHR pfvkCreateSharedSwapchainsKHR;
+    PFN_vkCreateDebugReportCallbackEXT pfvkCreateDebugReportCallbackEXT;
+    PFN_vkDestroyDebugReportCallbackEXT pfvkDestroyDebugReportCallbackEXT;
+    PFN_vkDebugReportMessageEXT pfvkDebugReportMessageEXT;
+    PFN_vkDebugMarkerSetObjectTagEXT pfvkDebugMarkerSetObjectTagEXT;
+    PFN_vkDebugMarkerSetObjectNameEXT pfvkDebugMarkerSetObjectNameEXT;
+    PFN_vkCmdDebugMarkerBeginEXT pfvkCmdDebugMarkerBeginEXT;
+    PFN_vkCmdDebugMarkerEndEXT pfvkCmdDebugMarkerEndEXT;
+    PFN_vkCmdDebugMarkerInsertEXT pfvkCmdDebugMarkerInsertEXT;
+    PFN_vkCmdDrawIndirectCountAMD pfvkCmdDrawIndirectCountAMD;
+    PFN_vkCmdDrawIndexedIndirectCountAMD pfvkCmdDrawIndexedIndirectCountAMD;
+    PFN_vkGetPhysicalDeviceExternalImageFormatPropertiesNV pfvkGetPhysicalDeviceExternalImageFormatPropertiesNV;
+    PFN_vkGetMemoryWin32HandleNV pfvkGetMemoryWin32HandleNV;
+
+    void load_vulkan_fct_ptrs(VkInstance instance)
+    {
 	    pfvkGetPhysicalDeviceDisplayPropertiesKHR = reinterpret_cast<PFN_vkGetPhysicalDeviceDisplayPropertiesKHR>(vkGetInstanceProcAddr(instance, "vkGetPhysicalDeviceDisplayPropertiesKHR"));
 	    pfvkGetPhysicalDeviceDisplayPlanePropertiesKHR = reinterpret_cast<PFN_vkGetPhysicalDeviceDisplayPlanePropertiesKHR>(vkGetInstanceProcAddr(instance, "vkGetPhysicalDeviceDisplayPlanePropertiesKHR"));
 	    pfvkGetDisplayPlaneSupportedDisplaysKHR = reinterpret_cast<PFN_vkGetDisplayPlaneSupportedDisplaysKHR>(vkGetInstanceProcAddr(instance, "vkGetDisplayPlaneSupportedDisplaysKHR"));
@@ -9828,6 +9819,11 @@ VkDisplaySurfaceCreateInfoKHR DisplaySurfaceCreateInfoKHR(
 std::vector< VkDisplayPropertiesKHR > getPhysicalDeviceDisplayPropertiesKHR(
         VkPhysicalDevice physicalDevice)
    {
+      if ( nullptr == pfvkGetPhysicalDeviceDisplayPropertiesKHR )
+          throw std::runtime_error("Trying to use an unavailable function\n"
+                                   "Review you instance create info\n"
+                                   "and call load_vulkan_fct_ptrs() with the new instance");
+
       std::vector<VkDisplayPropertiesKHR> vecpProperties; 
       uint32_t pPropertiesCount; 
       V( pfvkGetPhysicalDeviceDisplayPropertiesKHR(
@@ -9847,6 +9843,11 @@ std::vector< VkDisplayPropertiesKHR > getPhysicalDeviceDisplayPropertiesKHR(
 std::vector< VkDisplayPlanePropertiesKHR > getPhysicalDeviceDisplayPlanePropertiesKHR(
         VkPhysicalDevice physicalDevice)
    {
+      if ( nullptr == pfvkGetPhysicalDeviceDisplayPlanePropertiesKHR )
+          throw std::runtime_error("Trying to use an unavailable function\n"
+                                   "Review you instance create info\n"
+                                   "and call load_vulkan_fct_ptrs() with the new instance");
+
       std::vector<VkDisplayPlanePropertiesKHR> vecpProperties; 
       uint32_t pPropertiesCount; 
       V( pfvkGetPhysicalDeviceDisplayPlanePropertiesKHR(
@@ -9867,6 +9868,11 @@ std::vector< VkDisplayKHR > getDisplayPlaneSupportedDisplaysKHR(
         VkPhysicalDevice physicalDevice,
         uint32_t planeIndex)
    {
+      if ( nullptr == pfvkGetDisplayPlaneSupportedDisplaysKHR )
+          throw std::runtime_error("Trying to use an unavailable function\n"
+                                   "Review you instance create info\n"
+                                   "and call load_vulkan_fct_ptrs() with the new instance");
+
       std::vector<VkDisplayKHR> vecpDisplays; 
       uint32_t pDisplaysCount; 
       V( pfvkGetDisplayPlaneSupportedDisplaysKHR(
@@ -9889,6 +9895,11 @@ std::vector< VkDisplayModePropertiesKHR > getDisplayModePropertiesKHR(
         VkPhysicalDevice physicalDevice,
         VkDisplayKHR display)
    {
+      if ( nullptr == pfvkGetDisplayModePropertiesKHR )
+          throw std::runtime_error("Trying to use an unavailable function\n"
+                                   "Review you instance create info\n"
+                                   "and call load_vulkan_fct_ptrs() with the new instance");
+
       std::vector<VkDisplayModePropertiesKHR> vecpProperties; 
       uint32_t pPropertiesCount; 
       V( pfvkGetDisplayModePropertiesKHR(
@@ -9912,6 +9923,11 @@ std::shared_ptr<VkDisplayModeKHR_T> createDisplayModeKHR(
         VkDisplayKHR display,
         const VkDisplayModeCreateInfoKHR & pCreateInfo)
    {
+      if ( nullptr == pfvkCreateDisplayModeKHR )
+          throw std::runtime_error("Trying to use an unavailable function\n"
+                                   "Review you instance create info\n"
+                                   "and call load_vulkan_fct_ptrs() with the new instance");
+
       VkDisplayModeKHR hMode; 
       V( pfvkCreateDisplayModeKHR(
           physicalDevice,
@@ -9928,6 +9944,11 @@ VkDisplayPlaneCapabilitiesKHR getDisplayPlaneCapabilitiesKHR(
         VkDisplayModeKHR mode,
         uint32_t planeIndex)
    {
+      if ( nullptr == pfvkGetDisplayPlaneCapabilitiesKHR )
+          throw std::runtime_error("Trying to use an unavailable function\n"
+                                   "Review you instance create info\n"
+                                   "and call load_vulkan_fct_ptrs() with the new instance");
+
       VkDisplayPlaneCapabilitiesKHR pCapabilities; 
       V( pfvkGetDisplayPlaneCapabilitiesKHR(
           physicalDevice,
@@ -9941,6 +9962,11 @@ std::shared_ptr<VkSurfaceKHR_T> createDisplayPlaneSurfaceKHR(
         VkInstance instance,
         const VkDisplaySurfaceCreateInfoKHR & pCreateInfo)
    {
+      if ( nullptr == pfvkCreateDisplayPlaneSurfaceKHR )
+          throw std::runtime_error("Trying to use an unavailable function\n"
+                                   "Review you instance create info\n"
+                                   "and call load_vulkan_fct_ptrs() with the new instance");
+
       VkSurfaceKHR hSurface; 
       V( pfvkCreateDisplayPlaneSurfaceKHR(
           instance,
@@ -9969,6 +9995,11 @@ std::vector< std::shared_ptr<VkSwapchainKHR_T> > createSharedSwapchainsKHR(
         VkDevice device,
         const std::vector<VkSwapchainCreateInfoKHR> & pCreateInfos)
    {
+      if ( nullptr == pfvkCreateSharedSwapchainsKHR )
+          throw std::runtime_error("Trying to use an unavailable function\n"
+                                   "Review you instance create info\n"
+                                   "and call load_vulkan_fct_ptrs() with the new instance");
+
       std::vector<VkSwapchainKHR> vecpSwapchains( pCreateInfos.size(), nullptr ); 
       V( pfvkCreateSharedSwapchainsKHR(
           device,
@@ -10242,6 +10273,11 @@ std::shared_ptr<VkDebugReportCallbackEXT_T> createDebugReportCallbackEXT(
         VkInstance instance,
         const VkDebugReportCallbackCreateInfoEXT & pCreateInfo)
    {
+      if ( nullptr == pfvkCreateDebugReportCallbackEXT )
+          throw std::runtime_error("Trying to use an unavailable function\n"
+                                   "Review you instance create info\n"
+                                   "and call load_vulkan_fct_ptrs() with the new instance");
+
       VkDebugReportCallbackEXT hCallback; 
       V( pfvkCreateDebugReportCallbackEXT(
           instance,
@@ -10262,6 +10298,11 @@ void  debugReportMessageEXT(
         const char* pLayerPrefix,
         const char* pMessage)
    {
+      if ( nullptr == pfvkDebugReportMessageEXT )
+          throw std::runtime_error("Trying to use an unavailable function\n"
+                                   "Review you instance create info\n"
+                                   "and call load_vulkan_fct_ptrs() with the new instance");
+
       pfvkDebugReportMessageEXT(
           instance,
           flags,
@@ -10341,6 +10382,11 @@ std::shared_ptr<VkDebugMarkerMarkerInfoEXTRAII> DebugMarkerMarkerInfoEXT(
 VkDebugMarkerObjectTagInfoEXT debugMarkerSetObjectTagEXT(
         VkDevice device)
    {
+      if ( nullptr == pfvkDebugMarkerSetObjectTagEXT )
+          throw std::runtime_error("Trying to use an unavailable function\n"
+                                   "Review you instance create info\n"
+                                   "and call load_vulkan_fct_ptrs() with the new instance");
+
       VkDebugMarkerObjectTagInfoEXT pTagInfo; 
       V( pfvkDebugMarkerSetObjectTagEXT(
           device,
@@ -10351,6 +10397,11 @@ VkDebugMarkerObjectTagInfoEXT debugMarkerSetObjectTagEXT(
 std::shared_ptr< VkDebugMarkerObjectNameInfoEXT > debugMarkerSetObjectNameEXT(
         VkDevice device)
    {
+      if ( nullptr == pfvkDebugMarkerSetObjectNameEXT )
+          throw std::runtime_error("Trying to use an unavailable function\n"
+                                   "Review you instance create info\n"
+                                   "and call load_vulkan_fct_ptrs() with the new instance");
+
       std::shared_ptr<VkDebugMarkerObjectNameInfoEXT> ptrpNameInfo(new VkDebugMarkerObjectNameInfoEXT); 
       V( pfvkDebugMarkerSetObjectNameEXT(
           device,
@@ -10361,6 +10412,11 @@ std::shared_ptr< VkDebugMarkerObjectNameInfoEXT > debugMarkerSetObjectNameEXT(
 std::shared_ptr< VkDebugMarkerMarkerInfoEXT > cmdDebugMarkerBeginEXT(
         VkCommandBuffer commandBuffer)
    {
+      if ( nullptr == pfvkCmdDebugMarkerBeginEXT )
+          throw std::runtime_error("Trying to use an unavailable function\n"
+                                   "Review you instance create info\n"
+                                   "and call load_vulkan_fct_ptrs() with the new instance");
+
       std::shared_ptr<VkDebugMarkerMarkerInfoEXT> ptrpMarkerInfo(new VkDebugMarkerMarkerInfoEXT); 
       pfvkCmdDebugMarkerBeginEXT(
           commandBuffer,
@@ -10371,6 +10427,11 @@ std::shared_ptr< VkDebugMarkerMarkerInfoEXT > cmdDebugMarkerBeginEXT(
 void  cmdDebugMarkerEndEXT(
         VkCommandBuffer commandBuffer)
    {
+      if ( nullptr == pfvkCmdDebugMarkerEndEXT )
+          throw std::runtime_error("Trying to use an unavailable function\n"
+                                   "Review you instance create info\n"
+                                   "and call load_vulkan_fct_ptrs() with the new instance");
+
       pfvkCmdDebugMarkerEndEXT(
           commandBuffer  );
    }
@@ -10378,6 +10439,11 @@ void  cmdDebugMarkerEndEXT(
 std::shared_ptr< VkDebugMarkerMarkerInfoEXT > cmdDebugMarkerInsertEXT(
         VkCommandBuffer commandBuffer)
    {
+      if ( nullptr == pfvkCmdDebugMarkerInsertEXT )
+          throw std::runtime_error("Trying to use an unavailable function\n"
+                                   "Review you instance create info\n"
+                                   "and call load_vulkan_fct_ptrs() with the new instance");
+
       std::shared_ptr<VkDebugMarkerMarkerInfoEXT> ptrpMarkerInfo(new VkDebugMarkerMarkerInfoEXT); 
       pfvkCmdDebugMarkerInsertEXT(
           commandBuffer,
@@ -10426,6 +10492,11 @@ void  cmdDrawIndirectCountAMD(
         uint32_t maxDrawCount,
         uint32_t stride)
    {
+      if ( nullptr == pfvkCmdDrawIndirectCountAMD )
+          throw std::runtime_error("Trying to use an unavailable function\n"
+                                   "Review you instance create info\n"
+                                   "and call load_vulkan_fct_ptrs() with the new instance");
+
       pfvkCmdDrawIndirectCountAMD(
           commandBuffer,
           buffer,
@@ -10445,6 +10516,11 @@ void  cmdDrawIndexedIndirectCountAMD(
         uint32_t maxDrawCount,
         uint32_t stride)
    {
+      if ( nullptr == pfvkCmdDrawIndexedIndirectCountAMD )
+          throw std::runtime_error("Trying to use an unavailable function\n"
+                                   "Review you instance create info\n"
+                                   "and call load_vulkan_fct_ptrs() with the new instance");
+
       pfvkCmdDrawIndexedIndirectCountAMD(
           commandBuffer,
           buffer,
@@ -10478,6 +10554,11 @@ VkExternalImageFormatPropertiesNV getPhysicalDeviceExternalImageFormatProperties
         VkImageCreateFlags flags,
         VkExternalMemoryHandleTypeFlagsNV externalHandleType)
    {
+      if ( nullptr == pfvkGetPhysicalDeviceExternalImageFormatPropertiesNV )
+          throw std::runtime_error("Trying to use an unavailable function\n"
+                                   "Review you instance create info\n"
+                                   "and call load_vulkan_fct_ptrs() with the new instance");
+
       VkExternalImageFormatPropertiesNV pExternalImageFormatProperties; 
       V( pfvkGetPhysicalDeviceExternalImageFormatPropertiesNV(
           physicalDevice,
@@ -10552,6 +10633,11 @@ std::shared_ptr< HANDLE > getMemoryWin32HandleNV(
         VkDeviceMemory memory,
         VkExternalMemoryHandleTypeFlagsNV handleType)
    {
+      if ( nullptr == pfvkGetMemoryWin32HandleNV )
+          throw std::runtime_error("Trying to use an unavailable function\n"
+                                   "Review you instance create info\n"
+                                   "and call load_vulkan_fct_ptrs() with the new instance");
+
       std::shared_ptr<HANDLE> ptrpHandle(new HANDLE); 
       V( pfvkGetMemoryWin32HandleNV(
           device,

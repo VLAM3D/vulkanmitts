@@ -43,7 +43,6 @@ Please read SWIG_DOC_
 %init 
 %{ 
     import_array();
-    load_vulkan_fct_ptrs();
 %}
 
 %define %ref_counted_handle(HANDLETYPE...)
@@ -566,7 +565,7 @@ std::shared_ptr< std::vector<VkCommandBuffer> > allocateCommandBuffers(VkDevice 
     PyArray_SetBaseObject(array, cap);
 
     $result = SWIG_Python_AppendOutput($result, obj);
-}
+} 
 
 %inline %{
     void mapMemory2D(
@@ -582,5 +581,20 @@ std::shared_ptr< std::vector<VkCommandBuffer> > allocateCommandBuffers(VkDevice 
     {
         V(vkMapMemory(device, memory, offset, static_cast<VkDeviceSize>(height)*static_cast<VkDeviceSize>(row_pitch_bytes), flags, ppData_strided_2D));
     }
+%}
+
+%include "message_callback.ixx"
+
+%inline 
+%{
+	std::shared_ptr<VkDebugReportCallbackEXT_T> install_stdout_error_reporting(VkInstance instance, VkDebugReportFlagsEXT flags)
+	{
+		VkDebugReportCallbackCreateInfoEXT dbgCreateInfo = {};
+		dbgCreateInfo.sType = VK_STRUCTURE_TYPE_DEBUG_REPORT_CREATE_INFO_EXT;
+		dbgCreateInfo.pfnCallback = (PFN_vkDebugReportCallbackEXT)message_callback;
+		dbgCreateInfo.flags = flags;
+
+		return createDebugReportCallbackEXT(instance, dbgCreateInfo);
+	}
 %}
 

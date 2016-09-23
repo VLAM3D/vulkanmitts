@@ -104,7 +104,7 @@ def win32_vk_main(vulkan_render_fct, redraw_interval_ms):
     lpmsg = pointer(msg)
 
     print('Creating Vulkan Context')
-    with VkContextManager(VkContextManager.VKC_INIT_PIPELINE, Win32Window(hWnd)) as vkc: 
+    with VkContextManager(VkContextManager.VKC_INIT_PIPELINE, surface_type = VkContextManager.VKC_WIN32, widget=Win32Window(hWnd)) as vkc: 
         print('Entering message loop')
         set_timer = True
         while True:
