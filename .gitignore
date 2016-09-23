@@ -10,3 +10,5 @@ CMakeHelloWorld
 build/**
 __pycache__
 *.pyc
+.vscode
+diag.txt

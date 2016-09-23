@@ -310,17 +310,24 @@ typedef HINSTANCE__* HINSTANCE;
 
 %typemap(in) HWND
 {
-    auto long_obj = PyNumber_Long($input);
-    if (!long_obj)
-    {
-        %argument_fail(-1, "HWND can't extract the handle from the argument", $symname, $argnum);
-    }
+#if PY_MAJOR_VERSION > 2
+	auto long_obj = PyNumber_Long($input);
+#else
+	auto long_obj = PyNumber_Int($input);
+#endif
+	if (!long_obj)
+	{
+		$1 = reinterpret_cast<HWND>(PyLong_AsVoidPtr($input));				
+	}
+	else
+	{
+		$1 = reinterpret_cast<HWND>(PyLong_AsVoidPtr(long_obj));
+	}
 
-    $1 = reinterpret_cast<HWND>(PyLong_AsVoidPtr(long_obj));
-    if (!IsWindow($1))
-    {
-        %argument_fail(-1, "HWND is not a valid Win32 Windows Handle", $symname, $argnum);
-    }
+	if (!IsWindow($1))
+	{
+		%argument_fail(-1, "HWND is not a valid Win32 Windows Handle", $symname, $argnum);
+	}
 }
 
 %typemap(in) HINSTANCE

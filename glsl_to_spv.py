@@ -3,7 +3,7 @@
 # This code is licensed under the MIT license (MIT) (http://opensource.org/licenses/MIT)
 
 import pyglslang
-from contextlib import contextmanager
+from contextlib2 import contextmanager
 
 @contextmanager
 def pyglslangprocessing():

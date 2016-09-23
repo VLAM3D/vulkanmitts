@@ -73,8 +73,8 @@ def win32_vk_main(vulkan_render_fct, redraw_interval_ms):
 
     WndProc = WNDPROCTYPE(PyWndProcedure)
     hInst = windll.kernel32.GetModuleHandleW(0)
-    wclassName = 'Hello Vulkan Win32 Class'
-    wname = 'Hello Vulkan Win32 Window'
+    wclassName = u'Hello Vulkan Win32 Class'
+    wname = u'Hello Vulkan Win32 Window'
     
     wndClass = WNDCLASSEX()
     wndClass.cbSize = sizeof(WNDCLASSEX)

@@ -64,8 +64,6 @@ conda build pyvulkan
 
 ### Tests
 
-Tests only works with Python 3.4 and up because of the use of contextlib.ExitStack. This class cleans Vulkan code tremendously. Porting the tests to 2.7 would require writing an equivalent class. 
-
 Coverage is very limited. Currently we have the equivalent of the "template" sample in the Lunar SDK. It's a textured cube. 
 
 More test cases are welcome.

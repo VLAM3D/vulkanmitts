@@ -44,7 +44,6 @@ class CreateInstanceTestCase(unittest.TestCase):
     def setUp(self):
         self.instance_ext_names = [vk.VK_KHR_SURFACE_EXTENSION_NAME, vk.VK_KHR_WIN32_SURFACE_EXTENSION_NAME]
         self.device_extension_names = [vk.VK_KHR_SWAPCHAIN_EXTENSION_NAME]
-        return super().setUp()
 
     def test_application_info(self):
         app = vk.ApplicationInfo("foo", 1, "bar", 1, 0)
@@ -70,7 +69,6 @@ class PhysicalDeviceTestCase(unittest.TestCase):
         self.instance = vk.createInstance(instance_create_info)
         self.assertIsNotNone(self.instance)
         self.physical_devices = vk.enumeratePhysicalDevices(self.instance)
-        return super().setUp()
 
     def test_enumerate_physical_device(self):        
         self.assertIsNotNone(self.physical_devices)
@@ -157,7 +155,6 @@ class SwapChainTestCase(unittest.TestCase):
         device_ci = vk.DeviceCreateInfo(0, vec_dev_queue_ci, [], self.device_extension_names, None)
         self.device = vk.createDevice(self.physical_devices[0], device_ci)
         self.assertIsNotNone(self.device)
-        return super().setUp()
 
     def __del__(self):
         self.device = None        
@@ -165,12 +162,11 @@ class SwapChainTestCase(unittest.TestCase):
     def test_create_win32_swap_chain(self):
         widget = QWidget()
         widget.resize(640, 480)
-        widget.winId()        
         surface_ci = vk.Win32SurfaceCreateInfoKHR(0, vk.GetThisEXEModuleHandle(), widget.winId())       
-        self.assertIsNotNone(surface_ci)
+        self.assertIsNotNone(surface_ci)        
         surface = vk.createWin32SurfaceKHR(self.instance, surface_ci)
         self.assertIsNotNone(surface)
-
+        
         # test that we can find a queue with the graphics bit and that can present
         queue_props = vk.getPhysicalDeviceQueueFamilyProperties(self.physical_devices[0])
         support_present = []

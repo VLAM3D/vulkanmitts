@@ -6,11 +6,14 @@
 # 
 # This code is licensed under the MIT license (MIT) (http://opensource.org/licenses/MIT)
 # 
+from __future__ import print_function
+import argparse
 import sys
 import re
 import os
 from reg import *
 from generator import *
+from cgenerator import *
 
 array_size_re = re.compile('\[(\w+)\]')
 
@@ -177,7 +180,11 @@ class CSWIGOutputGenerator(COutputGenerator):
                                 'vkDebugMarkerSetObjectNameEXT',
                                 'vkCmdDebugMarkerBeginEXT',
                                 'vkCmdDebugMarkerEndEXT',
-                                'vkCmdDebugMarkerInsertEXT']
+                                'vkCmdDebugMarkerInsertEXT',
+                                'vkCmdDrawIndirectCountAMD',
+                                'vkCmdDrawIndexedIndirectCountAMD',
+                                'vkGetPhysicalDeviceExternalImageFormatPropertiesNV',
+                                'vkGetMemoryWin32HandleNV']
         self.loadPtrs = """
     void load_vulkan_fct_ptrs()
     {
@@ -265,7 +272,7 @@ class CSWIGOutputGenerator(COutputGenerator):
                                 break       
 
     def beginFile(self, genOpts):
-        self.outdir = os.path.dirname(genOpts.filename)
+        self.outdir = genOpts.directory
         OutputGenerator.beginFile(self, genOpts)
         if (genOpts.prefixText):
             for s in genOpts.prefixText:
@@ -1018,17 +1025,19 @@ class CSWIGOutputGenerator(COutputGenerator):
                     return
                 len_params = len_string.split(',')
                 for len_param in len_params:
-                    nt_pair = (len_param, 'uint32_t')
-                    if nt_pair in params_name_type:  
-                        count_param_index = params_name_type.index(nt_pair)
-                        if is_param_const(p):
-                            input_params_to_vectorize.add(i)
-                        else:                            
-                            argout_params_to_vectorize.add(i)
-                        count_to_vector_param_map[ count_param_index ] = i
-                        if params_name_type[i][1] not in self.hideFromSWIGTypes:
-                            self.std_vector_types.add( params_name_type[i][1] )
-                        params_to_remove.add(count_param_index)                           
+                    for len_type in ['uint32_t', 'VkDeviceSize']:
+                        nt_pair = (len_param, len_type)
+                        if nt_pair in params_name_type:  
+                            count_param_index = params_name_type.index(nt_pair)
+                            if is_param_const(p):
+                                input_params_to_vectorize.add(i)
+                            else:                            
+                                argout_params_to_vectorize.add(i)
+                            count_to_vector_param_map[ count_param_index ] = i
+                            if params_name_type[i][1] not in self.hideFromSWIGTypes:
+                                self.std_vector_types.add( params_name_type[i][1] )
+                            params_to_remove.add(count_param_index)    
+                            break # only one matching type possible                       
         
         for i,p in enumerate(params):
             if not i in input_params_to_vectorize and not i in argout_params_to_vectorize and not i in params_to_remove:
@@ -1120,12 +1129,17 @@ vlam3dPrefixString = """
 * This code is licensed under the MIT license (MIT) (http://opensource.org/licenses/MIT)
 */
 """
-
-regFilename = 'vk.xml'
-diagFilename = 'diag.txt'
    
+def genswigi(vkxml, output_folder):
+    if not os.path.exists(vkxml):
+        raise RuntimeError(vkxml+' not found')
 
-if __name__ == '__main__':
+    if not os.path.exists(output_folder):
+        os.makedirs(output_folder)
+
+    regFilename = vkxml
+    diagFilename = os.path.join(output_folder,'diag.txt')
+
     reg = Registry()
     tree = etree.parse(regFilename)
     reg.loadElementTree(tree)
@@ -1137,7 +1151,8 @@ if __name__ == '__main__':
     prefix_strs.extend(khronosPrefixStrings)
 
     genOpts = CGeneratorOptions(
-        filename          = '../../../pyvulkan/vulkan.ixx',
+        directory         = output_folder,
+        filename          = 'vulkan.ixx',
         apiname           = 'vulkan',
         profile           = None,
         versions          = allVersions,
@@ -1161,4 +1176,13 @@ if __name__ == '__main__':
         gen = CSWIGOutputGenerator(errFile=errWarn, warnFile=errWarn, diagFile=diag)
         reg.setGenerator(gen)
         reg.apiGen(genOpts)
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description='Generates a SWIG interface from vk.xml.')
+    parser.add_argument('vkxml',type=str,help='Path to vk.xml')
+    parser.add_argument('output_folder',type=str,help='Folder where to write the SWIG interface')
+
+    args = parser.parse_args()
+
+    genswigi(args.vkxml, args.output_folder)
 

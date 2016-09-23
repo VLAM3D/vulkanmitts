@@ -32,7 +32,6 @@ class TestInit(unittest.TestCase):
 class TestShadersCtor(unittest.TestCase):
     def setUp(self):
         pyglslang.InitializeProcess()        
-        return super().setUp()
 
     def test_vertex_shader(self):                
         shader = pyglslang.TShader(pyglslang.EShLangVertex) 
@@ -59,8 +58,7 @@ class TestShadersCtor(unittest.TestCase):
         self.assertIsNotNone(shader)       
 
     def tearDown(self):
-        pyglslang.FinalizeProcess()
-        return super().tearDown()    
+        pyglslang.FinalizeProcess()   
     
 class TestGLSLToSPV(unittest.TestCase):
     def setUp(self):
@@ -76,9 +74,6 @@ class TestGLSLToSPV(unittest.TestCase):
     def test_vertex_shader_to_spv(self):        
         spv = glsl_to_spv(pyglslang.EShLangFragment, self.fs_txt)
         
-    def tearDown(self):
-        return super().tearDown()
-
 if __name__ == '__main__':
     # set defaultTest to invoke a specific test case
     unittest.main()

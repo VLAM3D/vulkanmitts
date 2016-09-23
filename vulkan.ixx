@@ -53,7 +53,7 @@ const char* vkGetErrorString(VkResult retval);
 #define VK_VERSION_MINOR(version) (((uint32_t)(version) >> 12) & 0x3ff)
 #define VK_VERSION_PATCH(version) ((uint32_t)(version) & 0xfff)
 // Version of this file
-#define VK_HEADER_VERSION 14
+#define VK_HEADER_VERSION 27
 
 
 #define VK_NULL_HANDLE 0
@@ -63,10 +63,12 @@ const char* vkGetErrorString(VkResult retval);
 #define VK_DEFINE_HANDLE(object) typedef struct object##_T* object;
 
 
-#if defined(__LP64__) || defined(_WIN64) || defined(__x86_64__) || defined(_M_X64) || defined(__ia64) || defined (_M_IA64) || defined(__aarch64__) || defined(__powerpc64__)
+#if !defined(VK_DEFINE_NON_DISPATCHABLE_HANDLE)
+#if defined(__LP64__) || defined(_WIN64) || (defined(__x86_64__) && !defined(__ILP32__) ) || defined(_M_X64) || defined(__ia64) || defined (_M_IA64) || defined(__aarch64__) || defined(__powerpc64__)
         #define VK_DEFINE_NON_DISPATCHABLE_HANDLE(object) typedef struct object##_T *object;
 #else
         #define VK_DEFINE_NON_DISPATCHABLE_HANDLE(object) typedef uint64_t object;
+#endif
 #endif
         
 
@@ -143,6 +145,7 @@ typedef enum VkResult {
     VK_ERROR_INCOMPATIBLE_DRIVER = -9,
     VK_ERROR_TOO_MANY_OBJECTS = -10,
     VK_ERROR_FORMAT_NOT_SUPPORTED = -11,
+    VK_ERROR_FRAGMENTED_POOL = -12,
     VK_ERROR_SURFACE_LOST_KHR = -1000000000,
     VK_ERROR_NATIVE_WINDOW_IN_USE_KHR = -1000000001,
     VK_SUBOPTIMAL_KHR = 1000001003,
@@ -150,9 +153,9 @@ typedef enum VkResult {
     VK_ERROR_INCOMPATIBLE_DISPLAY_KHR = -1000003001,
     VK_ERROR_VALIDATION_FAILED_EXT = -1000011001,
     VK_ERROR_INVALID_SHADER_NV = -1000012000,
-    VK_RESULT_BEGIN_RANGE = VK_ERROR_FORMAT_NOT_SUPPORTED,
+    VK_RESULT_BEGIN_RANGE = VK_ERROR_FRAGMENTED_POOL,
     VK_RESULT_END_RANGE = VK_INCOMPLETE,
-    VK_RESULT_RANGE_SIZE = (VK_INCOMPLETE - VK_ERROR_FORMAT_NOT_SUPPORTED + 1),
+    VK_RESULT_RANGE_SIZE = (VK_INCOMPLETE - VK_ERROR_FRAGMENTED_POOL + 1),
     VK_RESULT_MAX_ENUM = 0x7FFFFFFF
 } VkResult;
 
@@ -222,6 +225,15 @@ typedef enum VkStructureType {
     VK_STRUCTURE_TYPE_DEBUG_MARKER_OBJECT_NAME_INFO_EXT = 1000022000,
     VK_STRUCTURE_TYPE_DEBUG_MARKER_OBJECT_TAG_INFO_EXT = 1000022001,
     VK_STRUCTURE_TYPE_DEBUG_MARKER_MARKER_INFO_EXT = 1000022002,
+    VK_STRUCTURE_TYPE_DEDICATED_ALLOCATION_IMAGE_CREATE_INFO_NV = 1000026000,
+    VK_STRUCTURE_TYPE_DEDICATED_ALLOCATION_BUFFER_CREATE_INFO_NV = 1000026001,
+    VK_STRUCTURE_TYPE_DEDICATED_ALLOCATION_MEMORY_ALLOCATE_INFO_NV = 1000026002,
+    VK_STRUCTURE_TYPE_EXTERNAL_MEMORY_IMAGE_CREATE_INFO_NV = 1000056000,
+    VK_STRUCTURE_TYPE_EXPORT_MEMORY_ALLOCATE_INFO_NV = 1000056001,
+    VK_STRUCTURE_TYPE_IMPORT_MEMORY_WIN32_HANDLE_INFO_NV = 1000057000,
+    VK_STRUCTURE_TYPE_EXPORT_MEMORY_WIN32_HANDLE_INFO_NV = 1000057001,
+    VK_STRUCTURE_TYPE_WIN32_KEYED_MUTEX_ACQUIRE_RELEASE_INFO_NV = 1000058000,
+    VK_STRUCTURE_TYPE_VALIDATION_FLAGS_EXT = 1000061000,
     VK_STRUCTURE_TYPE_BEGIN_RANGE = VK_STRUCTURE_TYPE_APPLICATION_INFO,
     VK_STRUCTURE_TYPE_END_RANGE = VK_STRUCTURE_TYPE_LOADER_DEVICE_CREATE_INFO,
     VK_STRUCTURE_TYPE_RANGE_SIZE = (VK_STRUCTURE_TYPE_LOADER_DEVICE_CREATE_INFO - VK_STRUCTURE_TYPE_APPLICATION_INFO + 1),
@@ -434,6 +446,14 @@ typedef enum VkFormat {
     VK_FORMAT_ASTC_12x10_SRGB_BLOCK = 182,
     VK_FORMAT_ASTC_12x12_UNORM_BLOCK = 183,
     VK_FORMAT_ASTC_12x12_SRGB_BLOCK = 184,
+    VK_FORMAT_PVRTC1_2BPP_UNORM_BLOCK_IMG = 1000054000,
+    VK_FORMAT_PVRTC1_4BPP_UNORM_BLOCK_IMG = 1000054001,
+    VK_FORMAT_PVRTC2_2BPP_UNORM_BLOCK_IMG = 1000054002,
+    VK_FORMAT_PVRTC2_4BPP_UNORM_BLOCK_IMG = 1000054003,
+    VK_FORMAT_PVRTC1_2BPP_SRGB_BLOCK_IMG = 1000054004,
+    VK_FORMAT_PVRTC1_4BPP_SRGB_BLOCK_IMG = 1000054005,
+    VK_FORMAT_PVRTC2_2BPP_SRGB_BLOCK_IMG = 1000054006,
+    VK_FORMAT_PVRTC2_4BPP_SRGB_BLOCK_IMG = 1000054007,
     VK_FORMAT_BEGIN_RANGE = VK_FORMAT_UNDEFINED,
     VK_FORMAT_END_RANGE = VK_FORMAT_ASTC_12x12_SRGB_BLOCK,
     VK_FORMAT_RANGE_SIZE = (VK_FORMAT_ASTC_12x12_SRGB_BLOCK - VK_FORMAT_UNDEFINED + 1),
@@ -2533,7 +2553,7 @@ typedef void (VKAPI_PTR *PFN_vkCmdCopyImage)(VkCommandBuffer commandBuffer, VkIm
 typedef void (VKAPI_PTR *PFN_vkCmdBlitImage)(VkCommandBuffer commandBuffer, VkImage srcImage, VkImageLayout srcImageLayout, VkImage dstImage, VkImageLayout dstImageLayout, uint32_t regionCount, const VkImageBlit* pRegions, VkFilter filter);
 typedef void (VKAPI_PTR *PFN_vkCmdCopyBufferToImage)(VkCommandBuffer commandBuffer, VkBuffer srcBuffer, VkImage dstImage, VkImageLayout dstImageLayout, uint32_t regionCount, const VkBufferImageCopy* pRegions);
 typedef void (VKAPI_PTR *PFN_vkCmdCopyImageToBuffer)(VkCommandBuffer commandBuffer, VkImage srcImage, VkImageLayout srcImageLayout, VkBuffer dstBuffer, uint32_t regionCount, const VkBufferImageCopy* pRegions);
-typedef void (VKAPI_PTR *PFN_vkCmdUpdateBuffer)(VkCommandBuffer commandBuffer, VkBuffer dstBuffer, VkDeviceSize dstOffset, VkDeviceSize dataSize, const uint32_t* pData);
+typedef void (VKAPI_PTR *PFN_vkCmdUpdateBuffer)(VkCommandBuffer commandBuffer, VkBuffer dstBuffer, VkDeviceSize dstOffset, VkDeviceSize dataSize, const void* pData);
 typedef void (VKAPI_PTR *PFN_vkCmdFillBuffer)(VkCommandBuffer commandBuffer, VkBuffer dstBuffer, VkDeviceSize dstOffset, VkDeviceSize size, uint32_t data);
 typedef void (VKAPI_PTR *PFN_vkCmdClearColorImage)(VkCommandBuffer commandBuffer, VkImage image, VkImageLayout imageLayout, const VkClearColorValue* pColor, uint32_t rangeCount, const VkImageSubresourceRange* pRanges);
 typedef void (VKAPI_PTR *PFN_vkCmdClearDepthStencilImage)(VkCommandBuffer commandBuffer, VkImage image, VkImageLayout imageLayout, const VkClearDepthStencilValue* pDepthStencil, uint32_t rangeCount, const VkImageSubresourceRange* pRanges);
@@ -3828,8 +3848,7 @@ void  cmdUpdateBuffer(
         VkCommandBuffer commandBuffer,
         VkBuffer dstBuffer,
         VkDeviceSize dstOffset,
-        VkDeviceSize dataSize,
-        const uint32_t & pData);
+        const std::vector<unsigned char> & pData);
 
 void  cmdFillBuffer(
         VkCommandBuffer commandBuffer,
@@ -4669,7 +4688,7 @@ void  getPhysicalDeviceWin32PresentationSupportKHR(
 #define VK_EXT_debug_report 1
 VK_DEFINE_NON_DISPATCHABLE_HANDLE(VkDebugReportCallbackEXT)
 
-#define VK_EXT_DEBUG_REPORT_SPEC_VERSION  2
+#define VK_EXT_DEBUG_REPORT_SPEC_VERSION  3
 #define VK_EXT_DEBUG_REPORT_EXTENSION_NAME "VK_EXT_debug_report"
 #define VK_STRUCTURE_TYPE_DEBUG_REPORT_CREATE_INFO_EXT VK_STRUCTURE_TYPE_DEBUG_REPORT_CALLBACK_CREATE_INFO_EXT
 
@@ -4810,6 +4829,16 @@ VkPipelineRasterizationStateRasterizationOrderAMD PipelineRasterizationStateRast
 
 
 
+#define VK_AMD_shader_trinary_minmax 1
+#define VK_AMD_SHADER_TRINARY_MINMAX_SPEC_VERSION 1
+#define VK_AMD_SHADER_TRINARY_MINMAX_EXTENSION_NAME "VK_AMD_shader_trinary_minmax"
+
+
+#define VK_AMD_shader_explicit_vertex_parameter 1
+#define VK_AMD_SHADER_EXPLICIT_VERTEX_PARAMETER_SPEC_VERSION 1
+#define VK_AMD_SHADER_EXPLICIT_VERTEX_PARAMETER_EXTENSION_NAME "VK_AMD_shader_explicit_vertex_parameter"
+
+
 #define VK_EXT_debug_marker 1
 #define VK_EXT_DEBUG_MARKER_SPEC_VERSION  3
 #define VK_EXT_DEBUG_MARKER_EXTENSION_NAME "VK_EXT_debug_marker"
@@ -4889,11 +4918,279 @@ void  cmdDebugMarkerEndEXT(
 std::shared_ptr< VkDebugMarkerMarkerInfoEXT > cmdDebugMarkerInsertEXT(
         VkCommandBuffer commandBuffer);
 
+
+#define VK_AMD_gcn_shader 1
+#define VK_AMD_GCN_SHADER_SPEC_VERSION    1
+#define VK_AMD_GCN_SHADER_EXTENSION_NAME  "VK_AMD_gcn_shader"
+
+
+#define VK_NV_dedicated_allocation 1
+#define VK_NV_DEDICATED_ALLOCATION_SPEC_VERSION 1
+#define VK_NV_DEDICATED_ALLOCATION_EXTENSION_NAME "VK_NV_dedicated_allocation"
+
+typedef struct VkDedicatedAllocationImageCreateInfoNV {
+    VkStructureType    sType;
+    const void*        pNext;
+    VkBool32           dedicatedAllocation;
+} VkDedicatedAllocationImageCreateInfoNV;
+
+typedef struct VkDedicatedAllocationBufferCreateInfoNV {
+    VkStructureType    sType;
+    const void*        pNext;
+    VkBool32           dedicatedAllocation;
+} VkDedicatedAllocationBufferCreateInfoNV;
+
+typedef struct VkDedicatedAllocationMemoryAllocateInfoNV {
+    VkStructureType    sType;
+    const void*        pNext;
+    VkImage            image;
+    VkBuffer           buffer;
+} VkDedicatedAllocationMemoryAllocateInfoNV;
+
+
+VkDedicatedAllocationImageCreateInfoNV DedicatedAllocationImageCreateInfoNV(
+    VkBool32                                    dedicatedAllocation);
+
+
+VkDedicatedAllocationBufferCreateInfoNV DedicatedAllocationBufferCreateInfoNV(
+    VkBool32                                    dedicatedAllocation);
+
+
+VkDedicatedAllocationMemoryAllocateInfoNV DedicatedAllocationMemoryAllocateInfoNV(
+    VkImage                                     image,
+    VkBuffer                                    buffer);
+
+
+
+#define VK_AMD_draw_indirect_count 1
+#define VK_AMD_EXTENSION_DRAW_INDIRECT_COUNT_SPEC_VERSION 1
+#define VK_AMD_EXTENSION_DRAW_INDIRECT_COUNT_EXTENSION_NAME "VK_AMD_draw_indirect_count"
+
+typedef void (VKAPI_PTR *PFN_vkCmdDrawIndirectCountAMD)(VkCommandBuffer commandBuffer, VkBuffer buffer, VkDeviceSize offset, VkBuffer countBuffer, VkDeviceSize countBufferOffset, uint32_t maxDrawCount, uint32_t stride);
+typedef void (VKAPI_PTR *PFN_vkCmdDrawIndexedIndirectCountAMD)(VkCommandBuffer commandBuffer, VkBuffer buffer, VkDeviceSize offset, VkBuffer countBuffer, VkDeviceSize countBufferOffset, uint32_t maxDrawCount, uint32_t stride);
+
+void  cmdDrawIndirectCountAMD(
+        VkCommandBuffer commandBuffer,
+        VkBuffer buffer,
+        VkDeviceSize offset,
+        VkBuffer countBuffer,
+        VkDeviceSize countBufferOffset,
+        uint32_t maxDrawCount,
+        uint32_t stride);
+
+void  cmdDrawIndexedIndirectCountAMD(
+        VkCommandBuffer commandBuffer,
+        VkBuffer buffer,
+        VkDeviceSize offset,
+        VkBuffer countBuffer,
+        VkDeviceSize countBufferOffset,
+        uint32_t maxDrawCount,
+        uint32_t stride);
+
+
+#define VK_AMD_negative_viewport_height 1
+#define VK_AMD_EXTENSION_NEGATIVE_VIEWPORT_HEIGHT_SPEC_VERSION 0
+#define VK_AMD_EXTENSION_NEGATIVE_VIEWPORT_HEIGHT_EXTENSION_NAME "VK_AMD_negative_viewport_height"
+
+
+#define VK_IMG_format_pvrtc 1
+#define VK_IMG_FORMAT_PVRTC_SPEC_VERSION  1
+#define VK_IMG_FORMAT_PVRTC_EXTENSION_NAME "VK_IMG_format_pvrtc"
+
+
+#define VK_NV_external_memory_capabilities 1
+#define VK_NV_EXTERNAL_MEMORY_CAPABILITIES_SPEC_VERSION 1
+#define VK_NV_EXTERNAL_MEMORY_CAPABILITIES_EXTENSION_NAME "VK_NV_external_memory_capabilities"
+
+
+typedef enum VkExternalMemoryHandleTypeFlagBitsNV {
+    VK_EXTERNAL_MEMORY_HANDLE_TYPE_OPAQUE_WIN32_BIT_NV = 0x00000001,
+    VK_EXTERNAL_MEMORY_HANDLE_TYPE_OPAQUE_WIN32_KMT_BIT_NV = 0x00000002,
+    VK_EXTERNAL_MEMORY_HANDLE_TYPE_D3D11_IMAGE_BIT_NV = 0x00000004,
+    VK_EXTERNAL_MEMORY_HANDLE_TYPE_D3D11_IMAGE_KMT_BIT_NV = 0x00000008,
+    VK_EXTERNAL_MEMORY_HANDLE_TYPE_FLAG_BITS_MAX_ENUM_NV = 0x7FFFFFFF
+} VkExternalMemoryHandleTypeFlagBitsNV;
+typedef VkFlags VkExternalMemoryHandleTypeFlagsNV;
+
+typedef enum VkExternalMemoryFeatureFlagBitsNV {
+    VK_EXTERNAL_MEMORY_FEATURE_DEDICATED_ONLY_BIT_NV = 0x00000001,
+    VK_EXTERNAL_MEMORY_FEATURE_EXPORTABLE_BIT_NV = 0x00000002,
+    VK_EXTERNAL_MEMORY_FEATURE_IMPORTABLE_BIT_NV = 0x00000004,
+    VK_EXTERNAL_MEMORY_FEATURE_FLAG_BITS_MAX_ENUM_NV = 0x7FFFFFFF
+} VkExternalMemoryFeatureFlagBitsNV;
+typedef VkFlags VkExternalMemoryFeatureFlagsNV;
+
+typedef struct VkExternalImageFormatPropertiesNV {
+    VkImageFormatProperties              imageFormatProperties;
+    VkExternalMemoryFeatureFlagsNV       externalMemoryFeatures;
+    VkExternalMemoryHandleTypeFlagsNV    exportFromImportedHandleTypes;
+    VkExternalMemoryHandleTypeFlagsNV    compatibleHandleTypes;
+} VkExternalImageFormatPropertiesNV;
+
+
+typedef VkResult (VKAPI_PTR *PFN_vkGetPhysicalDeviceExternalImageFormatPropertiesNV)(VkPhysicalDevice physicalDevice, VkFormat format, VkImageType type, VkImageTiling tiling, VkImageUsageFlags usage, VkImageCreateFlags flags, VkExternalMemoryHandleTypeFlagsNV externalHandleType, VkExternalImageFormatPropertiesNV* pExternalImageFormatProperties);
+
+VkExternalImageFormatPropertiesNV ExternalImageFormatPropertiesNV(
+    VkImageFormatProperties                     imageFormatProperties,
+    VkExternalMemoryFeatureFlagsNV              externalMemoryFeatures,
+    VkExternalMemoryHandleTypeFlagsNV           exportFromImportedHandleTypes,
+    VkExternalMemoryHandleTypeFlagsNV           compatibleHandleTypes);
+
+
+VkExternalImageFormatPropertiesNV getPhysicalDeviceExternalImageFormatPropertiesNV(
+        VkPhysicalDevice physicalDevice,
+        VkFormat format,
+        VkImageType type,
+        VkImageTiling tiling,
+        VkImageUsageFlags usage,
+        VkImageCreateFlags flags,
+        VkExternalMemoryHandleTypeFlagsNV externalHandleType);
+
+
+#define VK_NV_external_memory 1
+#define VK_NV_EXTERNAL_MEMORY_SPEC_VERSION 1
+#define VK_NV_EXTERNAL_MEMORY_EXTENSION_NAME "VK_NV_external_memory"
+
+typedef struct VkExternalMemoryImageCreateInfoNV {
+    VkStructureType                      sType;
+    const void*                          pNext;
+    VkExternalMemoryHandleTypeFlagsNV    handleTypes;
+} VkExternalMemoryImageCreateInfoNV;
+
+typedef struct VkExportMemoryAllocateInfoNV {
+    VkStructureType                      sType;
+    const void*                          pNext;
+    VkExternalMemoryHandleTypeFlagsNV    handleTypes;
+} VkExportMemoryAllocateInfoNV;
+
+
+VkExternalMemoryImageCreateInfoNV ExternalMemoryImageCreateInfoNV(
+    VkExternalMemoryHandleTypeFlagsNV           handleTypes);
+
+
+VkExportMemoryAllocateInfoNV ExportMemoryAllocateInfoNV(
+    VkExternalMemoryHandleTypeFlagsNV           handleTypes);
+
+
+
+#ifdef VK_USE_PLATFORM_WIN32_KHR
+#define VK_NV_external_memory_win32 1
+#define VK_NV_EXTERNAL_MEMORY_WIN32_SPEC_VERSION 1
+#define VK_NV_EXTERNAL_MEMORY_WIN32_EXTENSION_NAME "VK_NV_external_memory_win32"
+
+typedef struct VkImportMemoryWin32HandleInfoNV {
+    VkStructureType                      sType;
+    const void*                          pNext;
+    VkExternalMemoryHandleTypeFlagsNV    handleType;
+    HANDLE                               handle;
+} VkImportMemoryWin32HandleInfoNV;
+
+typedef struct VkExportMemoryWin32HandleInfoNV {
+    VkStructureType               sType;
+    const void*                   pNext;
+    const SECURITY_ATTRIBUTES*    pAttributes;
+    DWORD                         dwAccess;
+} VkExportMemoryWin32HandleInfoNV;
+
+struct VkExportMemoryWin32HandleInfoNVRAII {
+   VkExportMemoryWin32HandleInfoNV nonRaiiObj;
+    std::shared_ptr<SECURITY_ATTRIBUTES>        pAttributes;
+};
+
+
+typedef VkResult (VKAPI_PTR *PFN_vkGetMemoryWin32HandleNV)(VkDevice device, VkDeviceMemory memory, VkExternalMemoryHandleTypeFlagsNV handleType, HANDLE* pHandle);
+
+VkImportMemoryWin32HandleInfoNV ImportMemoryWin32HandleInfoNV(
+    VkExternalMemoryHandleTypeFlagsNV           handleType,
+    HANDLE                                      handle);
+
+
+std::shared_ptr<VkExportMemoryWin32HandleInfoNVRAII> ExportMemoryWin32HandleInfoNV(
+    const SECURITY_ATTRIBUTES *                 pAttributes,
+    DWORD                                       dwAccess);
+
+
+std::shared_ptr< HANDLE > getMemoryWin32HandleNV(
+        VkDevice device,
+        VkDeviceMemory memory,
+        VkExternalMemoryHandleTypeFlagsNV handleType);
+
+#endif /* VK_USE_PLATFORM_WIN32_KHR */
+
+#ifdef VK_USE_PLATFORM_WIN32_KHR
+#define VK_NV_win32_keyed_mutex 1
+#define VK_NV_WIN32_KEYED_MUTEX_SPEC_VERSION 1
+#define VK_NV_WIN32_KEYED_MUTEX_EXTENSION_NAME "VK_NV_win32_keyed_mutex"
+
+typedef struct VkWin32KeyedMutexAcquireReleaseInfoNV {
+    VkStructureType          sType;
+    const void*              pNext;
+    uint32_t                 acquireCount;
+    const VkDeviceMemory*    pAcquireSyncs;
+    const uint64_t*          pAcquireKeys;
+    const uint32_t*          pAcquireTimeoutMilliseconds;
+    uint32_t                 releaseCount;
+    const VkDeviceMemory*    pReleaseSyncs;
+    const uint64_t*          pReleaseKeys;
+} VkWin32KeyedMutexAcquireReleaseInfoNV;
+
+struct VkWin32KeyedMutexAcquireReleaseInfoNVRAII {
+   VkWin32KeyedMutexAcquireReleaseInfoNV nonRaiiObj;
+    std::shared_ptr<VkDeviceMemory>             pAcquireSyncs;
+    std::shared_ptr<uint64_t>                   pAcquireKeys;
+    std::shared_ptr<uint32_t>                   pAcquireTimeoutMilliseconds;
+    std::shared_ptr<VkDeviceMemory>             pReleaseSyncs;
+    std::shared_ptr<uint64_t>                   pReleaseKeys;
+};
+
+
+std::shared_ptr<VkWin32KeyedMutexAcquireReleaseInfoNVRAII> Win32KeyedMutexAcquireReleaseInfoNV(
+    uint32_t                                    acquireCount,
+    const VkDeviceMemory *                      pAcquireSyncs,
+    const uint64_t *                            pAcquireKeys,
+    const uint32_t *                            pAcquireTimeoutMilliseconds,
+    uint32_t                                    releaseCount,
+    const VkDeviceMemory *                      pReleaseSyncs,
+    const uint64_t *                            pReleaseKeys);
+
+
+#endif /* VK_USE_PLATFORM_WIN32_KHR */
+
+#define VK_EXT_validation_flags 1
+#define VK_EXT_VALIDATION_FLAGS_SPEC_VERSION 1
+#define VK_EXT_VALIDATION_FLAGS_EXTENSION_NAME "VK_EXT_validation_flags"
+
+
+typedef enum VkValidationCheckEXT {
+    VK_VALIDATION_CHECK_ALL_EXT = 0,
+    VK_VALIDATION_CHECK_BEGIN_RANGE_EXT = VK_VALIDATION_CHECK_ALL_EXT,
+    VK_VALIDATION_CHECK_END_RANGE_EXT = VK_VALIDATION_CHECK_ALL_EXT,
+    VK_VALIDATION_CHECK_RANGE_SIZE_EXT = (VK_VALIDATION_CHECK_ALL_EXT - VK_VALIDATION_CHECK_ALL_EXT + 1),
+    VK_VALIDATION_CHECK_MAX_ENUM_EXT = 0x7FFFFFFF
+} VkValidationCheckEXT;
+
+typedef struct VkValidationFlagsEXT {
+    VkStructureType          sType;
+    const void*              pNext;
+    uint32_t                 disabledValidationCheckCount;
+    VkValidationCheckEXT*    pDisabledValidationChecks;
+} VkValidationFlagsEXT;
+
+struct VkValidationFlagsEXTRAII {
+   VkValidationFlagsEXT nonRaiiObj;
+    std::vector<VkValidationCheckEXT>           vecDisabledValidationChecks;
+};
+
+
+std::shared_ptr<VkValidationFlagsEXTRAII> ValidationFlagsEXT(
+    const std::vector<VkValidationCheckEXT> &   vecDisabledValidationChecks);
+
+
 %{
 
      const char* vkGetErrorString(VkResult retval)
      {
-         static const char vk_err_messages[24][106] = {
+         static const char vk_err_messages[25][123] = {
              "Vulkan error (VK_SUCCESS) : Command completed successfully",
              "Vulkan error (VK_NOT_READY) : A fence or query has not yet completed",
              "Vulkan error (VK_TIMEOUT) : A wait operation has not completed in the specified time",
@@ -4911,6 +5208,7 @@ std::shared_ptr< VkDebugMarkerMarkerInfoEXT > cmdDebugMarkerInsertEXT(
              "Vulkan error (VK_ERROR_INCOMPATIBLE_DRIVER) : Unable to find a Vulkan driver",
              "Vulkan error (VK_ERROR_TOO_MANY_OBJECTS) : Too many objects of the type have already been created",
              "Vulkan error (VK_ERROR_FORMAT_NOT_SUPPORTED) : Requested format is not supported on this device",
+             "Vulkan error (VK_ERROR_FRAGMENTED_POOL) : A requested pool allocation has failed due to fragmentation of the pool's memory",
              "Vulkan error: VK_ERROR_SURFACE_LOST_KHR",
              "Vulkan error: VK_ERROR_NATIVE_WINDOW_IN_USE_KHR",
              "Vulkan error: VK_SUBOPTIMAL_KHR",
@@ -4937,13 +5235,14 @@ std::shared_ptr< VkDebugMarkerMarkerInfoEXT > cmdDebugMarkerInsertEXT(
              case VK_ERROR_INCOMPATIBLE_DRIVER : return vk_err_messages[14];
              case VK_ERROR_TOO_MANY_OBJECTS : return vk_err_messages[15];
              case VK_ERROR_FORMAT_NOT_SUPPORTED : return vk_err_messages[16];
-             case VK_ERROR_SURFACE_LOST_KHR : return vk_err_messages[17];
-             case VK_ERROR_NATIVE_WINDOW_IN_USE_KHR : return vk_err_messages[18];
-             case VK_SUBOPTIMAL_KHR : return vk_err_messages[19];
-             case VK_ERROR_OUT_OF_DATE_KHR : return vk_err_messages[20];
-             case VK_ERROR_INCOMPATIBLE_DISPLAY_KHR : return vk_err_messages[21];
-             case VK_ERROR_VALIDATION_FAILED_EXT : return vk_err_messages[22];
-             case VK_ERROR_INVALID_SHADER_NV : return vk_err_messages[23];
+             case VK_ERROR_FRAGMENTED_POOL : return vk_err_messages[17];
+             case VK_ERROR_SURFACE_LOST_KHR : return vk_err_messages[18];
+             case VK_ERROR_NATIVE_WINDOW_IN_USE_KHR : return vk_err_messages[19];
+             case VK_SUBOPTIMAL_KHR : return vk_err_messages[20];
+             case VK_ERROR_OUT_OF_DATE_KHR : return vk_err_messages[21];
+             case VK_ERROR_INCOMPATIBLE_DISPLAY_KHR : return vk_err_messages[22];
+             case VK_ERROR_VALIDATION_FAILED_EXT : return vk_err_messages[23];
+             case VK_ERROR_INVALID_SHADER_NV : return vk_err_messages[24];
          }
          return nullptr;
      }
@@ -4962,7 +5261,11 @@ PFN_vkDebugMarkerSetObjectTagEXT pfvkDebugMarkerSetObjectTagEXT;
 PFN_vkDebugMarkerSetObjectNameEXT pfvkDebugMarkerSetObjectNameEXT; 
 PFN_vkCmdDebugMarkerBeginEXT pfvkCmdDebugMarkerBeginEXT; 
 PFN_vkCmdDebugMarkerEndEXT pfvkCmdDebugMarkerEndEXT; 
-PFN_vkCmdDebugMarkerInsertEXT pfvkCmdDebugMarkerInsertEXT;
+PFN_vkCmdDebugMarkerInsertEXT pfvkCmdDebugMarkerInsertEXT; 
+PFN_vkCmdDrawIndirectCountAMD pfvkCmdDrawIndirectCountAMD; 
+PFN_vkCmdDrawIndexedIndirectCountAMD pfvkCmdDrawIndexedIndirectCountAMD; 
+PFN_vkGetPhysicalDeviceExternalImageFormatPropertiesNV pfvkGetPhysicalDeviceExternalImageFormatPropertiesNV; 
+PFN_vkGetMemoryWin32HandleNV pfvkGetMemoryWin32HandleNV;
     void load_vulkan_fct_ptrs()
     {
         VkApplicationInfo appInfo = {};
@@ -4994,6 +5297,10 @@ PFN_vkCmdDebugMarkerInsertEXT pfvkCmdDebugMarkerInsertEXT;
 	    pfvkCmdDebugMarkerBeginEXT = reinterpret_cast<PFN_vkCmdDebugMarkerBeginEXT>(vkGetInstanceProcAddr(instance, "vkCmdDebugMarkerBeginEXT"));
 	    pfvkCmdDebugMarkerEndEXT = reinterpret_cast<PFN_vkCmdDebugMarkerEndEXT>(vkGetInstanceProcAddr(instance, "vkCmdDebugMarkerEndEXT"));
 	    pfvkCmdDebugMarkerInsertEXT = reinterpret_cast<PFN_vkCmdDebugMarkerInsertEXT>(vkGetInstanceProcAddr(instance, "vkCmdDebugMarkerInsertEXT"));
+	    pfvkCmdDrawIndirectCountAMD = reinterpret_cast<PFN_vkCmdDrawIndirectCountAMD>(vkGetInstanceProcAddr(instance, "vkCmdDrawIndirectCountAMD"));
+	    pfvkCmdDrawIndexedIndirectCountAMD = reinterpret_cast<PFN_vkCmdDrawIndexedIndirectCountAMD>(vkGetInstanceProcAddr(instance, "vkCmdDrawIndexedIndirectCountAMD"));
+	    pfvkGetPhysicalDeviceExternalImageFormatPropertiesNV = reinterpret_cast<PFN_vkGetPhysicalDeviceExternalImageFormatPropertiesNV>(vkGetInstanceProcAddr(instance, "vkGetPhysicalDeviceExternalImageFormatPropertiesNV"));
+	    pfvkGetMemoryWin32HandleNV = reinterpret_cast<PFN_vkGetMemoryWin32HandleNV>(vkGetInstanceProcAddr(instance, "vkGetMemoryWin32HandleNV"));
   }
 %}
 
@@ -8664,15 +8971,14 @@ void  cmdUpdateBuffer(
         VkCommandBuffer commandBuffer,
         VkBuffer dstBuffer,
         VkDeviceSize dstOffset,
-        VkDeviceSize dataSize,
-        const uint32_t & pData)
+        const std::vector<unsigned char> & pData)
    {
       vkCmdUpdateBuffer(
           commandBuffer,
           dstBuffer,
           dstOffset,
-          dataSize,
-          &pData  );
+          static_cast<uint32_t>(pData.size()),
+          reinterpret_cast<const void*>(&pData[0])  );
    }
 
 void  cmdFillBuffer(
@@ -10078,221 +10384,493 @@ std::shared_ptr< VkDebugMarkerMarkerInfoEXT > cmdDebugMarkerInsertEXT(
           ptrpMarkerInfo.get()  );
       return ptrpMarkerInfo; 
    }
+
+VkDedicatedAllocationImageCreateInfoNV DedicatedAllocationImageCreateInfoNV(
+    VkBool32                                    dedicatedAllocation)
+   {
+      VkDedicatedAllocationImageCreateInfoNV obj;
+      obj.sType = VK_STRUCTURE_TYPE_DEDICATED_ALLOCATION_IMAGE_CREATE_INFO_NV;
+      obj.pNext = nullptr;
+      obj.dedicatedAllocation = dedicatedAllocation;
+      return obj;
+   }
+
+VkDedicatedAllocationBufferCreateInfoNV DedicatedAllocationBufferCreateInfoNV(
+    VkBool32                                    dedicatedAllocation)
+   {
+      VkDedicatedAllocationBufferCreateInfoNV obj;
+      obj.sType = VK_STRUCTURE_TYPE_DEDICATED_ALLOCATION_BUFFER_CREATE_INFO_NV;
+      obj.pNext = nullptr;
+      obj.dedicatedAllocation = dedicatedAllocation;
+      return obj;
+   }
+
+VkDedicatedAllocationMemoryAllocateInfoNV DedicatedAllocationMemoryAllocateInfoNV(
+    VkImage                                     image,
+    VkBuffer                                    buffer)
+   {
+      VkDedicatedAllocationMemoryAllocateInfoNV obj;
+      obj.sType = VK_STRUCTURE_TYPE_DEDICATED_ALLOCATION_MEMORY_ALLOCATE_INFO_NV;
+      obj.pNext = nullptr;
+      obj.image = image;
+      obj.buffer = buffer;
+      return obj;
+   }
+
+void  cmdDrawIndirectCountAMD(
+        VkCommandBuffer commandBuffer,
+        VkBuffer buffer,
+        VkDeviceSize offset,
+        VkBuffer countBuffer,
+        VkDeviceSize countBufferOffset,
+        uint32_t maxDrawCount,
+        uint32_t stride)
+   {
+      pfvkCmdDrawIndirectCountAMD(
+          commandBuffer,
+          buffer,
+          offset,
+          countBuffer,
+          countBufferOffset,
+          maxDrawCount,
+          stride  );
+   }
+
+void  cmdDrawIndexedIndirectCountAMD(
+        VkCommandBuffer commandBuffer,
+        VkBuffer buffer,
+        VkDeviceSize offset,
+        VkBuffer countBuffer,
+        VkDeviceSize countBufferOffset,
+        uint32_t maxDrawCount,
+        uint32_t stride)
+   {
+      pfvkCmdDrawIndexedIndirectCountAMD(
+          commandBuffer,
+          buffer,
+          offset,
+          countBuffer,
+          countBufferOffset,
+          maxDrawCount,
+          stride  );
+   }
+
+VkExternalImageFormatPropertiesNV ExternalImageFormatPropertiesNV(
+    VkImageFormatProperties                     imageFormatProperties,
+    VkExternalMemoryFeatureFlagsNV              externalMemoryFeatures,
+    VkExternalMemoryHandleTypeFlagsNV           exportFromImportedHandleTypes,
+    VkExternalMemoryHandleTypeFlagsNV           compatibleHandleTypes)
+   {
+      VkExternalImageFormatPropertiesNV obj;
+      obj.imageFormatProperties = imageFormatProperties;
+      obj.externalMemoryFeatures = externalMemoryFeatures;
+      obj.exportFromImportedHandleTypes = exportFromImportedHandleTypes;
+      obj.compatibleHandleTypes = compatibleHandleTypes;
+      return obj;
+   }
+
+VkExternalImageFormatPropertiesNV getPhysicalDeviceExternalImageFormatPropertiesNV(
+        VkPhysicalDevice physicalDevice,
+        VkFormat format,
+        VkImageType type,
+        VkImageTiling tiling,
+        VkImageUsageFlags usage,
+        VkImageCreateFlags flags,
+        VkExternalMemoryHandleTypeFlagsNV externalHandleType)
+   {
+      VkExternalImageFormatPropertiesNV pExternalImageFormatProperties; 
+      V( pfvkGetPhysicalDeviceExternalImageFormatPropertiesNV(
+          physicalDevice,
+          format,
+          type,
+          tiling,
+          usage,
+          flags,
+          externalHandleType,
+          &pExternalImageFormatProperties  ));
+      return pExternalImageFormatProperties; 
+   }
+
+VkExternalMemoryImageCreateInfoNV ExternalMemoryImageCreateInfoNV(
+    VkExternalMemoryHandleTypeFlagsNV           handleTypes)
+   {
+      VkExternalMemoryImageCreateInfoNV obj;
+      obj.sType = VK_STRUCTURE_TYPE_EXTERNAL_MEMORY_IMAGE_CREATE_INFO_NV;
+      obj.pNext = nullptr;
+      obj.handleTypes = handleTypes;
+      return obj;
+   }
+
+VkExportMemoryAllocateInfoNV ExportMemoryAllocateInfoNV(
+    VkExternalMemoryHandleTypeFlagsNV           handleTypes)
+   {
+      VkExportMemoryAllocateInfoNV obj;
+      obj.sType = VK_STRUCTURE_TYPE_EXPORT_MEMORY_ALLOCATE_INFO_NV;
+      obj.pNext = nullptr;
+      obj.handleTypes = handleTypes;
+      return obj;
+   }
+
+#ifdef VK_USE_PLATFORM_WIN32_KHR
+VkImportMemoryWin32HandleInfoNV ImportMemoryWin32HandleInfoNV(
+    VkExternalMemoryHandleTypeFlagsNV           handleType,
+    HANDLE                                      handle)
+   {
+      VkImportMemoryWin32HandleInfoNV obj;
+      obj.sType = VK_STRUCTURE_TYPE_IMPORT_MEMORY_WIN32_HANDLE_INFO_NV;
+      obj.pNext = nullptr;
+      obj.handleType = handleType;
+      obj.handle = handle;
+      return obj;
+   }
+
+struct VkExportMemoryWin32HandleInfoNVRAII {
+   VkExportMemoryWin32HandleInfoNV nonRaiiObj;
+    std::shared_ptr<SECURITY_ATTRIBUTES>        pAttributes;
+};
+
+std::shared_ptr<VkExportMemoryWin32HandleInfoNVRAII> ExportMemoryWin32HandleInfoNV(
+    const SECURITY_ATTRIBUTES *                 pAttributes,
+    DWORD                                       dwAccess)
+   {
+      std::shared_ptr<VkExportMemoryWin32HandleInfoNVRAII> raii_obj(new VkExportMemoryWin32HandleInfoNVRAII);
+      raii_obj->nonRaiiObj.sType = VK_STRUCTURE_TYPE_EXPORT_MEMORY_WIN32_HANDLE_INFO_NV;
+      raii_obj->nonRaiiObj.pNext = nullptr;
+      raii_obj->nonRaiiObj.pAttributes = nullptr;
+      if ( pAttributes ) 
+      { 
+          raii_obj->pAttributes.reset( new SECURITY_ATTRIBUTES );
+          *raii_obj->pAttributes = *pAttributes;
+          raii_obj->nonRaiiObj.pAttributes = raii_obj->pAttributes.get();
+      } 
+      raii_obj->nonRaiiObj.dwAccess = dwAccess;
+      return raii_obj;
+   }
+
+std::shared_ptr< HANDLE > getMemoryWin32HandleNV(
+        VkDevice device,
+        VkDeviceMemory memory,
+        VkExternalMemoryHandleTypeFlagsNV handleType)
+   {
+      std::shared_ptr<HANDLE> ptrpHandle(new HANDLE); 
+      V( pfvkGetMemoryWin32HandleNV(
+          device,
+          memory,
+          handleType,
+          ptrpHandle.get()  ));
+      return ptrpHandle; 
+   }
+
+#endif /* VK_USE_PLATFORM_WIN32_KHR*/
+#ifdef VK_USE_PLATFORM_WIN32_KHR
+struct VkWin32KeyedMutexAcquireReleaseInfoNVRAII {
+   VkWin32KeyedMutexAcquireReleaseInfoNV nonRaiiObj;
+    std::shared_ptr<VkDeviceMemory>             pAcquireSyncs;
+    std::shared_ptr<uint64_t>                   pAcquireKeys;
+    std::shared_ptr<uint32_t>                   pAcquireTimeoutMilliseconds;
+    std::shared_ptr<VkDeviceMemory>             pReleaseSyncs;
+    std::shared_ptr<uint64_t>                   pReleaseKeys;
+};
+
+std::shared_ptr<VkWin32KeyedMutexAcquireReleaseInfoNVRAII> Win32KeyedMutexAcquireReleaseInfoNV(
+    uint32_t                                    acquireCount,
+    const VkDeviceMemory *                      pAcquireSyncs,
+    const uint64_t *                            pAcquireKeys,
+    const uint32_t *                            pAcquireTimeoutMilliseconds,
+    uint32_t                                    releaseCount,
+    const VkDeviceMemory *                      pReleaseSyncs,
+    const uint64_t *                            pReleaseKeys)
+   {
+      std::shared_ptr<VkWin32KeyedMutexAcquireReleaseInfoNVRAII> raii_obj(new VkWin32KeyedMutexAcquireReleaseInfoNVRAII);
+      raii_obj->nonRaiiObj.sType = VK_STRUCTURE_TYPE_WIN32_KEYED_MUTEX_ACQUIRE_RELEASE_INFO_NV;
+      raii_obj->nonRaiiObj.pNext = nullptr;
+      raii_obj->nonRaiiObj.acquireCount = acquireCount;
+      raii_obj->nonRaiiObj.pAcquireSyncs = nullptr;
+      if ( pAcquireSyncs ) 
+      { 
+          raii_obj->pAcquireSyncs.reset( new VkDeviceMemory );
+          *raii_obj->pAcquireSyncs = *pAcquireSyncs;
+          raii_obj->nonRaiiObj.pAcquireSyncs = raii_obj->pAcquireSyncs.get();
+      } 
+      raii_obj->nonRaiiObj.pAcquireKeys = nullptr;
+      if ( pAcquireKeys ) 
+      { 
+          raii_obj->pAcquireKeys.reset( new uint64_t );
+          *raii_obj->pAcquireKeys = *pAcquireKeys;
+          raii_obj->nonRaiiObj.pAcquireKeys = raii_obj->pAcquireKeys.get();
+      } 
+      raii_obj->nonRaiiObj.pAcquireTimeoutMilliseconds = nullptr;
+      if ( pAcquireTimeoutMilliseconds ) 
+      { 
+          raii_obj->pAcquireTimeoutMilliseconds.reset( new uint32_t );
+          *raii_obj->pAcquireTimeoutMilliseconds = *pAcquireTimeoutMilliseconds;
+          raii_obj->nonRaiiObj.pAcquireTimeoutMilliseconds = raii_obj->pAcquireTimeoutMilliseconds.get();
+      } 
+      raii_obj->nonRaiiObj.releaseCount = releaseCount;
+      raii_obj->nonRaiiObj.pReleaseSyncs = nullptr;
+      if ( pReleaseSyncs ) 
+      { 
+          raii_obj->pReleaseSyncs.reset( new VkDeviceMemory );
+          *raii_obj->pReleaseSyncs = *pReleaseSyncs;
+          raii_obj->nonRaiiObj.pReleaseSyncs = raii_obj->pReleaseSyncs.get();
+      } 
+      raii_obj->nonRaiiObj.pReleaseKeys = nullptr;
+      if ( pReleaseKeys ) 
+      { 
+          raii_obj->pReleaseKeys.reset( new uint64_t );
+          *raii_obj->pReleaseKeys = *pReleaseKeys;
+          raii_obj->nonRaiiObj.pReleaseKeys = raii_obj->pReleaseKeys.get();
+      } 
+      return raii_obj;
+   }
+
+#endif /* VK_USE_PLATFORM_WIN32_KHR*/
+struct VkValidationFlagsEXTRAII {
+   VkValidationFlagsEXT nonRaiiObj;
+    std::vector<VkValidationCheckEXT>           vecDisabledValidationChecks;
+};
+
+std::shared_ptr<VkValidationFlagsEXTRAII> ValidationFlagsEXT(
+    const std::vector<VkValidationCheckEXT> &   vecDisabledValidationChecks)
+   {
+      std::shared_ptr<VkValidationFlagsEXTRAII> raii_obj(new VkValidationFlagsEXTRAII);
+      raii_obj->nonRaiiObj.sType = VK_STRUCTURE_TYPE_VALIDATION_FLAGS_EXT;
+      raii_obj->nonRaiiObj.pNext = nullptr;
+      raii_obj->nonRaiiObj.disabledValidationCheckCount = static_cast<uint32_t>(vecDisabledValidationChecks.size());
+      raii_obj->vecDisabledValidationChecks = vecDisabledValidationChecks;
+      if ( raii_obj->vecDisabledValidationChecks.size() > 0)
+      {
+          raii_obj->nonRaiiObj.pDisabledValidationChecks = &raii_obj->vecDisabledValidationChecks[0];
+      }
+      else
+      {
+          raii_obj->nonRaiiObj.pDisabledValidationChecks = nullptr;
+      }
+      return raii_obj;
+   }
 %}
-
-%template (VkDeviceQueueCreateInfoPtr) std::shared_ptr<VkDeviceQueueCreateInfoRAII>;
-
-%template (VkFramebufferCreateInfoPtr) std::shared_ptr<VkFramebufferCreateInfoRAII>;
-
-%template (VkPipelineDynamicStateCreateInfoPtr) std::shared_ptr<VkPipelineDynamicStateCreateInfoRAII>;
-
-%template (VkImageCreateInfoPtr) std::shared_ptr<VkImageCreateInfoRAII>;
-
-%template (VkSpecializationInfoPtr) std::shared_ptr<VkSpecializationInfoRAII>;
-
-%template (VkDescriptorPoolCreateInfoPtr) std::shared_ptr<VkDescriptorPoolCreateInfoRAII>;
-
-%template (VkBindSparseInfoPtr) std::shared_ptr<VkBindSparseInfoRAII>;
-
-%template (VkSparseBufferMemoryBindInfoPtr) std::shared_ptr<VkSparseBufferMemoryBindInfoRAII>;
-
-%template (VkDescriptorSetLayoutBindingPtr) std::shared_ptr<VkDescriptorSetLayoutBindingRAII>;
-
-%template (VkSwapchainCreateInfoKHRPtr) std::shared_ptr<VkSwapchainCreateInfoKHRRAII>;
-
-%template (VkSparseImageOpaqueMemoryBindInfoPtr) std::shared_ptr<VkSparseImageOpaqueMemoryBindInfoRAII>;
-
-%template (VkPipelineVertexInputStateCreateInfoPtr) std::shared_ptr<VkPipelineVertexInputStateCreateInfoRAII>;
-
-%template (VkDescriptorSetAllocateInfoPtr) std::shared_ptr<VkDescriptorSetAllocateInfoRAII>;
-
-%template (VkPipelineColorBlendStateCreateInfoPtr) std::shared_ptr<VkPipelineColorBlendStateCreateInfoRAII>;
 
 %template (VkDeviceCreateInfoPtr) std::shared_ptr<VkDeviceCreateInfoRAII>;
 
-%template (VkPipelineViewportStateCreateInfoPtr) std::shared_ptr<VkPipelineViewportStateCreateInfoRAII>;
-
-%template (VkWriteDescriptorSetPtr) std::shared_ptr<VkWriteDescriptorSetRAII>;
-
-%template (VkApplicationInfoPtr) std::shared_ptr<VkApplicationInfoRAII>;
-
-%template (VkBufferCreateInfoPtr) std::shared_ptr<VkBufferCreateInfoRAII>;
-
-%template (VkPipelineShaderStageCreateInfoPtr) std::shared_ptr<VkPipelineShaderStageCreateInfoRAII>;
-
-%template (VkRenderPassBeginInfoPtr) std::shared_ptr<VkRenderPassBeginInfoRAII>;
-
-%template (VkSubpassDescriptionPtr) std::shared_ptr<VkSubpassDescriptionRAII>;
-
-%template (VkRenderPassCreateInfoPtr) std::shared_ptr<VkRenderPassCreateInfoRAII>;
-
-%template (VkDebugMarkerMarkerInfoEXTPtr) std::shared_ptr<VkDebugMarkerMarkerInfoEXTRAII>;
-
-%template (VkPipelineLayoutCreateInfoPtr) std::shared_ptr<VkPipelineLayoutCreateInfoRAII>;
+%template (VkValidationFlagsEXTPtr) std::shared_ptr<VkValidationFlagsEXTRAII>;
 
 %template (VkInstanceCreateInfoPtr) std::shared_ptr<VkInstanceCreateInfoRAII>;
 
-%template (VkSubmitInfoPtr) std::shared_ptr<VkSubmitInfoRAII>;
+%template (VkWin32KeyedMutexAcquireReleaseInfoNVPtr) std::shared_ptr<VkWin32KeyedMutexAcquireReleaseInfoNVRAII>;
 
-%template (VkDescriptorSetLayoutCreateInfoPtr) std::shared_ptr<VkDescriptorSetLayoutCreateInfoRAII>;
-
-%template (VkGraphicsPipelineCreateInfoPtr) std::shared_ptr<VkGraphicsPipelineCreateInfoRAII>;
-
-%template (VkPresentInfoKHRPtr) std::shared_ptr<VkPresentInfoKHRRAII>;
+%template (VkSparseBufferMemoryBindInfoPtr) std::shared_ptr<VkSparseBufferMemoryBindInfoRAII>;
 
 %template (VkDisplayPropertiesKHRPtr) std::shared_ptr<VkDisplayPropertiesKHRRAII>;
 
+%template (VkDebugMarkerMarkerInfoEXTPtr) std::shared_ptr<VkDebugMarkerMarkerInfoEXTRAII>;
+
+%template (VkSwapchainCreateInfoKHRPtr) std::shared_ptr<VkSwapchainCreateInfoKHRRAII>;
+
+%template (VkPipelineColorBlendStateCreateInfoPtr) std::shared_ptr<VkPipelineColorBlendStateCreateInfoRAII>;
+
+%template (VkBindSparseInfoPtr) std::shared_ptr<VkBindSparseInfoRAII>;
+
+%template (VkBufferCreateInfoPtr) std::shared_ptr<VkBufferCreateInfoRAII>;
+
+%template (VkDescriptorSetAllocateInfoPtr) std::shared_ptr<VkDescriptorSetAllocateInfoRAII>;
+
+%template (VkExportMemoryWin32HandleInfoNVPtr) std::shared_ptr<VkExportMemoryWin32HandleInfoNVRAII>;
+
+%template (VkPipelineDynamicStateCreateInfoPtr) std::shared_ptr<VkPipelineDynamicStateCreateInfoRAII>;
+
+%template (VkSparseImageOpaqueMemoryBindInfoPtr) std::shared_ptr<VkSparseImageOpaqueMemoryBindInfoRAII>;
+
+%template (VkSubpassDescriptionPtr) std::shared_ptr<VkSubpassDescriptionRAII>;
+
 %template (VkCommandBufferBeginInfoPtr) std::shared_ptr<VkCommandBufferBeginInfoRAII>;
 
-%template (VkDebugMarkerObjectNameInfoEXTPtr) std::shared_ptr<VkDebugMarkerObjectNameInfoEXTRAII>;
+%template (VkPipelineVertexInputStateCreateInfoPtr) std::shared_ptr<VkPipelineVertexInputStateCreateInfoRAII>;
+
+%template (VkDescriptorSetLayoutCreateInfoPtr) std::shared_ptr<VkDescriptorSetLayoutCreateInfoRAII>;
 
 %template (VkSparseImageMemoryBindInfoPtr) std::shared_ptr<VkSparseImageMemoryBindInfoRAII>;
 
-%template (VkBufferMemoryBarrierVector) std::vector<VkBufferMemoryBarrier>;
+%template (VkImageCreateInfoPtr) std::shared_ptr<VkImageCreateInfoRAII>;
 
-%template (VkRect2DVector) std::vector<VkRect2D>;
+%template (VkDescriptorPoolCreateInfoPtr) std::shared_ptr<VkDescriptorPoolCreateInfoRAII>;
 
-%template (VkImageMemoryBarrierVector) std::vector<VkImageMemoryBarrier>;
+%template (VkDeviceQueueCreateInfoPtr) std::shared_ptr<VkDeviceQueueCreateInfoRAII>;
 
-%template (VkDeviceSizeVector) std::vector<VkDeviceSize>;
+%template (VkPipelineShaderStageCreateInfoPtr) std::shared_ptr<VkPipelineShaderStageCreateInfoRAII>;
 
-%template (VkBufferViewVector) std::vector<VkBufferView>;
+%template (VkPipelineViewportStateCreateInfoPtr) std::shared_ptr<VkPipelineViewportStateCreateInfoRAII>;
 
-%template (VkDeviceQueueCreateInfoVector) std::vector< std::shared_ptr<VkDeviceQueueCreateInfoRAII> >;
+%template (VkSubmitInfoPtr) std::shared_ptr<VkSubmitInfoRAII>;
 
-%template (VkSparseImageFormatPropertiesVector) std::vector<VkSparseImageFormatProperties>;
+%template (VkRenderPassCreateInfoPtr) std::shared_ptr<VkRenderPassCreateInfoRAII>;
 
-%template (VkPresentModeKHRVector) std::vector<VkPresentModeKHR>;
+%template (VkPresentInfoKHRPtr) std::shared_ptr<VkPresentInfoKHRRAII>;
 
-%template (VkImageCopyVector) std::vector<VkImageCopy>;
+%template (VkWriteDescriptorSetPtr) std::shared_ptr<VkWriteDescriptorSetRAII>;
 
-%template (VkPipelineCacheVector) std::vector<VkPipelineCache>;
+%template (VkSpecializationInfoPtr) std::shared_ptr<VkSpecializationInfoRAII>;
 
-%template (VkResultVector) std::vector<VkResult>;
+%template (VkDescriptorSetLayoutBindingPtr) std::shared_ptr<VkDescriptorSetLayoutBindingRAII>;
 
-%template (VkDisplayPlanePropertiesKHRVector) std::vector<VkDisplayPlanePropertiesKHR>;
+%template (VkApplicationInfoPtr) std::shared_ptr<VkApplicationInfoRAII>;
+
+%template (VkPipelineLayoutCreateInfoPtr) std::shared_ptr<VkPipelineLayoutCreateInfoRAII>;
+
+%template (VkDebugMarkerObjectNameInfoEXTPtr) std::shared_ptr<VkDebugMarkerObjectNameInfoEXTRAII>;
+
+%template (VkRenderPassBeginInfoPtr) std::shared_ptr<VkRenderPassBeginInfoRAII>;
+
+%template (VkGraphicsPipelineCreateInfoPtr) std::shared_ptr<VkGraphicsPipelineCreateInfoRAII>;
+
+%template (VkFramebufferCreateInfoPtr) std::shared_ptr<VkFramebufferCreateInfoRAII>;
+
+%template (VkSpecializationMapEntryVector) std::vector<VkSpecializationMapEntry>;
 
 %template (VkDisplayModePropertiesKHRVector) std::vector<VkDisplayModePropertiesKHR>;
 
+%template (VkBufferVector) std::vector<VkBuffer>;
+
+%template (VkBufferImageCopyVector) std::vector<VkBufferImageCopy>;
+
+%template (VkComputePipelineCreateInfoVector) std::vector<VkComputePipelineCreateInfo>;
+
 %template (floatVector) std::vector<float>;
 
-%template (VkLayerPropertiesVector) std::vector<VkLayerProperties>;
+%template (VkDescriptorImageInfoVector) std::vector<VkDescriptorImageInfo>;
+
+%template (VkExtensionPropertiesVector) std::vector<VkExtensionProperties>;
+
+%template (VkSwapchainCreateInfoKHRVector) std::vector< std::shared_ptr<VkSwapchainCreateInfoKHRRAII> >;
+
+%template (VkResultVector) std::vector<VkResult>;
+
+%template (VkPipelineCacheVector) std::vector<VkPipelineCache>;
+
+%template (VkImageBlitVector) std::vector<VkImageBlit>;
+
+%template (VkDeviceSizeVector) std::vector<VkDeviceSize>;
+
+%template (VkBindSparseInfoVector) std::vector< std::shared_ptr<VkBindSparseInfoRAII> >;
+
+%template (VkDisplayPropertiesKHRVector) std::vector< std::shared_ptr<VkDisplayPropertiesKHRRAII> >;
+
+%template (VkBufferMemoryBarrierVector) std::vector<VkBufferMemoryBarrier>;
+
+%template (VkSparseImageOpaqueMemoryBindInfoVector) std::vector< std::shared_ptr<VkSparseImageOpaqueMemoryBindInfoRAII> >;
+
+%template (VkPipelineColorBlendAttachmentStateVector) std::vector<VkPipelineColorBlendAttachmentState>;
+
+%template (VkEventVector) std::vector<VkEvent>;
+
+%template (VkBufferCopyVector) std::vector<VkBufferCopy>;
+
+%template (VkDescriptorPoolSizeVector) std::vector<VkDescriptorPoolSize>;
+
+%template (VkSubpassDescriptionVector) std::vector< std::shared_ptr<VkSubpassDescriptionRAII> >;
+
+%template (VkSubmitInfoVector) std::vector< std::shared_ptr<VkSubmitInfoRAII> >;
+
+%template (VkSwapchainKHRVector) std::vector<VkSwapchainKHR>;
+
+%template (VkWriteDescriptorSetVector) std::vector< std::shared_ptr<VkWriteDescriptorSetRAII> >;
+
+%template (VkCopyDescriptorSetVector) std::vector<VkCopyDescriptorSet>;
+
+%template (VkPipelineVector) std::vector<VkPipeline>;
+
+%template (VkDisplayKHRVector) std::vector<VkDisplayKHR>;
+
+%template (VkRect2DVector) std::vector<VkRect2D>;
+
+%template (VkMemoryBarrierVector) std::vector<VkMemoryBarrier>;
+
+%template (VkMappedMemoryRangeVector) std::vector<VkMappedMemoryRange>;
+
+%template (VkAttachmentReferenceVector) std::vector<VkAttachmentReference>;
 
 %template (VkSparseImageMemoryRequirementsVector) std::vector<VkSparseImageMemoryRequirements>;
 
 %template (VkSurfaceFormatKHRVector) std::vector<VkSurfaceFormatKHR>;
 
-%template (VkDescriptorPoolSizeVector) std::vector<VkDescriptorPoolSize>;
+%template (VkSparseImageMemoryBindInfoVector) std::vector< std::shared_ptr<VkSparseImageMemoryBindInfoRAII> >;
 
-%template (VkDescriptorBufferInfoVector) std::vector<VkDescriptorBufferInfo>;
+%template (VkDisplayPlanePropertiesKHRVector) std::vector<VkDisplayPlanePropertiesKHR>;
 
-%template (VkBindSparseInfoVector) std::vector< std::shared_ptr<VkBindSparseInfoRAII> >;
-
-%template (VkPipelineColorBlendAttachmentStateVector) std::vector<VkPipelineColorBlendAttachmentState>;
-
-%template (VkSparseBufferMemoryBindInfoVector) std::vector< std::shared_ptr<VkSparseBufferMemoryBindInfoRAII> >;
-
-%template (VkDescriptorSetLayoutBindingVector) std::vector< std::shared_ptr<VkDescriptorSetLayoutBindingRAII> >;
-
-%template (VkImageBlitVector) std::vector<VkImageBlit>;
-
-%template (VkBufferCopyVector) std::vector<VkBufferCopy>;
-
-%template (VkExtensionPropertiesVector) std::vector<VkExtensionProperties>;
-
-%template (VkSparseImageOpaqueMemoryBindInfoVector) std::vector< std::shared_ptr<VkSparseImageOpaqueMemoryBindInfoRAII> >;
-
-%template (VkImageViewVector) std::vector<VkImageView>;
-
-%template (VkSwapchainCreateInfoKHRVector) std::vector< std::shared_ptr<VkSwapchainCreateInfoKHRRAII> >;
-
-%template (VkFenceVector) std::vector<VkFence>;
-
-%template (VkSpecializationMapEntryVector) std::vector<VkSpecializationMapEntry>;
-
-%template (VkCopyDescriptorSetVector) std::vector<VkCopyDescriptorSet>;
-
-%template (VkImageSubresourceRangeVector) std::vector<VkImageSubresourceRange>;
-
-%template (VkImageVector) std::vector<VkImage>;
-
-%template (VkAttachmentReferenceVector) std::vector<VkAttachmentReference>;
-
-%template (VkPhysicalDeviceVector) std::vector<VkPhysicalDevice>;
-
-%template (VkWriteDescriptorSetVector) std::vector< std::shared_ptr<VkWriteDescriptorSetRAII> >;
-
-%template (VkBufferImageCopyVector) std::vector<VkBufferImageCopy>;
-
-%template (VkClearValueVector) std::vector<VkClearValue>;
-
-%template (VkDynamicStateVector) std::vector<VkDynamicState>;
-
-%template (VkImageResolveVector) std::vector<VkImageResolve>;
-
-%template (VkPipelineShaderStageCreateInfoVector) std::vector< std::shared_ptr<VkPipelineShaderStageCreateInfoRAII> >;
-
-%template (VkAttachmentDescriptionVector) std::vector<VkAttachmentDescription>;
-
-%template (VkPushConstantRangeVector) std::vector<VkPushConstantRange>;
-
-%template (VkDescriptorSetLayoutVector) std::vector<VkDescriptorSetLayout>;
-
-%template (VkSubpassDescriptionVector) std::vector< std::shared_ptr<VkSubpassDescriptionRAII> >;
-
-%template (VkEventVector) std::vector<VkEvent>;
-
-%template (VkSwapchainKHRVector) std::vector<VkSwapchainKHR>;
-
-%template (VkPipelineVector) std::vector<VkPipeline>;
+%template (VkDeviceQueueCreateInfoVector) std::vector< std::shared_ptr<VkDeviceQueueCreateInfoRAII> >;
 
 %template (VkSemaphoreVector) std::vector<VkSemaphore>;
 
-%template (VkSparseImageMemoryBindVector) std::vector<VkSparseImageMemoryBind>;
+%template (VkSparseMemoryBindVector) std::vector<VkSparseMemoryBind>;
 
-%template (VkClearAttachmentVector) std::vector<VkClearAttachment>;
+%template (VkPresentModeKHRVector) std::vector<VkPresentModeKHR>;
 
-%template (VkSubmitInfoVector) std::vector< std::shared_ptr<VkSubmitInfoRAII> >;
-
-%template (VkQueueFamilyPropertiesVector) std::vector<VkQueueFamilyProperties>;
-
-%template (VkViewportVector) std::vector<VkViewport>;
-
-%template (VkGraphicsPipelineCreateInfoVector) std::vector< std::shared_ptr<VkGraphicsPipelineCreateInfoRAII> >;
-
-%template (VkPipelineStageFlagsVector) std::vector<VkPipelineStageFlags>;
-
-%template (VkComputePipelineCreateInfoVector) std::vector<VkComputePipelineCreateInfo>;
-
-%template (VkDisplayKHRVector) std::vector<VkDisplayKHR>;
-
-%template (VkDescriptorImageInfoVector) std::vector<VkDescriptorImageInfo>;
-
-%template (VkVertexInputBindingDescriptionVector) std::vector<VkVertexInputBindingDescription>;
-
-%template (VkVertexInputAttributeDescriptionVector) std::vector<VkVertexInputAttributeDescription>;
-
-%template (VkSamplerVector) std::vector<VkSampler>;
-
-%template (VkMemoryBarrierVector) std::vector<VkMemoryBarrier>;
-
-%template (VkBufferVector) std::vector<VkBuffer>;
-
-%template (VkDisplayPropertiesKHRVector) std::vector< std::shared_ptr<VkDisplayPropertiesKHRRAII> >;
+%template (VkPipelineShaderStageCreateInfoVector) std::vector< std::shared_ptr<VkPipelineShaderStageCreateInfoRAII> >;
 
 %template (VkSubpassDependencyVector) std::vector<VkSubpassDependency>;
 
-%template (VkSparseMemoryBindVector) std::vector<VkSparseMemoryBind>;
+%template (VkDescriptorSetLayoutBindingVector) std::vector< std::shared_ptr<VkDescriptorSetLayoutBindingRAII> >;
 
-%template (VkMappedMemoryRangeVector) std::vector<VkMappedMemoryRange>;
+%template (VkImageCopyVector) std::vector<VkImageCopy>;
 
-%template (VkSparseImageMemoryBindInfoVector) std::vector< std::shared_ptr<VkSparseImageMemoryBindInfoRAII> >;
+%template (VkDescriptorBufferInfoVector) std::vector<VkDescriptorBufferInfo>;
+
+%template (VkViewportVector) std::vector<VkViewport>;
+
+%template (VkPipelineStageFlagsVector) std::vector<VkPipelineStageFlags>;
+
+%template (VkDescriptorSetLayoutVector) std::vector<VkDescriptorSetLayout>;
+
+%template (VkClearAttachmentVector) std::vector<VkClearAttachment>;
+
+%template (VkAttachmentDescriptionVector) std::vector<VkAttachmentDescription>;
+
+%template (VkSparseBufferMemoryBindInfoVector) std::vector< std::shared_ptr<VkSparseBufferMemoryBindInfoRAII> >;
+
+%template (VkQueueFamilyPropertiesVector) std::vector<VkQueueFamilyProperties>;
+
+%template (VkSparseImageFormatPropertiesVector) std::vector<VkSparseImageFormatProperties>;
+
+%template (VkPhysicalDeviceVector) std::vector<VkPhysicalDevice>;
+
+%template (VkValidationCheckEXTVector) std::vector<VkValidationCheckEXT>;
+
+%template (VkLayerPropertiesVector) std::vector<VkLayerProperties>;
+
+%template (VkFenceVector) std::vector<VkFence>;
 
 %template (VkClearRectVector) std::vector<VkClearRect>;
 
-%template (VkPipelineHandleVector) std::vector< std::shared_ptr< VkPipeline_T > >;
+%template (VkImageVector) std::vector<VkImage>;
+
+%template (VkImageResolveVector) std::vector<VkImageResolve>;
+
+%template (VkSamplerVector) std::vector<VkSampler>;
+
+%template (VkVertexInputAttributeDescriptionVector) std::vector<VkVertexInputAttributeDescription>;
+
+%template (VkImageViewVector) std::vector<VkImageView>;
+
+%template (VkImageMemoryBarrierVector) std::vector<VkImageMemoryBarrier>;
+
+%template (VkPushConstantRangeVector) std::vector<VkPushConstantRange>;
+
+%template (VkClearValueVector) std::vector<VkClearValue>;
+
+%template (VkBufferViewVector) std::vector<VkBufferView>;
+
+%template (VkDynamicStateVector) std::vector<VkDynamicState>;
+
+%template (VkImageSubresourceRangeVector) std::vector<VkImageSubresourceRange>;
+
+%template (VkGraphicsPipelineCreateInfoVector) std::vector< std::shared_ptr<VkGraphicsPipelineCreateInfoRAII> >;
+
+%template (VkVertexInputBindingDescriptionVector) std::vector<VkVertexInputBindingDescription>;
+
+%template (VkSparseImageMemoryBindVector) std::vector<VkSparseImageMemoryBind>;
 
 %template (VkSwapchainKHRHandleVector) std::vector< std::shared_ptr< VkSwapchainKHR_T > >;
+
+%template (VkPipelineHandleVector) std::vector< std::shared_ptr< VkPipeline_T > >;
 
 // Skipped commands that must be manually wrapped
 //vkGetInstanceProcAddr

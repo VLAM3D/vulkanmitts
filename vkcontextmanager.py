@@ -8,7 +8,7 @@ from PIL import Image
 import numpy as np
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
-from contextlib import ExitStack, contextmanager
+from contextlib2 import contextmanager,ExitStack
 from transforms import *
 from glsl_to_spv import *
 from cube_data import *
@@ -93,7 +93,12 @@ class VkContextManager:
     # Acronym for ExitStack Push to reduce the clutter
     # push a destructor for the refcounted handle wrapper on the ExitStack that will be called in unwinding order in __exit__
     def ESP(self, obj):
-        self.stack.callback(delete_this, obj)
+        try:
+            self.stack.callback(delete_this, obj)
+        except IndexError as e:
+            print(e.message)            
+        except:
+            pass
         return obj
 
     def init_global_layer_properties(self):
