@@ -107,9 +107,9 @@ def win32_vk_main(vulkan_render_fct, redraw_interval_ms):
     with VkContextManager(VkContextManager.VKC_INIT_PIPELINE, surface_type = VkContextManager.VKC_WIN32, widget=Win32Window(hWnd)) as vkc: 
         print('Entering message loop')
         set_timer = True
+        redraw = True         
         while True:
-            quit = False   
-            redraw = True         
+            quit = False               
             while windll.user32.PeekMessageW(lpmsg, 0, 0, 0, PM_REMOVE) != 0:
                 if msg.message == WM_QUIT:
                     quit = True

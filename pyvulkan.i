@@ -391,7 +391,7 @@ uint32_t makeVersion(uint32_t major, uint32_t minor, uint32_t patch);
     } 
 %}
 
-std::shared_ptr< std::vector<VkDescriptorSet> > allocateDescriptorSets(VkDevice device, const VkDescriptorSetAllocateInfo& allocateInfo);
+std::shared_ptr< std::vector<VkDescriptorSet> > allocateDescriptorSets(VkDevice device, const VkDescriptorSetAllocateInfo& allocateInfo, bool freeDescriptorSetAllowed);
 
 %{
     struct VkDescriptorSet_T;
@@ -406,24 +406,35 @@ std::shared_ptr< std::vector<VkDescriptorSet> > allocateDescriptorSets(VkDevice 
         };
     }
 
-    std::shared_ptr< std::vector<VkDescriptorSet> > allocateDescriptorSets(VkDevice device, const VkDescriptorSetAllocateInfo& allocateInfo)
+    std::shared_ptr< std::vector<VkDescriptorSet> > allocateDescriptorSets(VkDevice device, const VkDescriptorSetAllocateInfo& allocateInfo, bool freeDescriptorSetAllowed)
     {
-        VkDescriptorPool descriptorPool = allocateInfo.descriptorPool;
-        std::shared_ptr< std::vector<VkDescriptorSet> > descriptor_sets(new std::vector<VkDescriptorSet>(allocateInfo.descriptorSetCount, nullptr), 
-            [device, descriptorPool](std::vector<VkDescriptorSet> *p_to_delete)
-            {
-                assert(p_to_delete != nullptr);
-                auto retval = vkFreeDescriptorSets(device, descriptorPool, static_cast<uint32_t>(p_to_delete->size()), &p_to_delete->front());
-                assert(retval == VK_SUCCESS);
-                if (retval != VK_SUCCESS)
-                {
-                    // can't throw an error in a dtor so we just report the error in release, in debug we assert
-                    std::cerr << vkGetErrorString(retval);
-                }
-                delete p_to_delete;
-            });
-        V(vkAllocateDescriptorSets(device, &allocateInfo, &descriptor_sets->front() ));
-        return descriptor_sets;
+		// freeDescriptorSetAllowed must be true only when VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT is set
+		// in this case we call must call vkFreeDescriptorSets 
+		if (freeDescriptorSetAllowed)
+		{
+			VkDescriptorPool descriptorPool = allocateInfo.descriptorPool;
+			std::shared_ptr< std::vector<VkDescriptorSet> > descriptor_sets(new std::vector<VkDescriptorSet>(allocateInfo.descriptorSetCount, nullptr), 
+				[device, descriptorPool](std::vector<VkDescriptorSet> *p_to_delete)
+				{
+					assert(p_to_delete != nullptr);
+					auto retval = vkFreeDescriptorSets(device, descriptorPool, static_cast<uint32_t>(p_to_delete->size()), &p_to_delete->front());
+					assert(retval == VK_SUCCESS);
+					if (retval != VK_SUCCESS)
+					{
+						// can't throw an error in a dtor so we just report the error in release, in debug we assert
+						std::cerr << vkGetErrorString(retval);
+					}
+					delete p_to_delete;
+				});
+			V(vkAllocateDescriptorSets(device, &allocateInfo, &descriptor_sets->front() ));
+			return descriptor_sets;
+		}
+
+		// if VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT is NOT SET then the descriptor set is owned byt the descriptor pool 
+		// it will be freed by vkResetDescriptorPool, so we don't need a custom deleter
+		auto descriptor_sets = std::make_shared< std::vector<VkDescriptorSet> >(allocateInfo.descriptorSetCount, nullptr);
+		V(vkAllocateDescriptorSets(device, &allocateInfo, &descriptor_sets->front() ));
+		return descriptor_sets;
     } 
 %}
 
@@ -549,7 +560,7 @@ std::shared_ptr< std::vector<VkCommandBuffer> > allocateCommandBuffers(VkDevice 
 (void** ppData_strided_2D)
 {
     auto pyarray_descr = PyArray_DescrFromType(arg5);
-    npy_intp dims[2] = { arg6, arg7 };
+    npy_intp dims[2] = { arg7, arg6 };
     npy_intp strides[2] = { arg8, pyarray_descr->elsize };
     PyObject* obj = PyArray_NewFromDescr(&PyArray_Type, pyarray_descr, 2, dims, strides, (void*)(*arg9), NPY_ARRAY_BEHAVED, NULL);
     PyArrayObject* array = (PyArrayObject*)obj;

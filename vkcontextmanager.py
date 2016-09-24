@@ -1,6 +1,7 @@
 # Making Vulkan Initialization Exception Safe 
 # Copyright (C) 2016 by VLAM3D Software inc. https://www.vlam3d.com
 # This code is licensed under the MIT license (MIT) (http://opensource.org/licenses/MIT)
+from __future__ import print_function
 import os
 import pyvulkan as vk
 import pyglslang
@@ -53,37 +54,6 @@ def memory_type_from_properties(physicalDevice, memoryTypeBits, properties):
 
     return None  
 
-# ported from the Lunar SDK
-def set_image_layout(cmd_buffer, image, aspectMask, old_image_layout, new_image_layout):
-    src_access_mask = 0
-    dst_access_mask = 0
-
-    if old_image_layout == vk.VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL:
-        src_access_mask = vk.VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT
-    
-    if new_image_layout == vk.VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL:
-        dst_access_mask = vk.VK_ACCESS_MEMORY_READ_BIT
-
-    if new_image_layout == vk.VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL:
-        src_access_mask = vk.VK_ACCESS_HOST_WRITE_BIT | vk.VK_ACCESS_TRANSFER_WRITE_BIT;
-        dst_access_mask = vk.VK_ACCESS_SHADER_READ_BIT
-
-    if new_image_layout == vk.VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL:
-        dst_access_mask = vk.VK_ACCESS_COLOR_ATTACHMENT_READ_BIT
-
-    if new_image_layout == vk.VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL:
-        dst_access_mask = vk.VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT
-
-    subresource_range = vk.ImageSubresourceRange(aspectMask, 0, 1, 0, 1)
-    img_mem_barrier = vk.ImageMemoryBarrier(src_access_mask, dst_access_mask, old_image_layout, new_image_layout, 0, 0, image, subresource_range)
-
-    vk.cmdPipelineBarrier(cmd_buffer, 
-                          vk.VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, 
-                          vk.VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, 0, 
-                          vk.VkMemoryBarrierVector(), 
-                          vk.VkBufferMemoryBarrierVector(),
-                          vk.VkImageMemoryBarrierVector(1,img_mem_barrier))
-
 def delete_this(obj):
     del obj.this
 
@@ -119,7 +89,7 @@ class VkContextManager:
         errors_only = vk.VK_DEBUG_REPORT_ERROR_BIT_EXT
         nothing = 0
         # even when setting any error reporting this tests that the functions pointers are correctly loaded
-        self.error_reporting = self.ESP(vk.install_stdout_error_reporting(self.instance,nothing))
+        self.error_reporting = self.ESP(vk.install_stdout_error_reporting(self.instance,full_degug))
         assert(self.instance is not None)
 
     def init_enumerate_device(self):
@@ -238,7 +208,20 @@ class VkContextManager:
         subresource_range = vk.ImageSubresourceRange(vk.VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1)
         self.image_views = []
         for img in self.images:
-            set_image_layout(self.command_buffers[0], img, vk.VK_IMAGE_ASPECT_COLOR_BIT, vk.VK_IMAGE_LAYOUT_UNDEFINED, vk.VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL)
+            subresource_range = vk.ImageSubresourceRange(vk.VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1)
+            img_mem_barrier = vk.ImageMemoryBarrier(0, 
+                                                    vk.VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT, 
+                                                    vk.VK_IMAGE_LAYOUT_UNDEFINED, 
+                                                    vk.VK_IMAGE_LAYOUT_PRESENT_SRC_KHR, 
+                                                    0, 0, img, subresource_range)
+            
+            vk.cmdPipelineBarrier(  self.command_buffers[0], 
+                                    vk.VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, 
+                                    vk.VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, 0, 
+                                    vk.VkMemoryBarrierVector(), 
+                                    vk.VkBufferMemoryBarrierVector(),
+                                    vk.VkImageMemoryBarrierVector(1,img_mem_barrier))
+
             ivci = vk.ImageViewCreateInfo(0, img, vk.VK_IMAGE_VIEW_TYPE_2D, self.format, components, subresource_range)            
             self.image_views.append( self.ESP(vk.createImageView(self.device, ivci)) )
 
@@ -267,7 +250,16 @@ class VkContextManager:
         self.offscreen_output_image_men = self.ESP( vk.allocateMemory(self.device, vk.MemoryAllocateInfo(mem_reqs.size, mem_type_index) ) )
         vk.bindImageMemory(self.device, self.offscreen_output_image, self.offscreen_output_image_men, 0)
 
-        set_image_layout(self.command_buffers[0], self.offscreen_output_image, vk.VK_IMAGE_ASPECT_COLOR_BIT, vk.VK_IMAGE_LAYOUT_UNDEFINED, vk.VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL)
+        subresource_range = vk.ImageSubresourceRange(vk.VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1)
+        img_mem_barrier = vk.ImageMemoryBarrier(0, vk.VK_ACCESS_MEMORY_WRITE_BIT, vk.VK_IMAGE_LAYOUT_UNDEFINED, vk.VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, 0, 0, self.offscreen_output_image, subresource_range)
+
+        vk.cmdPipelineBarrier(self.command_buffers[0], 
+                              vk.VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, 
+                              vk.VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, 0, 
+                              vk.VkMemoryBarrierVector(), 
+                              vk.VkBufferMemoryBarrierVector(),
+                              vk.VkImageMemoryBarrierVector(1,img_mem_barrier))
+
         components = vk.ComponentMapping(vk.VK_COMPONENT_SWIZZLE_R, vk.VK_COMPONENT_SWIZZLE_G, vk.VK_COMPONENT_SWIZZLE_B, vk.VK_COMPONENT_SWIZZLE_A)
         subresource_range = vk.ImageSubresourceRange(vk.VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1)        
         self.offscreen_output_image_view = self.ESP( vk.createImageView(self.device, vk.ImageViewCreateInfo(0, self.offscreen_output_image, vk.VK_IMAGE_VIEW_TYPE_2D, self.format, components, subresource_range)) )
@@ -316,10 +308,18 @@ class VkContextManager:
         self.depth_mem = self.ESP( vk.allocateMemory(self.device, vk.MemoryAllocateInfo(mem_reqs.size, mem_type_index) ) )
         vk.bindImageMemory(self.device, self.depth_image, self.depth_mem, 0)
 
-        set_image_layout(self.command_buffers[0], self.depth_image, vk.VK_IMAGE_ASPECT_DEPTH_BIT|vk.VK_IMAGE_ASPECT_STENCIL_BIT, vk.VK_IMAGE_LAYOUT_UNDEFINED, vk.VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL)
+        subresource_range = vk.ImageSubresourceRange(vk.VK_IMAGE_ASPECT_DEPTH_BIT|vk.VK_IMAGE_ASPECT_STENCIL_BIT, 0, 1, 0, 1)
+        img_mem_barrier = vk.ImageMemoryBarrier(0, vk.VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT, vk.VK_IMAGE_LAYOUT_UNDEFINED, vk.VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL, 0, 0, self.depth_image, subresource_range)
+
+        vk.cmdPipelineBarrier(self.command_buffers[0], 
+                              vk.VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, 
+                              vk.VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, 0, 
+                              vk.VkMemoryBarrierVector(), 
+                              vk.VkBufferMemoryBarrierVector(),
+                              vk.VkImageMemoryBarrierVector(1,img_mem_barrier))
 
         components = vk.ComponentMapping(vk.VK_COMPONENT_SWIZZLE_R, vk.VK_COMPONENT_SWIZZLE_G, vk.VK_COMPONENT_SWIZZLE_B, vk.VK_COMPONENT_SWIZZLE_A)
-        subresource_range = vk.ImageSubresourceRange(vk.VK_IMAGE_ASPECT_DEPTH_BIT|vk.VK_IMAGE_ASPECT_STENCIL_BIT, 0, 1, 0, 1)
+        subresource_range = vk.ImageSubresourceRange(vk.VK_IMAGE_ASPECT_DEPTH_BIT, 0, 1, 0, 1)
         self.depth_view = self.ESP( vk.createImageView(self.device, vk.ImageViewCreateInfo(0, self.depth_image, vk.VK_IMAGE_VIEW_TYPE_2D, self.depth_format, components, subresource_range)) )
 
     def init_image(self, texture_file_path = None):
@@ -373,7 +373,15 @@ class VkContextManager:
         self.tex_mem = self.ESP( vk.allocateMemory(self.device, vk.MemoryAllocateInfo(mem_reqs.size, mem_type_index) ) )
         vk.bindImageMemory(self.device, self.tex_image, self.tex_mem, 0)
 
-        set_image_layout(self.command_buffers[0], self.depth_image, vk.VK_IMAGE_ASPECT_COLOR_BIT, vk.VK_IMAGE_LAYOUT_UNDEFINED, vk.VK_IMAGE_LAYOUT_GENERAL)
+        subresource_range = vk.ImageSubresourceRange(vk.VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1)
+        img_mem_barrier = vk.ImageMemoryBarrier(0, vk.VK_ACCESS_MEMORY_READ_BIT, vk.VK_IMAGE_LAYOUT_UNDEFINED, vk.VK_IMAGE_LAYOUT_GENERAL, 0, 0, self.tex_image, subresource_range)
+
+        vk.cmdPipelineBarrier(self.command_buffers[0], 
+                              vk.VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, 
+                              vk.VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, 0, 
+                              vk.VkMemoryBarrierVector(), 
+                              vk.VkBufferMemoryBarrierVector(),
+                              vk.VkImageMemoryBarrierVector(1,img_mem_barrier))
 
         vk.endCommandBuffer(self.command_buffers[0])
 
@@ -396,7 +404,7 @@ class VkContextManager:
 
         # note that we pass the shape of the numpy array we want mapped, in this case the numpy array number of column is 4x the image width because colors are packed per pixel
         # layout.rowPitch could be different from width * sizeof(pixel format) that why it must be passed to mapMemory2D
-        with vkunmapping( vk.mapMemory2D(self.device, self.tex_mem, 0, 0, np.dtype('ubyte').num, img_array.shape[0], img_array.shape[1], layout.rowPitch ) ) as mapped_array:
+        with vkunmapping( vk.mapMemory2D(self.device, self.tex_mem, 0, 0, np.dtype('ubyte').num, img_array.shape[1], img_array.shape[0], layout.rowPitch ) ) as mapped_array:
             assert(mapped_array.mem.strides[0] == layout.rowPitch)
             np.copyto(mapped_array.mem, img_array)
 
@@ -404,7 +412,16 @@ class VkContextManager:
         vk.beginCommandBuffer(self.command_buffers[0], vk.CommandBufferBeginInfo(0,None))
 
         if not need_staging:
-            set_image_layout(self.command_buffers[0], self.tex_image, vk.VK_IMAGE_ASPECT_COLOR_BIT, vk.VK_IMAGE_LAYOUT_GENERAL, vk.VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL)
+            subresource_range = vk.ImageSubresourceRange(vk.VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1)
+            img_mem_barrier = vk.ImageMemoryBarrier(vk.VK_ACCESS_MEMORY_READ_BIT, vk.VK_ACCESS_SHADER_READ_BIT, vk.VK_IMAGE_LAYOUT_GENERAL, vk.VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, 0, 0, self.tex_image, subresource_range)
+
+            vk.cmdPipelineBarrier(self.command_buffers[0], 
+                                  vk.VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, 
+                                  vk.VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, 0, 
+                                  vk.VkMemoryBarrierVector(), 
+                                  vk.VkBufferMemoryBarrierVector(),
+                                  vk.VkImageMemoryBarrierVector(1,img_mem_barrier))
+
             self.dst_img = self.tex_image
         else:
             ici.tiling = vk.VK_IMAGE_TILING_OPTIMAL
@@ -418,14 +435,39 @@ class VkContextManager:
             self.dst_mem = self.ESP( vk.allocateMemory(self.device, vk.MemoryAllocateInfo(mem_reqs.size, mem_type_index) ) )
             vk.bindImageMemory(self.device, self.dst_img, self.dst_mem, 0)
 
-            set_image_layout(self.command_buffers[0], self.tex_image, vk.VK_IMAGE_ASPECT_COLOR_BIT, vk.VK_IMAGE_LAYOUT_GENERAL, vk.VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL)
-            set_image_layout(self.command_buffers[0], self.dst_img, vk.VK_IMAGE_ASPECT_COLOR_BIT, vk.VK_IMAGE_LAYOUT_UNDEFINED, vk.VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL)
+            subresource_range = vk.ImageSubresourceRange(vk.VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1)
+            img_mem_barrier = vk.ImageMemoryBarrier(vk.VK_ACCESS_MEMORY_READ_BIT, vk.VK_ACCESS_MEMORY_WRITE_BIT, vk.VK_IMAGE_LAYOUT_GENERAL, vk.VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, 0, 0, self.tex_image, subresource_range)
+
+            vk.cmdPipelineBarrier(self.command_buffers[0], 
+                                  vk.VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, 
+                                  vk.VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, 0, 
+                                  vk.VkMemoryBarrierVector(), 
+                                  vk.VkBufferMemoryBarrierVector(),
+                                  vk.VkImageMemoryBarrierVector(1,img_mem_barrier))
+
+            subresource_range = vk.ImageSubresourceRange(vk.VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1)
+            img_mem_barrier = vk.ImageMemoryBarrier(0, vk.VK_ACCESS_MEMORY_WRITE_BIT, old_image_layout, vk.VK_IMAGE_LAYOUT_UNDEFINED, vk.VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 0, 0, self.dst_img, subresource_range)
+
+            vk.cmdPipelineBarrier(self.command_buffers[0], 
+                                  vk.VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, 
+                                  vk.VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, 0, 
+                                  vk.VkMemoryBarrierVector(), 
+                                  vk.VkBufferMemoryBarrierVector(),
+                                  vk.VkImageMemoryBarrierVector(1,img_mem_barrier))
             
             copy_regions = vk.VkImageCopyVector(1,vk.ImageCopy(vk.ImageSubresourceLayers(vk.VK_IMAGE_ASPECT_COLOR_BIT,0,0,1),vk.Offset3D(0,0,0), 
                                                                vk.ImageSubresourceLayers(vk.VK_IMAGE_ASPECT_COLOR_BIT,0,0,1),vk.Offset3D(0,0,0), vk.Extent3D(img_size[0],img_size[1],1)))
             vk.cmdCopyImage(self.command_buffers[0], self.tex_image, vk.VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, self.dst_img, vk.VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, copy_regions)
 
-            set_image_layout(self.command_buffers[0], self.dst_img, vk.VK_IMAGE_ASPECT_COLOR_BIT, vk.VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, vk.VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL)
+            subresource_range = vk.ImageSubresourceRange(vk.VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1)
+            img_mem_barrier = vk.ImageMemoryBarrier(vk.VK_ACCESS_MEMORY_READ_BIT, vk.VK_ACCESS_MEMORY_WRITE_BIT, vk.VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, vk.VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, 0, 0, self.dst_img, subresource_range)
+
+            vk.cmdPipelineBarrier(self.command_buffers[0], 
+                                  vk.VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, 
+                                  vk.VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, 0, 
+                                  vk.VkMemoryBarrierVector(), 
+                                  vk.VkBufferMemoryBarrierVector(),
+                                  vk.VkImageMemoryBarrierVector(1,img_mem_barrier))
 
         components = vk.ComponentMapping(vk.VK_COMPONENT_SWIZZLE_R, vk.VK_COMPONENT_SWIZZLE_G, vk.VK_COMPONENT_SWIZZLE_B, vk.VK_COMPONENT_SWIZZLE_A)
         subresource_range = vk.ImageSubresourceRange(vk.VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1)
@@ -486,7 +528,7 @@ class VkContextManager:
                                                         vk.VK_ATTACHMENT_STORE_OP_STORE, 
                                                         vk.VK_ATTACHMENT_LOAD_OP_DONT_CARE, 
                                                         vk.VK_ATTACHMENT_STORE_OP_DONT_CARE, 
-                                                        vk.VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
+                                                        vk.VK_IMAGE_LAYOUT_PRESENT_SRC_KHR,
                                                         vk.VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL) )
 
         attachments.append( vk.AttachmentDescription(0, self.depth_format, 
@@ -539,7 +581,8 @@ class VkContextManager:
         self.descriptor_pool = self.ESP( vk.createDescriptorPool(self.device, vk.DescriptorPoolCreateInfo(0, 1, pool_sizes)) )
 
     def init_descriptor_set(self):        
-        self.descriptor_set = self.ESP( vk.allocateDescriptorSets(self.device, vk.DescriptorSetAllocateInfo(self.descriptor_pool, vk.VkDescriptorSetLayoutVector(1,self.desc_layout))) )
+        alloc_info = vk.DescriptorSetAllocateInfo(self.descriptor_pool, vk.VkDescriptorSetLayoutVector(1,self.desc_layout))
+        self.descriptor_set = self.ESP( vk.allocateDescriptorSets(self.device,alloc_info,False) )
         assert(self.descriptor_set is not None and len(self.descriptor_set) == 1)
         writes = vk.VkWriteDescriptorSetVector()
         writes.append( vk.WriteDescriptorSet(self.descriptor_set[0], 
@@ -579,7 +622,8 @@ class VkContextManager:
         vi_attribs.append(vk.VertexInputAttributeDescription(1, 0, vk.VK_FORMAT_R32G32_SFLOAT, 16))
         pvisci = vk.PipelineVertexInputStateCreateInfo(0, vk.VkVertexInputBindingDescriptionVector(1,vi_bindings), vi_attribs)
         piasci = vk.PipelineInputAssemblyStateCreateInfo(0, vk.VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST, False)
-        prsci = vk.PipelineRasterizationStateCreateInfo(0, True, False, vk.VK_POLYGON_MODE_FILL, vk.VK_CULL_MODE_BACK_BIT, vk.VK_FRONT_FACE_CLOCKWISE, False, 0, 0, 0, 0)
+        line_width = 1.0 # this must set to avoid a reported error
+        prsci = vk.PipelineRasterizationStateCreateInfo(0, True, False, vk.VK_POLYGON_MODE_FILL, vk.VK_CULL_MODE_BACK_BIT, vk.VK_FRONT_FACE_CLOCKWISE, False, 0, 0, 0, line_width)
         pcbsci = vk.PipelineColorBlendStateCreateInfo(0, False, vk.VK_LOGIC_OP_NO_OP, 
                                                       vk.VkPipelineColorBlendAttachmentStateVector(1, vk.PipelineColorBlendAttachmentState(False, 
                                                                                                                                            vk.VK_BLEND_FACTOR_ZERO,  
@@ -591,7 +635,11 @@ class VkContextManager:
                                                                                                                                            0xF)),
                                                       [1.0,1.0,1.0,1.0])
 
-        pvsci = vk.PipelineViewportStateCreateInfo(0, vk.VkViewportVector(), vk.VkRect2DVector())
+        # https://www.khronos.org/registry/vulkan/specs/1.0/man/html/VkPipelineViewportStateCreateInfo.html
+        # pViewports is a pointer to an array of VkViewport structures, defining the viewport transforms. If the viewport state is dynamic, this member is ignored.
+        # pScissors is a pointer to an array of VkRect2D structures which define the rectangular bounds of the scissor for the corresponding viewport. If the scissor state is dynamic, this member is ignored.
+        # below we create unintialized instances of VkViewport and VkRect2D to set the value viewportCount and scissorCount to 1, because we set their states to DYNAMIC above
+        pvsci = vk.PipelineViewportStateCreateInfo(0, vk.VkViewportVector(1), vk.VkRect2DVector(1))
         op = vk.StencilOpState(vk.VK_STENCIL_OP_KEEP,vk.VK_STENCIL_OP_KEEP,vk.VK_STENCIL_OP_KEEP,vk.VK_COMPARE_OP_ALWAYS,0,0,0)
         pdssci = vk.PipelineDepthStencilStateCreateInfo(0, True, True, vk.VK_COMPARE_OP_LESS_OR_EQUAL, False, False, op, op, 0, 0)
         pmsci = vk.PipelineMultisampleStateCreateInfo(0, vk.VK_SAMPLE_COUNT_1_BIT, False, 0, None, False, False)
@@ -632,6 +680,11 @@ class VkContextManager:
         w,h = self.get_surface_extent()
         vk.cmdSetScissor(self.command_buffers[0], 0, vk.VkRect2DVector(1, vk.Rect2D(vk.Offset2D(0,0), vk.Extent2D(w,h))))
 
+    # Here's the mandatory explicit transition from VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL to VK_IMAGE_LAYOUT_PRESENT_SRC_KHR
+    # to avoid any validation error after queuePresentKHR - note that we don't need an explicit transition back to VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL
+    # because we specified this transition in the render pass, also note that we get validation errors after a couple of calls to queuePresentKHR
+    # if the swap chain images were not transitionned for VK_IMAGE_LAYOUT_UNDEFINED to VK_IMAGE_LAYOUT_PRESENT_SRC_KHR first
+    # i.e. we're basically forced to do VK_IMAGE_LAYOUT_UNDEFINED => VK_IMAGE_LAYOUT_PRESENT_SRC_KHR first.
     def execute_pre_present_barrier(self):
         pre_present_barrier = vk.ImageMemoryBarrier(vk.VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT, 
                                                     vk.VK_ACCESS_MEMORY_READ_BIT,

@@ -273,7 +273,7 @@ class TestDepthStencil(unittest.TestCase):
                                      vk.VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT | vk.VK_IMAGE_USAGE_TRANSFER_SRC_BIT,
                                      vk.VK_SHARING_MODE_EXCLUSIVE, 
                                      [], 
-                                     0)
+                                     vk.VK_IMAGE_LAYOUT_UNDEFINED)
 
             with vkreleasing( vk.createImage(vkc.device, ici) ) as image:
                 self.assertIsNotNone(image)
@@ -281,16 +281,17 @@ class TestDepthStencil(unittest.TestCase):
                 self.assertIsNotNone(memory_requirements)
                 mem_type_index = memory_type_from_properties(vkc.physical_devices[0], memory_requirements.memoryTypeBits, vk.VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT)       
                 self.assertIsNotNone(mem_type_index)
+
                 with vkreleasing( vk.allocateMemory(vkc.device, vk.MemoryAllocateInfo(memory_requirements.size, mem_type_index)) ) as memory:
                     vk.bindImageMemory(vkc.device, image, memory, 0)
-                    image_memory_barrier = vk.ImageMemoryBarrier(vk.VK_ACCESS_HOST_WRITE_BIT | vk.VK_ACCESS_TRANSFER_WRITE_BIT, 
+                    image_memory_barrier = vk.ImageMemoryBarrier(0, 
                                                                  vk.VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT, 
                                                                  vk.VK_IMAGE_LAYOUT_UNDEFINED, 
                                                                  vk.VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
                                                                  0,
                                                                  0,
                                                                  image, 
-                                                                 vk.ImageSubresourceRange(vk.VK_IMAGE_ASPECT_DEPTH_BIT,0,1,0,1))
+                                                                 vk.ImageSubresourceRange(vk.VK_IMAGE_ASPECT_DEPTH_BIT|vk.VK_IMAGE_ASPECT_STENCIL_BIT,0,1,0,1))
 
                     vk.cmdPipelineBarrier(vkc.command_buffers[0], 
                                           vk.VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
