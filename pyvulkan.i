@@ -309,11 +309,11 @@ typedef HINSTANCE__* HINSTANCE;
 
 %typemap(in) HWND
 {
-#if PY_MAJOR_VERSION > 2
+%#if PY_MAJOR_VERSION > 2
 	auto long_obj = PyNumber_Long($input);
-#else
+%#else
 	auto long_obj = PyNumber_Int($input);
-#endif
+%#endif
 	if (!long_obj)
 	{
 		$1 = reinterpret_cast<HWND>(PyLong_AsVoidPtr($input));				

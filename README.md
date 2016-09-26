@@ -68,5 +68,19 @@ Coverage is very limited. Currently we have the equivalent of the "template" sam
 
 More test cases are welcome.
 
+The unit tests depends on the following packages:
+
+* pyqt=4.11.4
+* contextlib2
+* pillow
+
+Example run after building in folders similar to the above
+
+```
+cd c:\dev\pyvulkan
+set PYTHONPATH=c:\build\pyvulkan\bin
+python hello_pyvkoffscreen.py
+```
+
 
 
