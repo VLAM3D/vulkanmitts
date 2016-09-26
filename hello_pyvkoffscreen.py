@@ -22,24 +22,24 @@ def render_textured_cube(vkc, cube_coords):
     vkc.init_scissors()
     vk.cmdDraw(vkc.command_buffers[0], cube_coords.shape[0], 1, 0, 0)
     vk.cmdEndRenderPass(vkc.command_buffers[0])
-    vkc.execute_pre_present_barrier()
+    vkc.stage_readback_copy()  
     vk.endCommandBuffer(vkc.command_buffers[0])
             
     with vkreleasing( vk.createFence(vkc.device, vk.FenceCreateInfo(0)) ) as draw_fence:
         submit_info_vec = vk.VkSubmitInfoVector()
-        submit_info_vec.append( vk.SubmitInfo( vk.VkSemaphoreVector(1,vkc.present_complete_semaphore), vk.VkPipelineStageFlagsVector(1,vk.VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT), vkc.command_buffers, vk.VkSemaphoreVector()) )
+        submit_info_vec.append( vk.SubmitInfo( vk.VkSemaphoreVector(), vk.VkPipelineStageFlagsVector(1,vk.VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT), vkc.command_buffers, vk.VkSemaphoreVector()) )
         vk.queueSubmit(vkc.device_queue, submit_info_vec, draw_fence)
         command_buffer_finished = False
         cmd_fences = vk.VkFenceVector(1,draw_fence)
-        present_info = vk.PresentInfoKHR(vk.VkSemaphoreVector(), vk.VkSwapchainKHRVector(1, vkc.swap_chain), [vkc.current_buffer], vk.VkResultVector())        
         while not command_buffer_finished:
             try:
                 vk.waitForFences(vkc.device, cmd_fences, True, 100000000)
                 command_buffer_finished = True
             except RuntimeError:
-                pass
-                
-        vk.queuePresentKHR(vkc.device_queue, present_info)            
+                pass  
+            
+    vkc.readback_map_copy()      
+    vkc.save_readback_image('textured_cube.png')
 
 def hello_pyvk(texture_file, output_img_file):
     cube_coords = get_xyzw_uv_cube_coords()

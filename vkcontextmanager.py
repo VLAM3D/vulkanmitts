@@ -155,7 +155,7 @@ class VkContextManager:
         assert(B8G8R8A8_format_found)
 
     def init_without_surface(self):
-        self.format = vk.VK_FORMAT_B8G8R8A8_UNORM
+        self.format = vk.VK_FORMAT_R8G8B8A8_UNORM
         self.color_space = None # not required without surface and swap chain
         self.surface = None # not required
         self.init_graphic_queue()
@@ -236,7 +236,7 @@ class VkContextManager:
                                     1, 
                                     vk.VK_SAMPLE_COUNT_1_BIT, 
                                     vk.VK_IMAGE_TILING_OPTIMAL, 
-                                    vk.VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT,
+                                    vk.VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT|vk.VK_IMAGE_USAGE_TRANSFER_SRC_BIT,
                                     vk.VK_SHARING_MODE_EXCLUSIVE, 
                                     [], 
                                     vk.VK_IMAGE_LAYOUT_UNDEFINED)
@@ -251,7 +251,7 @@ class VkContextManager:
         vk.bindImageMemory(self.device, self.offscreen_output_image, self.offscreen_output_image_men, 0)
 
         subresource_range = vk.ImageSubresourceRange(vk.VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1)
-        img_mem_barrier = vk.ImageMemoryBarrier(0, vk.VK_ACCESS_MEMORY_WRITE_BIT, vk.VK_IMAGE_LAYOUT_UNDEFINED, vk.VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, 0, 0, self.offscreen_output_image, subresource_range)
+        img_mem_barrier = vk.ImageMemoryBarrier(0, vk.VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT, vk.VK_IMAGE_LAYOUT_UNDEFINED, vk.VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, 0, 0, self.offscreen_output_image, subresource_range)
 
         vk.cmdPipelineBarrier(self.command_buffers[0], 
                               vk.VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, 
@@ -328,7 +328,7 @@ class VkContextManager:
 
         if not os.path.exists(texture_file_path):
             img_size = (640,480)
-            img_array = check(img_size[0],img_size[1],0,255,32).astype(np.uint8)
+            self.img_array = check(img_size[0],img_size[1],0,255,32).astype(np.uint8)
             tex_format = vk.VK_FORMAT_R8_UNORM
         else:
             # awfully complex way to load an image and store it in a numpy array without getting a "unclosed file" warning
@@ -340,7 +340,7 @@ class VkContextManager:
                     # note that we create a numpy array with width = 4 * image width to keep the color packed per pixel
                     # the default behavior of numpy.array(pil_img) would be to split the colors in planes, which is not what we want for a texture
                     img_size = pil_img.size
-                    img_array = flat_array.reshape( (pil_img.height, pil_img.width*4) )
+                    self.img_array = flat_array.reshape( (pil_img.height, pil_img.width*4) )
                     
             tex_format = vk.VK_FORMAT_R8G8B8A8_UNORM
 
@@ -404,9 +404,9 @@ class VkContextManager:
 
         # note that we pass the shape of the numpy array we want mapped, in this case the numpy array number of column is 4x the image width because colors are packed per pixel
         # layout.rowPitch could be different from width * sizeof(pixel format) that why it must be passed to mapMemory2D
-        with vkunmapping( vk.mapMemory2D(self.device, self.tex_mem, 0, 0, np.dtype('ubyte').num, img_array.shape[1], img_array.shape[0], layout.rowPitch ) ) as mapped_array:
+        with vkunmapping( vk.mapMemory2D(self.device, self.tex_mem, 0, 0, np.dtype('ubyte').num, self.img_array.shape[1], self.img_array.shape[0], layout.rowPitch ) ) as mapped_array:
             assert(mapped_array.mem.strides[0] == layout.rowPitch)
-            np.copyto(mapped_array.mem, img_array)
+            np.copyto(mapped_array.mem, self.img_array)
 
         vk.resetCommandBuffer(self.command_buffers[0], 0);
         vk.beginCommandBuffer(self.command_buffers[0], vk.CommandBufferBeginInfo(0,None))
@@ -424,6 +424,8 @@ class VkContextManager:
 
             self.dst_img = self.tex_image
         else:
+            ###############################
+            # !!! NOT CURRENTLY TESTED !!!
             ici.tiling = vk.VK_IMAGE_TILING_OPTIMAL
             ici.usage =  vk.VK_IMAGE_USAGE_TRANSFER_DST_BIT | vk.VK_IMAGE_USAGE_SAMPLED_BIT
             self.dst_img = self.ESP( vk.createImage(self.device, ici) )
@@ -460,7 +462,7 @@ class VkContextManager:
             vk.cmdCopyImage(self.command_buffers[0], self.tex_image, vk.VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, self.dst_img, vk.VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, copy_regions)
 
             subresource_range = vk.ImageSubresourceRange(vk.VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1)
-            img_mem_barrier = vk.ImageMemoryBarrier(vk.VK_ACCESS_MEMORY_READ_BIT, vk.VK_ACCESS_MEMORY_WRITE_BIT, vk.VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, vk.VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, 0, 0, self.dst_img, subresource_range)
+            img_mem_barrier = vk.ImageMemoryBarrier(vk.VK_ACCESS_MEMORY_WRITE_BIT, vk.VK_ACCESS_MEMORY_READ_BIT, vk.VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, vk.VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, 0, 0, self.dst_img, subresource_range)
 
             vk.cmdPipelineBarrier(self.command_buffers[0], 
                                   vk.VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, 
@@ -468,6 +470,8 @@ class VkContextManager:
                                   vk.VkMemoryBarrierVector(), 
                                   vk.VkBufferMemoryBarrierVector(),
                                   vk.VkImageMemoryBarrierVector(1,img_mem_barrier))
+            ## End not tested section
+            ###############################
 
         components = vk.ComponentMapping(vk.VK_COMPONENT_SWIZZLE_R, vk.VK_COMPONENT_SWIZZLE_G, vk.VK_COMPONENT_SWIZZLE_B, vk.VK_COMPONENT_SWIZZLE_A)
         subresource_range = vk.ImageSubresourceRange(vk.VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1)
@@ -521,6 +525,12 @@ class VkContextManager:
             loadOp = vk.VK_ATTACHMENT_LOAD_OP_CLEAR
         else:
             loadOp = vk.VK_ATTACHMENT_LOAD_OP_DONT_CARE
+
+        if self.surface_type == VkContextManager.VKC_OFFSCREEN:
+            initial_layout = vk.VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL
+        else:
+            initial_layout = vk.VK_IMAGE_LAYOUT_PRESENT_SRC_KHR
+
         attachments = vk.VkAttachmentDescriptionVector()        
         attachments.append( vk.AttachmentDescription(0, self.format, 
                                                         vk.VK_SAMPLE_COUNT_1_BIT, 
@@ -528,7 +538,7 @@ class VkContextManager:
                                                         vk.VK_ATTACHMENT_STORE_OP_STORE, 
                                                         vk.VK_ATTACHMENT_LOAD_OP_DONT_CARE, 
                                                         vk.VK_ATTACHMENT_STORE_OP_DONT_CARE, 
-                                                        vk.VK_IMAGE_LAYOUT_PRESENT_SRC_KHR,
+                                                        initial_layout,
                                                         vk.VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL) )
 
         attachments.append( vk.AttachmentDescription(0, self.depth_format, 
@@ -702,6 +712,119 @@ class VkContextManager:
                               vk.VkMemoryBarrierVector(), 
                               vk.VkBufferMemoryBarrierVector(),
                               vk.VkImageMemoryBarrierVector(1,pre_present_barrier))
+
+    def init_readback_image(self):
+        w,h = self.get_surface_extent()
+        self.read_back_host_array = np.empty(shape=(h,4*w),dtype=np.uint8)
+        tex_format = vk.VK_FORMAT_R8G8B8A8_UNORM
+
+        ici = vk.ImageCreateInfo(   0, 
+                                    vk.VK_IMAGE_TYPE_2D, 
+                                    tex_format,
+                                    vk.Extent3D(w,h,1),
+                                    1, 
+                                    1, 
+                                    vk.VK_SAMPLE_COUNT_1_BIT, 
+                                    vk.VK_IMAGE_TILING_LINEAR,
+                                    vk.VK_IMAGE_USAGE_TRANSFER_DST_BIT,
+                                    vk.VK_SHARING_MODE_EXCLUSIVE, 
+                                    [], 
+                                    vk.VK_IMAGE_LAYOUT_UNDEFINED)
+
+        self.readback_image =  self.ESP( vk.createImage(self.device, ici) )
+        mem_reqs = vk.getImageMemoryRequirements(self.device, self.readback_image);
+        
+        mem_type_index = memory_type_from_properties(self.physical_devices[0], mem_reqs.memoryTypeBits, vk.VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT)
+        assert(mem_type_index is not None)
+
+        self.readback_image_mem = self.ESP( vk.allocateMemory(self.device, vk.MemoryAllocateInfo(mem_reqs.size, mem_type_index) ) )
+        vk.bindImageMemory(self.device, self.readback_image, self.readback_image_mem, 0)
+
+        subresource_range = vk.ImageSubresourceRange(vk.VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1)
+        img_mem_barrier = vk.ImageMemoryBarrier(0, 
+                                                vk.VK_ACCESS_MEMORY_READ_BIT, 
+                                                vk.VK_IMAGE_LAYOUT_UNDEFINED, 
+                                                vk.VK_IMAGE_LAYOUT_GENERAL, 
+                                                0, 0, self.readback_image, subresource_range)
+
+        vk.cmdPipelineBarrier(self.command_buffers[0], 
+                              vk.VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, 
+                              vk.VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, 0, 
+                              vk.VkMemoryBarrierVector(), 
+                              vk.VkBufferMemoryBarrierVector(),
+                              vk.VkImageMemoryBarrierVector(1,img_mem_barrier))
+
+    def stage_readback_copy(self):
+        w,h = self.get_surface_extent()
+        subresource_range = vk.ImageSubresourceRange(vk.VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1)
+        img_mem_barrier = vk.ImageMemoryBarrier(vk.VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT, 
+                                                vk.VK_ACCESS_TRANSFER_READ_BIT, 
+                                                vk.VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, 
+                                                vk.VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, 
+                                                0, 0, self.images[self.current_buffer], 
+                                                subresource_range)
+
+        vk.cmdPipelineBarrier(  self.command_buffers[0], 
+                                vk.VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, 
+                                vk.VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, 0, 
+                                vk.VkMemoryBarrierVector(), 
+                                vk.VkBufferMemoryBarrierVector(),
+                                vk.VkImageMemoryBarrierVector(1,img_mem_barrier))
+
+        subresource_range = vk.ImageSubresourceRange(vk.VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1)
+        img_mem_barrier = vk.ImageMemoryBarrier(vk.VK_ACCESS_MEMORY_READ_BIT, 
+                                                vk.VK_ACCESS_TRANSFER_WRITE_BIT, 
+                                                vk.VK_IMAGE_LAYOUT_GENERAL, 
+                                                vk.VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 
+                                                0, 0, self.readback_image, 
+                                                subresource_range)
+
+        vk.cmdPipelineBarrier(  self.command_buffers[0], 
+                                vk.VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, 
+                                vk.VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, 0, 
+                                vk.VkMemoryBarrierVector(), 
+                                vk.VkBufferMemoryBarrierVector(),
+                                vk.VkImageMemoryBarrierVector(1,img_mem_barrier))
+            
+        copy_regions = vk.VkImageCopyVector(1,vk.ImageCopy(vk.ImageSubresourceLayers(vk.VK_IMAGE_ASPECT_COLOR_BIT,0,0,1),
+                                                           vk.Offset3D(0,0,0), 
+                                                           vk.ImageSubresourceLayers(vk.VK_IMAGE_ASPECT_COLOR_BIT,0,0,1),
+                                                           vk.Offset3D(0,0,0), 
+                                                           vk.Extent3D(w,h,1)))
+
+        vk.cmdCopyImage(self.command_buffers[0], self.images[self.current_buffer], vk.VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, self.readback_image, vk.VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, copy_regions)
+        
+        subresource_range = vk.ImageSubresourceRange(vk.VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1)
+        img_mem_barrier = vk.ImageMemoryBarrier(vk.VK_ACCESS_TRANSFER_WRITE_BIT, 
+                                                vk.VK_ACCESS_MEMORY_READ_BIT, 
+                                                vk.VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 
+                                                vk.VK_IMAGE_LAYOUT_GENERAL, 
+                                                0, 0, self.readback_image, subresource_range)
+
+        vk.cmdPipelineBarrier(  self.command_buffers[0], 
+                                vk.VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, 
+                                vk.VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, 0, 
+                                vk.VkMemoryBarrierVector(), 
+                                vk.VkBufferMemoryBarrierVector(),
+                                vk.VkImageMemoryBarrierVector(1,img_mem_barrier))
+
+    # call after the queue as finished processing the above "stage_readback_copy" commands
+    def readback_map_copy(self):
+        layout = vk.getImageSubresourceLayout(self.device, self.readback_image, vk.ImageSubresource(vk.VK_IMAGE_ASPECT_COLOR_BIT, 0, 0))
+        with vkunmapping( vk.mapMemory2D(self.device, 
+                                         self.readback_image_mem, 
+                                         0, 0, np.dtype('ubyte').num, 
+                                         self.read_back_host_array.shape[1], 
+                                         self.read_back_host_array.shape[0], 
+                                         layout.rowPitch ) ) as mapped_array:
+            assert(mapped_array.mem.strides[0] == layout.rowPitch)
+            np.copyto(self.read_back_host_array, mapped_array.mem)
+
+    def save_readback_image(self,filename):
+        currshape = self.read_back_host_array.shape
+        reshaped_host_array = np.reshape(self.read_back_host_array,newshape=(currshape[0],currshape[1]/4,4))
+        im = Image.fromarray(reshaped_host_array,mode='RGBA')
+        im.save(filename)
            
     # Init stages
     VKC_INIT_INSTANCE = 1
@@ -729,7 +852,7 @@ class VkContextManager:
         self.stack.close()
 
     def __init__(self, init_stages = VKC_INIT_PIPELINE, surface_type = VKC_WIN32, widget = None, vertex_data = None, texture_file_path = None):
-        self.output_size = (640,480)
+        self.output_size = (512,512)
         self.init_stages = init_stages
         self.surface_type = surface_type
         self.widget = widget
@@ -761,6 +884,7 @@ class VkContextManager:
             if self.init_stages >= VkContextManager.VKC_INIT_SWAP_CHAIN:
                 if self.surface_type == VkContextManager.VKC_OFFSCREEN:
                     self.init_ouput_images()
+                    self.init_readback_image()
                 else:
                     self.init_swap_chain()
             if self.init_stages >= VkContextManager.VKC_INIT_DEPTH_BUFFER:
