@@ -37,8 +37,11 @@ Please read SWIG_DOC_
 #include <memory>
 #include <vector>
 #include <string>
+#include <fstream>
+#include <iostream>
 #include <ShaderLang.h>
 #include <GlslangToSpv.h>
+#include <disassemble.h>
 %}
 
 %init
@@ -209,5 +212,19 @@ namespace glslang
         }
     };
 }
+
+%inline 
+%{
+	void disassemble_stdout(const std::vector<unsigned int> &spirv_code)
+	{
+		spv::Disassemble(std::cout, spirv_code);
+	}
+
+	void disassemble(const std::vector<unsigned int> &spirv_code, const std::string &out_filename)
+	{
+		std::ofstream out_file(out_filename);
+		spv::Disassemble(out_file, spirv_code);
+	}
+%}
 
 %template (UnsignedIntVector) std::vector<unsigned int>;

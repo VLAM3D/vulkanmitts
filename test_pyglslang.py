@@ -1,4 +1,3 @@
-import sys
 import unittest
 import pyglslang
 from glsl_to_spv import *
@@ -73,6 +72,22 @@ class TestGLSLToSPV(unittest.TestCase):
 
     def test_vertex_shader_to_spv(self):        
         spv = glsl_to_spv(pyglslang.EShLangFragment, self.fs_txt)
+
+class TestDisassembler(unittest.TestCase):
+    def setUp(self):
+        with open('vertex_shader.glsl','r') as  vs_in:
+            self.vs_txt = vs_in.read()
+
+        with open('fragment_shader.glsl','r') as  fs_in:
+            self.fs_txt = fs_in.read()
+
+    def test_disassembler_stdout(self):
+        spv = glsl_to_spv(pyglslang.EShLangVertex, self.vs_txt)
+        pyglslang.disassemble_stdout(spv)
+
+    def test_disassembler(self):
+        spv = glsl_to_spv(pyglslang.EShLangVertex, self.vs_txt)
+        pyglslang.disassemble(spv,'test_disassemble.txt')
         
 if __name__ == '__main__':
     # set defaultTest to invoke a specific test case
