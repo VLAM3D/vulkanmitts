@@ -279,7 +279,7 @@ Please read SWIG_DOC_
 }  
    
 %{     
-    void ThrowOnVkError(VkResult res, char* statement, char* file, long line);
+    void ThrowOnVkError(VkResult res, const char* statement, const char* file, long line);
 
     #define V(x) do{   \
         auto res = x;\
