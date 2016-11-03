@@ -77,8 +77,9 @@
 %raii_struct(VkGraphicsPipelineCreateInfo)
 %raii_struct(VkFramebufferCreateInfo)
 
-%apply (unsigned int* IN_ARRAY1, int DIM1) {(unsigned int* pImageIndices_in_array1, int pImageIndices_dim1)};
-%apply (unsigned int* IN_ARRAY1, int DIM1) {(unsigned int* pPreserveAttachments_in_array1, int pPreserveAttachments_dim1)};
 %apply (unsigned int* IN_ARRAY1, int DIM1) {(unsigned int* pQueueFamilyIndices_in_array1, int pQueueFamilyIndices_dim1)};
+%apply (unsigned int* IN_ARRAY1, int DIM1) {(unsigned int* pImageIndices_in_array1, int pImageIndices_dim1)};
 %apply (unsigned int* IN_ARRAY1, int DIM1) {(unsigned int* pDynamicOffsets_in_array1, int pDynamicOffsets_dim1)};
+%apply (unsigned int* IN_ARRAY1, int DIM1) {(unsigned int* pAcquireTimeoutMilliseconds_in_array1, int pAcquireTimeoutMilliseconds_dim1)};
 %apply (float* IN_ARRAY1, int DIM1) {(float* pQueuePriorities_in_array1, int pQueuePriorities_dim1)};
+%apply (unsigned int* IN_ARRAY1, int DIM1) {(unsigned int* pPreserveAttachments_in_array1, int pPreserveAttachments_dim1)};

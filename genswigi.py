@@ -328,7 +328,7 @@ class CSWIGOutputGenerator(COutputGenerator):
             write('%%template (%(type_name)sPtr) std::shared_ptr<%(type_name)sRAII>;\n' % locals(), file=self.outFile)
             
         for type_name in self.std_vector_types:
-            if not type_name in ['void','uint32_t','char']:
+            if not type_name in ['void','char','uint32_t','uint64_t']:
                 if type_name not in self.nonRAIIStruct:
                     write('%%template (%(type_name)sVector) std::vector<%(type_name)s>;\n' % locals(), file=self.outFile)
                 else:                    
@@ -1014,7 +1014,7 @@ class CSWIGOutputGenerator(COutputGenerator):
         for i,p in enumerate(params):
             if 'len' in p.keys():
                 len_string = p.get('len')                
-                if '->' in len_string:
+                if '::' in len_string:
                     # arrays of handle not supported
                     self.skippedCommands.append(command_name)
                     return

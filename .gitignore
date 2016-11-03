@@ -12,3 +12,5 @@ __pycache__
 *.pyc
 .vscode
 diag.txt
+test_disassemble.txt
+textured_cube.png

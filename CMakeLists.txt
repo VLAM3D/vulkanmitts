@@ -12,11 +12,18 @@ message (STATUS "Using this Python interpreter: " ${PYTHON_EXECUTABLE})
 
 find_package(PythonLibs REQUIRED)
 include_directories(${PYTHON_INCLUDE_PATH})
-include_directories(${VKCPP_DIR})
-include_directories(${VULKAN_INCLUDE_DIR})
-include_directories(${GLSLANG_INCLUDE_DIR})
-include_directories(${GLSLANG_DIR}/../SPIRV)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
+
+if (WIN32)
+	STRING(REGEX REPLACE "\\\\" "/" VULKAN_SDK ${VULKAN_SDK}) 
+    include_directories(${VULKAN_SDK}/Include)
+    include_directories(${VULKAN_SDK}/glslang/glslang/Include)
+    include_directories(${VULKAN_SDK}/glslang/glslang/Public)
+    include_directories(${VULKAN_SDK}/glslang/SPIRV)
+    include_directories(${VULKAN_SDK}/spirv-tools/include/spirv-tools)
+else()
+    include_directories(${VULKAN_SDK}/x86_64/include)    
+endif()
 
 message (STATUS "Using this Python Lib: " ${PYTHON_LIBRARIES})
 
@@ -32,13 +39,20 @@ set(NUMPY_LIB ${PYTHON_SITE_PACKAGES}/numpy/core/lib/npymath.lib)
 message (STATUS "Numpy include path: " ${NUMPY_INCLUDE_DIR} )
 message (STATUS "Numpy lib: " ${NUMPY_LIB} )
  
-set(VULKAN_LIB ${VULKAN_LIB_DIR}/vulkan-1.lib)
+if (WIN32)
+	set(VULKAN_LIB ${VULKAN_SDK}/Bin/vulkan-1.lib)
+else()
+	set(VULKAN_LIB ${VULKAN_SDK}/x86_64/lib/vulkan-1)
+endif()
+
 message (STATUS "Vulkan lib: " ${VULKAN_LIB} )
 
 ####
 # GLSLANG DEPENDENCIES 
 
 if (WIN32)
+    set(GLSLANG_DIR ${VULKAN_SDK}/glslang/build)
+    set(SPIRVTOOLS_DIR ${VULKAN_SDK}/spirv-tools/build)
     set (GLSLANG_SEARCH_PATH "${GLSLANG_DIR}/glslang/Release"
                              "${GLSLANG_DIR}/glslang/OSDependent/Windows/Release"
                              "${GLSLANG_DIR}/OGLCompilersDLL/Release"
@@ -46,8 +60,8 @@ if (WIN32)
 							 "${GLSLANG_DIR}/HLSL/Release" )
     set (SPIRV_TOOLS_SEARCH_PATH "${SPIRVTOOLS_DIR}/source/Release")
 else()
-    set (GLSLANG_SEARCH_PATH "${GLSLANG_DIR}/install/lib" "${GLSLANG_DIR}/x86_64/lib/glslang" )
-    set (SPIRV_TOOLS_SEARCH_PATH "${SPIRVTOOLS_DIR}" "${SPIRVTOOLS_DIR}/x86_64/lib/spirv-tools" )
+    set (GLSLANG_SEARCH_PATH "${VULKAN_SDK}/install/lib" "${VULKAN_SDK}/x86_64/lib/glslang" )
+    set (SPIRV_TOOLS_SEARCH_PATH "${VULKAN_SDK}" "${VULKAN_SDK}/x86_64/lib/spirv-tools" )
 endif()
 
 find_library(GLSLANG_LIB NAMES glslang HINTS ${GLSLANG_SEARCH_PATH} )
@@ -119,9 +133,11 @@ set_source_files_properties(SOURCE pyvulkan.i PROPERTIES CPLUSPLUS ON)
 set_source_files_properties(SOURCE pyglslang.i PROPERTIES CPLUSPLUS ON)
 
 # On windows the _WIN64 is autodefined by the compiler cl.exe when using the Win64 toolchain
-if (${CMAKE_SIZEOF_VOID_P} EQUAL 8)
-	set_source_files_properties(SOURCE pyvulkan.i PROPERTIES SWIG_FLAGS "-D_WIN64;-DVK_USE_PLATFORM_WIN32_KHR")
-    set_source_files_properties(SOURCE pyglslang.i PROPERTIES SWIG_FLAGS "-D_WIN64")
+if (WIN32)
+	if (${CMAKE_SIZEOF_VOID_P} EQUAL 8)
+		set_source_files_properties(SOURCE pyvulkan.i PROPERTIES SWIG_FLAGS "-D_WIN32;-D_WIN64;-DVK_USE_PLATFORM_WIN32_KHR")
+		set_source_files_properties(SOURCE pyglslang.i PROPERTIES SWIG_FLAGS "-D_WIN32;-D_WIN64")
+	endif()
 endif()
 
 # This preprocessor variable disables the automatic linking of pythonXY_d.lib to use the release version of python.lib

@@ -53,7 +53,7 @@ const char* vkGetErrorString(VkResult retval);
 #define VK_VERSION_MINOR(version) (((uint32_t)(version) >> 12) & 0x3ff)
 #define VK_VERSION_PATCH(version) ((uint32_t)(version) & 0xfff)
 // Version of this file
-#define VK_HEADER_VERSION 27
+#define VK_HEADER_VERSION 30
 
 
 #define VK_NULL_HANDLE 0
@@ -4963,8 +4963,8 @@ VkDedicatedAllocationMemoryAllocateInfoNV DedicatedAllocationMemoryAllocateInfoN
 
 
 #define VK_AMD_draw_indirect_count 1
-#define VK_AMD_EXTENSION_DRAW_INDIRECT_COUNT_SPEC_VERSION 1
-#define VK_AMD_EXTENSION_DRAW_INDIRECT_COUNT_EXTENSION_NAME "VK_AMD_draw_indirect_count"
+#define VK_AMD_DRAW_INDIRECT_COUNT_SPEC_VERSION 1
+#define VK_AMD_DRAW_INDIRECT_COUNT_EXTENSION_NAME "VK_AMD_draw_indirect_count"
 
 typedef void (VKAPI_PTR *PFN_vkCmdDrawIndirectCountAMD)(VkCommandBuffer commandBuffer, VkBuffer buffer, VkDeviceSize offset, VkBuffer countBuffer, VkDeviceSize countBufferOffset, uint32_t maxDrawCount, uint32_t stride);
 typedef void (VKAPI_PTR *PFN_vkCmdDrawIndexedIndirectCountAMD)(VkCommandBuffer commandBuffer, VkBuffer buffer, VkDeviceSize offset, VkBuffer countBuffer, VkDeviceSize countBufferOffset, uint32_t maxDrawCount, uint32_t stride);
@@ -4989,8 +4989,18 @@ void  cmdDrawIndexedIndirectCountAMD(
 
 
 #define VK_AMD_negative_viewport_height 1
-#define VK_AMD_EXTENSION_NEGATIVE_VIEWPORT_HEIGHT_SPEC_VERSION 0
-#define VK_AMD_EXTENSION_NEGATIVE_VIEWPORT_HEIGHT_EXTENSION_NAME "VK_AMD_negative_viewport_height"
+#define VK_AMD_NEGATIVE_VIEWPORT_HEIGHT_SPEC_VERSION 0
+#define VK_AMD_NEGATIVE_VIEWPORT_HEIGHT_EXTENSION_NAME "VK_AMD_negative_viewport_height"
+
+
+#define VK_AMD_gpu_shader_half_float 1
+#define VK_AMD_GPU_SHADER_HALF_FLOAT_SPEC_VERSION 1
+#define VK_AMD_GPU_SHADER_HALF_FLOAT_EXTENSION_NAME "VK_AMD_gpu_shader_half_float"
+
+
+#define VK_AMD_shader_ballot 1
+#define VK_AMD_SHADER_BALLOT_SPEC_VERSION 0
+#define VK_AMD_SHADER_BALLOT_EXTENSION_NAME "VK_AMD_shader_ballot"
 
 
 #define VK_IMG_format_pvrtc 1
@@ -5136,22 +5146,20 @@ typedef struct VkWin32KeyedMutexAcquireReleaseInfoNV {
 
 struct VkWin32KeyedMutexAcquireReleaseInfoNVRAII {
    VkWin32KeyedMutexAcquireReleaseInfoNV nonRaiiObj;
-    std::shared_ptr<VkDeviceMemory>             pAcquireSyncs;
-    std::shared_ptr<uint64_t>                   pAcquireKeys;
-    std::shared_ptr<uint32_t>                   pAcquireTimeoutMilliseconds;
-    std::shared_ptr<VkDeviceMemory>             pReleaseSyncs;
-    std::shared_ptr<uint64_t>                   pReleaseKeys;
+    std::vector<VkDeviceMemory>                 vecAcquireSyncs;
+    std::vector<uint64_t>                       vecAcquireKeys;
+    std::vector<uint32_t>                       vecAcquireTimeoutMilliseconds;
+    std::vector<VkDeviceMemory>                 vecReleaseSyncs;
+    std::vector<uint64_t>                       vecReleaseKeys;
 };
 
 
 std::shared_ptr<VkWin32KeyedMutexAcquireReleaseInfoNVRAII> Win32KeyedMutexAcquireReleaseInfoNV(
-    uint32_t                                    acquireCount,
-    const VkDeviceMemory *                      pAcquireSyncs,
-    const uint64_t *                            pAcquireKeys,
-    const uint32_t *                            pAcquireTimeoutMilliseconds,
-    uint32_t                                    releaseCount,
-    const VkDeviceMemory *                      pReleaseSyncs,
-    const uint64_t *                            pReleaseKeys);
+    const std::vector<VkDeviceMemory> &         vecAcquireSyncs,
+    const std::vector<uint64_t> &               vecAcquireKeys,
+    unsigned int* pAcquireTimeoutMilliseconds_in_array1, int pAcquireTimeoutMilliseconds_dim1,
+    const std::vector<VkDeviceMemory> &         vecReleaseSyncs,
+    const std::vector<uint64_t> &               vecReleaseKeys);
 
 
 #endif /* VK_USE_PLATFORM_WIN32_KHR */
@@ -10651,62 +10659,70 @@ std::shared_ptr< HANDLE > getMemoryWin32HandleNV(
 #ifdef VK_USE_PLATFORM_WIN32_KHR
 struct VkWin32KeyedMutexAcquireReleaseInfoNVRAII {
    VkWin32KeyedMutexAcquireReleaseInfoNV nonRaiiObj;
-    std::shared_ptr<VkDeviceMemory>             pAcquireSyncs;
-    std::shared_ptr<uint64_t>                   pAcquireKeys;
-    std::shared_ptr<uint32_t>                   pAcquireTimeoutMilliseconds;
-    std::shared_ptr<VkDeviceMemory>             pReleaseSyncs;
-    std::shared_ptr<uint64_t>                   pReleaseKeys;
+    std::vector<VkDeviceMemory>                 vecAcquireSyncs;
+    std::vector<uint64_t>                       vecAcquireKeys;
+    std::vector<uint32_t>                       vecAcquireTimeoutMilliseconds;
+    std::vector<VkDeviceMemory>                 vecReleaseSyncs;
+    std::vector<uint64_t>                       vecReleaseKeys;
 };
 
 std::shared_ptr<VkWin32KeyedMutexAcquireReleaseInfoNVRAII> Win32KeyedMutexAcquireReleaseInfoNV(
-    uint32_t                                    acquireCount,
-    const VkDeviceMemory *                      pAcquireSyncs,
-    const uint64_t *                            pAcquireKeys,
-    const uint32_t *                            pAcquireTimeoutMilliseconds,
-    uint32_t                                    releaseCount,
-    const VkDeviceMemory *                      pReleaseSyncs,
-    const uint64_t *                            pReleaseKeys)
+    const std::vector<VkDeviceMemory> &         vecAcquireSyncs,
+    const std::vector<uint64_t> &               vecAcquireKeys,
+    unsigned int* pAcquireTimeoutMilliseconds_in_array1, int pAcquireTimeoutMilliseconds_dim1,
+    const std::vector<VkDeviceMemory> &         vecReleaseSyncs,
+    const std::vector<uint64_t> &               vecReleaseKeys)
    {
       std::shared_ptr<VkWin32KeyedMutexAcquireReleaseInfoNVRAII> raii_obj(new VkWin32KeyedMutexAcquireReleaseInfoNVRAII);
       raii_obj->nonRaiiObj.sType = VK_STRUCTURE_TYPE_WIN32_KEYED_MUTEX_ACQUIRE_RELEASE_INFO_NV;
       raii_obj->nonRaiiObj.pNext = nullptr;
-      raii_obj->nonRaiiObj.acquireCount = acquireCount;
-      raii_obj->nonRaiiObj.pAcquireSyncs = nullptr;
-      if ( pAcquireSyncs ) 
-      { 
-          raii_obj->pAcquireSyncs.reset( new VkDeviceMemory );
-          *raii_obj->pAcquireSyncs = *pAcquireSyncs;
-          raii_obj->nonRaiiObj.pAcquireSyncs = raii_obj->pAcquireSyncs.get();
-      } 
-      raii_obj->nonRaiiObj.pAcquireKeys = nullptr;
-      if ( pAcquireKeys ) 
-      { 
-          raii_obj->pAcquireKeys.reset( new uint64_t );
-          *raii_obj->pAcquireKeys = *pAcquireKeys;
-          raii_obj->nonRaiiObj.pAcquireKeys = raii_obj->pAcquireKeys.get();
-      } 
-      raii_obj->nonRaiiObj.pAcquireTimeoutMilliseconds = nullptr;
-      if ( pAcquireTimeoutMilliseconds ) 
-      { 
-          raii_obj->pAcquireTimeoutMilliseconds.reset( new uint32_t );
-          *raii_obj->pAcquireTimeoutMilliseconds = *pAcquireTimeoutMilliseconds;
-          raii_obj->nonRaiiObj.pAcquireTimeoutMilliseconds = raii_obj->pAcquireTimeoutMilliseconds.get();
-      } 
-      raii_obj->nonRaiiObj.releaseCount = releaseCount;
-      raii_obj->nonRaiiObj.pReleaseSyncs = nullptr;
-      if ( pReleaseSyncs ) 
-      { 
-          raii_obj->pReleaseSyncs.reset( new VkDeviceMemory );
-          *raii_obj->pReleaseSyncs = *pReleaseSyncs;
-          raii_obj->nonRaiiObj.pReleaseSyncs = raii_obj->pReleaseSyncs.get();
-      } 
-      raii_obj->nonRaiiObj.pReleaseKeys = nullptr;
-      if ( pReleaseKeys ) 
-      { 
-          raii_obj->pReleaseKeys.reset( new uint64_t );
-          *raii_obj->pReleaseKeys = *pReleaseKeys;
-          raii_obj->nonRaiiObj.pReleaseKeys = raii_obj->pReleaseKeys.get();
-      } 
+      raii_obj->nonRaiiObj.acquireCount = static_cast<uint32_t>(vecAcquireSyncs.size());
+      raii_obj->vecAcquireSyncs = vecAcquireSyncs;
+      if ( raii_obj->vecAcquireSyncs.size() > 0)
+      {
+          raii_obj->nonRaiiObj.pAcquireSyncs = &raii_obj->vecAcquireSyncs[0];
+      }
+      else
+      {
+          raii_obj->nonRaiiObj.pAcquireSyncs = nullptr;
+      }
+      raii_obj->vecAcquireKeys = vecAcquireKeys;
+      if ( raii_obj->vecAcquireKeys.size() > 0)
+      {
+          raii_obj->nonRaiiObj.pAcquireKeys = &raii_obj->vecAcquireKeys[0];
+      }
+      else
+      {
+          raii_obj->nonRaiiObj.pAcquireKeys = nullptr;
+      }
+      raii_obj->vecAcquireTimeoutMilliseconds.assign(pAcquireTimeoutMilliseconds_in_array1, pAcquireTimeoutMilliseconds_in_array1 + pAcquireTimeoutMilliseconds_dim1);
+      if ( raii_obj->vecAcquireTimeoutMilliseconds.size() > 0)
+      {
+          raii_obj->nonRaiiObj.pAcquireTimeoutMilliseconds = &raii_obj->vecAcquireTimeoutMilliseconds[0];
+      }
+      else
+      {
+          raii_obj->nonRaiiObj.pAcquireTimeoutMilliseconds = nullptr;
+      }
+      raii_obj->nonRaiiObj.releaseCount = static_cast<uint32_t>(vecReleaseSyncs.size());
+      raii_obj->vecReleaseSyncs = vecReleaseSyncs;
+      if ( raii_obj->vecReleaseSyncs.size() > 0)
+      {
+          raii_obj->nonRaiiObj.pReleaseSyncs = &raii_obj->vecReleaseSyncs[0];
+      }
+      else
+      {
+          raii_obj->nonRaiiObj.pReleaseSyncs = nullptr;
+      }
+      raii_obj->vecReleaseKeys = vecReleaseKeys;
+      if ( raii_obj->vecReleaseKeys.size() > 0)
+      {
+          raii_obj->nonRaiiObj.pReleaseKeys = &raii_obj->vecReleaseKeys[0];
+      }
+      else
+      {
+          raii_obj->nonRaiiObj.pReleaseKeys = nullptr;
+      }
       return raii_obj;
    }
 
@@ -10837,6 +10853,8 @@ std::shared_ptr<VkValidationFlagsEXTRAII> ValidationFlagsEXT(
 %template (VkDeviceSizeVector) std::vector<VkDeviceSize>;
 
 %template (VkBindSparseInfoVector) std::vector< std::shared_ptr<VkBindSparseInfoRAII> >;
+
+%template (VkDeviceMemoryVector) std::vector<VkDeviceMemory>;
 
 %template (VkDisplayPropertiesKHRVector) std::vector< std::shared_ptr<VkDisplayPropertiesKHRRAII> >;
 
