@@ -239,6 +239,9 @@ Please read SWIG_DOC_
 //
 // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
+#ifndef _WIN32
+%include "stdint.i"
+#endif
 %include stl.i
 %include "exception.i"
 %include "std_pair.i"
@@ -288,6 +291,8 @@ Please read SWIG_DOC_
 %template (StringVector) std::vector<std::string>;
  
 #define VKAPI_PTR
+
+#ifdef _WIN32
 typedef unsigned int uint32_t;
 typedef int int32_t;
 typedef unsigned long long uint64_t;
@@ -306,6 +311,7 @@ private:
 
 typedef HWND__* HWND;
 typedef HINSTANCE__* HINSTANCE;
+#endif
 
 %typemap(in) HWND
 {
@@ -354,6 +360,7 @@ typedef HINSTANCE__* HINSTANCE;
     }
 }
 
+#ifdef _WIN32
 %inline 
 %{
     HINSTANCE GetThisEXEModuleHandle()
@@ -361,6 +368,7 @@ typedef HINSTANCE__* HINSTANCE;
         return GetModuleHandle(nullptr);
     }
 %}
+#endif
 
 %include "vulkan.ixx"
 
