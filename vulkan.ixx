@@ -9982,7 +9982,7 @@ std::shared_ptr<VkSurfaceKHR_T> createDisplayPlaneSurfaceKHR(
           nullptr,
           &hSurface  ));
       return std::shared_ptr<VkSurfaceKHR_T>(hSurface, 
-              [](VkSurfaceKHR) {});
+              [=](VkSurfaceKHR to_free) {vkDestroySurfaceKHR(instance, to_free, nullptr);});
    }
 
 VkDisplayPresentInfoKHR DisplayPresentInfoKHR(
@@ -10051,7 +10051,7 @@ std::shared_ptr<VkSurfaceKHR_T> createXlibSurfaceKHR(
           nullptr,
           &hSurface  ));
       return std::shared_ptr<VkSurfaceKHR_T>(hSurface, 
-              [](VkSurfaceKHR) {});
+              [=](VkSurfaceKHR to_free) {vkDestroySurfaceKHR(instance, to_free, nullptr);});
    }
 
 std::shared_ptr< Display > getPhysicalDeviceXlibPresentationSupportKHR(
@@ -10095,7 +10095,7 @@ std::shared_ptr<VkSurfaceKHR_T> createXcbSurfaceKHR(
           nullptr,
           &hSurface  ));
       return std::shared_ptr<VkSurfaceKHR_T>(hSurface, 
-              [](VkSurfaceKHR) {});
+              [=](VkSurfaceKHR to_free) {vkDestroySurfaceKHR(instance, to_free, nullptr);});
    }
 
 std::shared_ptr< xcb_connection_t > getPhysicalDeviceXcbPresentationSupportKHR(
@@ -10139,7 +10139,7 @@ std::shared_ptr<VkSurfaceKHR_T> createWaylandSurfaceKHR(
           nullptr,
           &hSurface  ));
       return std::shared_ptr<VkSurfaceKHR_T>(hSurface, 
-              [](VkSurfaceKHR) {});
+              [=](VkSurfaceKHR to_free) {vkDestroySurfaceKHR(instance, to_free, nullptr);});
    }
 
 std::shared_ptr< wl_display > getPhysicalDeviceWaylandPresentationSupportKHR(
@@ -10181,7 +10181,7 @@ std::shared_ptr<VkSurfaceKHR_T> createMirSurfaceKHR(
           nullptr,
           &hSurface  ));
       return std::shared_ptr<VkSurfaceKHR_T>(hSurface, 
-              [](VkSurfaceKHR) {});
+              [=](VkSurfaceKHR to_free) {vkDestroySurfaceKHR(instance, to_free, nullptr);});
    }
 
 std::shared_ptr< MirConnection > getPhysicalDeviceMirPresentationSupportKHR(
@@ -10221,7 +10221,7 @@ std::shared_ptr<VkSurfaceKHR_T> createAndroidSurfaceKHR(
           nullptr,
           &hSurface  ));
       return std::shared_ptr<VkSurfaceKHR_T>(hSurface, 
-              [](VkSurfaceKHR) {});
+              [=](VkSurfaceKHR to_free) {vkDestroySurfaceKHR(instance, to_free, nullptr);});
    }
 
 #endif /* VK_USE_PLATFORM_ANDROID_KHR*/
@@ -10251,7 +10251,7 @@ std::shared_ptr<VkSurfaceKHR_T> createWin32SurfaceKHR(
           nullptr,
           &hSurface  ));
       return std::shared_ptr<VkSurfaceKHR_T>(hSurface, 
-              [](VkSurfaceKHR) {});
+              [=](VkSurfaceKHR to_free) {vkDestroySurfaceKHR(instance, to_free, nullptr);});
    }
 
 void  getPhysicalDeviceWin32PresentationSupportKHR(

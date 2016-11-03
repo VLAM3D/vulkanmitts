@@ -16,6 +16,7 @@ from generator import *
 from cgenerator import *
 
 array_size_re = re.compile('\[(\w+)\]')
+surface_khr_re = re.compile('vkCreate.+SurfaceKHR')
 
 # assume param is lxml element
 def get_param_name(param):
@@ -668,6 +669,8 @@ class CSWIGOutputGenerator(COutputGenerator):
 
         if command_name == 'vkCreateGraphicsPipelines' or command_name == 'vkCreateComputePipelines' :
             free_command_name = 'vkDestroyPipeline'
+        elif surface_khr_re.match(command_name):
+            free_command_name = 'vkDestroySurfaceKHR'
         else:
             free_command_name = command_name.replace('Create','Destroy')
             free_command_name = free_command_name.replace('Allocate','Free')
