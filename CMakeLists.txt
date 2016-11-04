@@ -1,7 +1,7 @@
 cmake_minimum_required (VERSION 3.1)
 project (pyvulkan)
 set (CMAKE_CXX_STANDARD 11)
-set (CMAKE_VERBOSE_MAKEFILE 1)
+#set (CMAKE_VERBOSE_MAKEFILE 1)
 
 set (pyvulkan_VERSION_MAJOR 0)
 set (pyvulkan_VERSION_MINOR 1)
@@ -139,7 +139,7 @@ if (WIN32)
 		set_source_files_properties(SOURCE pyglslang.i PROPERTIES SWIG_FLAGS "-D_WIN32;-D_WIN64")
 	endif()
 else()
-    set_source_files_properties(SOURCE pyvulkan.i PROPERTIES SWIG_FLAGS "-D__LP64__;-DVK_USE_PLATFORM_XCB_KHR")
+    set_source_files_properties(SOURCE pyvulkan.i PROPERTIES SWIG_FLAGS "-D__LP64__")
 	set_source_files_properties(SOURCE pyglslang.i PROPERTIES SWIG_FLAGS "-D__LP64__")
 endif()
 

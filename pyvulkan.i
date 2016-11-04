@@ -239,9 +239,6 @@ Please read SWIG_DOC_
 //
 // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-#ifndef _WIN32
-%include "stdint.i"
-#endif
 %include stl.i
 %include "exception.i"
 %include "std_pair.i"
@@ -252,7 +249,7 @@ Please read SWIG_DOC_
 %include "std_ios.i"
 %include "typemaps.i"
 %include "cpointer.i" 
- 
+
 %exception   
 { 
     try  

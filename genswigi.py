@@ -177,7 +177,12 @@ class CSWIGOutputGenerator(COutputGenerator):
                                                 'VK_KHR_android_surface',
                                                 'VK_KHR_win32_surface']
         
-        self.notLoadedBySDK = {}                                                
+        self.commandNotLoadedBySDK = {}
+
+        self.crossPlatformFeatures = [  'VK_VERSION_1_0',
+                                        'VK_KHR_surface',
+                                        'VK_KHR_swapchain']
+        self.platformSpecicTypes = {}                                             
                                             
     def findBaseTypes(self):
         all_types = self.registry.reg.findall("types/type")
@@ -300,8 +305,8 @@ class CSWIGOutputGenerator(COutputGenerator):
 
     def endFile(self): 
         write("void load_vulkan_fct_ptrs(VkInstance instance);\n", file=self.outFile)
-        for command_name in self.notLoadedBySDK:
-            feature = self.notLoadedBySDK[command_name]
+        for command_name in self.commandNotLoadedBySDK:
+            feature = self.commandNotLoadedBySDK[command_name]
             self.fctPtrDecl.append('#ifdef ' + feature)
             self.fctPtrDecl.append("PFN_%(command_name)s pf%(command_name)s;" % locals())
             self.fctPtrDecl.append('#endif //' + feature )
@@ -310,8 +315,8 @@ class CSWIGOutputGenerator(COutputGenerator):
     void load_vulkan_fct_ptrs(VkInstance instance)
     {
 """
-        for command_name in self.notLoadedBySDK:
-            feature = self.notLoadedBySDK[command_name]
+        for command_name in self.commandNotLoadedBySDK:
+            feature = self.commandNotLoadedBySDK[command_name]
             self.loadPtrs += '#ifdef ' + feature + '\n'
             self.loadPtrs += '	    pf%(command_name)s = reinterpret_cast<PFN_%(command_name)s>(vkGetInstanceProcAddr(instance, "%(command_name)s"));\n' % locals()
             self.loadPtrs += '#endif' + '\n'
@@ -329,17 +334,35 @@ class CSWIGOutputGenerator(COutputGenerator):
         write('%}\n', file=self.outFile)
        
         for type_name in self.nonRAIIStruct:
+            feature_name = None
+            if type_name in self.platformSpecicTypes:
+                feature_name = self.platformSpecicTypes[type_name]
+                write('#ifdef ' + feature_name + '\n', file=self.outFile)       
             write('%%template (%(type_name)sPtr) std::shared_ptr<%(type_name)sRAII>;\n' % locals(), file=self.outFile)
+            if feature_name is not None:
+                write('#endif\n', file=self.outFile)
             
         for type_name in self.std_vector_types:
             if not type_name in ['void','char','uint32_t','uint64_t']:
+                feature_name = None
+                if type_name in self.platformSpecicTypes:
+                    feature_name = self.platformSpecicTypes[type_name]
+                    write('#ifdef ' + feature_name + '\n', file=self.outFile)       
                 if type_name not in self.nonRAIIStruct:
                     write('%%template (%(type_name)sVector) std::vector<%(type_name)s>;\n' % locals(), file=self.outFile)
                 else:                    
                     write('%%template (%(type_name)sVector) std::vector< std::shared_ptr<%(type_name)sRAII> >;\n' % locals(), file=self.outFile)
+                if feature_name is not None:
+                    write('#endif\n', file=self.outFile)
 
         for type_name in self.vectorOfHandleTypes:
-                write("%%template (%(type_name)sHandleVector) std::vector< std::shared_ptr< %(type_name)s_T > >;\n" % locals(), file=self.outFile)
+            feature_name = None
+            if type_name in self.platformSpecicTypes:
+                feature_name = self.platformSpecicTypes[type_name]
+                write('#ifdef ' + feature_name + '\n', file=self.outFile)
+            write("%%template (%(type_name)sHandleVector) std::vector< std::shared_ptr< %(type_name)s_T > >;\n" % locals(), file=self.outFile)
+            if feature_name is not None:
+                write('#endif\n', file=self.outFile)
 
         write('// Skipped commands that must be manually wrapped', file=self.outFile)        
         write('//' + '\n//'.join(self.skippedCommands), end='\n', file=self.outFile)
@@ -402,6 +425,9 @@ class CSWIGOutputGenerator(COutputGenerator):
 
     def genStruct(self, typeinfo, typeName):
         COutputGenerator.genStruct(self, typeinfo, typeName)
+
+        if self.currentFeature not in self.crossPlatformFeatures:
+            self.platformSpecicTypes[typeName] = self.currentFeature
 
         # don't write constructor for unions 
         if typeinfo.elem.get('category') != 'struct':
@@ -726,7 +752,7 @@ class CSWIGOutputGenerator(COutputGenerator):
 
         if is_allocation_cmd and free_command_name is not None:            
             if self.currentFeature not in self.featureNotRequiringGetProcAddr:
-                self.notLoadedBySDK[free_command_name] = self.currentFeature
+                self.commandNotLoadedBySDK[free_command_name] = self.currentFeature
 
         swig_command_name = remove_vk_prefix(command_name)
         tuple_decl = ""
@@ -813,7 +839,7 @@ class CSWIGOutputGenerator(COutputGenerator):
         swig_impl += '   {\n'        
         
         # FUNCTION BODY : Validation
-        if command_name in self.notLoadedBySDK:
+        if command_name in self.commandNotLoadedBySDK:
             swig_impl += '      if ( nullptr == pf%(command_name)s )\n' % locals()
             swig_impl += '          throw std::runtime_error("Trying to use an unavailable function\\n"\n'
             swig_impl += '                                   "Review you instance create info\\n"\n'
@@ -853,11 +879,11 @@ class CSWIGOutputGenerator(COutputGenerator):
             cbe = ')'
 
         pf = ''
-        if command_name in self.notLoadedBySDK:
+        if command_name in self.commandNotLoadedBySDK:
             pf = 'pf'
 
         if is_allocation_cmd:
-            if free_command_name in self.notLoadedBySDK:
+            if free_command_name in self.commandNotLoadedBySDK:
                 free_command_name = 'pf' + free_command_name
 
         # FUNCTION BODY : Optional 1st call for functions that query elements count
@@ -1007,7 +1033,7 @@ class CSWIGOutputGenerator(COutputGenerator):
 
         # building the list of commands for which we will to call GetProcAddress
         if self.currentFeature not in self.featureNotRequiringGetProcAddr:
-            self.notLoadedBySDK[command_name] = self.currentFeature
+            self.commandNotLoadedBySDK[command_name] = self.currentFeature
 
         for p in params:
             is_ptr, is_const, ptr_depth = is_param_pointer(p)
