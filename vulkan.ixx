@@ -5257,49 +5257,135 @@ void load_vulkan_fct_ptrs(VkInstance instance);
          return nullptr;
      }
 
-PFN_vkGetPhysicalDeviceDisplayPropertiesKHR pfvkGetPhysicalDeviceDisplayPropertiesKHR;
-    PFN_vkGetPhysicalDeviceDisplayPlanePropertiesKHR pfvkGetPhysicalDeviceDisplayPlanePropertiesKHR;
-    PFN_vkGetDisplayPlaneSupportedDisplaysKHR pfvkGetDisplayPlaneSupportedDisplaysKHR;
-    PFN_vkGetDisplayModePropertiesKHR pfvkGetDisplayModePropertiesKHR;
-    PFN_vkCreateDisplayModeKHR pfvkCreateDisplayModeKHR;
-    PFN_vkGetDisplayPlaneCapabilitiesKHR pfvkGetDisplayPlaneCapabilitiesKHR;
-    PFN_vkCreateDisplayPlaneSurfaceKHR pfvkCreateDisplayPlaneSurfaceKHR;
-    PFN_vkCreateSharedSwapchainsKHR pfvkCreateSharedSwapchainsKHR;
-    PFN_vkCreateDebugReportCallbackEXT pfvkCreateDebugReportCallbackEXT;
-    PFN_vkDestroyDebugReportCallbackEXT pfvkDestroyDebugReportCallbackEXT;
+#ifdef VK_EXT_debug_report
     PFN_vkDebugReportMessageEXT pfvkDebugReportMessageEXT;
-    PFN_vkDebugMarkerSetObjectTagEXT pfvkDebugMarkerSetObjectTagEXT;
-    PFN_vkDebugMarkerSetObjectNameEXT pfvkDebugMarkerSetObjectNameEXT;
-    PFN_vkCmdDebugMarkerBeginEXT pfvkCmdDebugMarkerBeginEXT;
-    PFN_vkCmdDebugMarkerEndEXT pfvkCmdDebugMarkerEndEXT;
+    #endif //VK_EXT_debug_report
+    #ifdef VK_KHR_display
+    PFN_vkGetPhysicalDeviceDisplayPlanePropertiesKHR pfvkGetPhysicalDeviceDisplayPlanePropertiesKHR;
+    #endif //VK_KHR_display
+    #ifdef VK_KHR_display
+    PFN_vkGetDisplayModePropertiesKHR pfvkGetDisplayModePropertiesKHR;
+    #endif //VK_KHR_display
+    #ifdef VK_KHR_display
+    PFN_vkDestroySurfaceKHR pfvkDestroySurfaceKHR;
+    #endif //VK_KHR_display
+    #ifdef VK_KHR_display_swapchain
+    PFN_vkCreateSharedSwapchainsKHR pfvkCreateSharedSwapchainsKHR;
+    #endif //VK_KHR_display_swapchain
+    #ifdef VK_EXT_debug_marker
     PFN_vkCmdDebugMarkerInsertEXT pfvkCmdDebugMarkerInsertEXT;
-    PFN_vkCmdDrawIndirectCountAMD pfvkCmdDrawIndirectCountAMD;
+    #endif //VK_EXT_debug_marker
+    #ifdef VK_EXT_debug_marker
+    PFN_vkCmdDebugMarkerEndEXT pfvkCmdDebugMarkerEndEXT;
+    #endif //VK_EXT_debug_marker
+    #ifdef VK_EXT_debug_marker
+    PFN_vkCmdDebugMarkerBeginEXT pfvkCmdDebugMarkerBeginEXT;
+    #endif //VK_EXT_debug_marker
+    #ifdef VK_AMD_draw_indirect_count
     PFN_vkCmdDrawIndexedIndirectCountAMD pfvkCmdDrawIndexedIndirectCountAMD;
+    #endif //VK_AMD_draw_indirect_count
+    #ifdef VK_NV_external_memory_capabilities
     PFN_vkGetPhysicalDeviceExternalImageFormatPropertiesNV pfvkGetPhysicalDeviceExternalImageFormatPropertiesNV;
+    #endif //VK_NV_external_memory_capabilities
+    #ifdef VK_EXT_debug_marker
+    PFN_vkDebugMarkerSetObjectNameEXT pfvkDebugMarkerSetObjectNameEXT;
+    #endif //VK_EXT_debug_marker
+    #ifdef VK_EXT_debug_marker
+    PFN_vkDebugMarkerSetObjectTagEXT pfvkDebugMarkerSetObjectTagEXT;
+    #endif //VK_EXT_debug_marker
+    #ifdef VK_AMD_draw_indirect_count
+    PFN_vkCmdDrawIndirectCountAMD pfvkCmdDrawIndirectCountAMD;
+    #endif //VK_AMD_draw_indirect_count
+    #ifdef VK_KHR_display
+    PFN_vkGetPhysicalDeviceDisplayPropertiesKHR pfvkGetPhysicalDeviceDisplayPropertiesKHR;
+    #endif //VK_KHR_display
+    #ifdef VK_KHR_display
+    PFN_vkCreateDisplayPlaneSurfaceKHR pfvkCreateDisplayPlaneSurfaceKHR;
+    #endif //VK_KHR_display
+    #ifdef VK_KHR_display
+    PFN_vkGetDisplayPlaneSupportedDisplaysKHR pfvkGetDisplayPlaneSupportedDisplaysKHR;
+    #endif //VK_KHR_display
+    #ifdef VK_KHR_display
+    PFN_vkCreateDisplayModeKHR pfvkCreateDisplayModeKHR;
+    #endif //VK_KHR_display
+    #ifdef VK_EXT_debug_report
+    PFN_vkCreateDebugReportCallbackEXT pfvkCreateDebugReportCallbackEXT;
+    #endif //VK_EXT_debug_report
+    #ifdef VK_EXT_debug_report
+    PFN_vkDestroyDebugReportCallbackEXT pfvkDestroyDebugReportCallbackEXT;
+    #endif //VK_EXT_debug_report
+    #ifdef VK_KHR_display
+    PFN_vkGetDisplayPlaneCapabilitiesKHR pfvkGetDisplayPlaneCapabilitiesKHR;
+    #endif //VK_KHR_display
+    #ifdef VK_NV_external_memory_win32
     PFN_vkGetMemoryWin32HandleNV pfvkGetMemoryWin32HandleNV;
+    #endif //VK_NV_external_memory_win32
 
     void load_vulkan_fct_ptrs(VkInstance instance)
     {
-	    pfvkGetPhysicalDeviceDisplayPropertiesKHR = reinterpret_cast<PFN_vkGetPhysicalDeviceDisplayPropertiesKHR>(vkGetInstanceProcAddr(instance, "vkGetPhysicalDeviceDisplayPropertiesKHR"));
-	    pfvkGetPhysicalDeviceDisplayPlanePropertiesKHR = reinterpret_cast<PFN_vkGetPhysicalDeviceDisplayPlanePropertiesKHR>(vkGetInstanceProcAddr(instance, "vkGetPhysicalDeviceDisplayPlanePropertiesKHR"));
-	    pfvkGetDisplayPlaneSupportedDisplaysKHR = reinterpret_cast<PFN_vkGetDisplayPlaneSupportedDisplaysKHR>(vkGetInstanceProcAddr(instance, "vkGetDisplayPlaneSupportedDisplaysKHR"));
-	    pfvkGetDisplayModePropertiesKHR = reinterpret_cast<PFN_vkGetDisplayModePropertiesKHR>(vkGetInstanceProcAddr(instance, "vkGetDisplayModePropertiesKHR"));
-	    pfvkCreateDisplayModeKHR = reinterpret_cast<PFN_vkCreateDisplayModeKHR>(vkGetInstanceProcAddr(instance, "vkCreateDisplayModeKHR"));
-	    pfvkGetDisplayPlaneCapabilitiesKHR = reinterpret_cast<PFN_vkGetDisplayPlaneCapabilitiesKHR>(vkGetInstanceProcAddr(instance, "vkGetDisplayPlaneCapabilitiesKHR"));
-	    pfvkCreateDisplayPlaneSurfaceKHR = reinterpret_cast<PFN_vkCreateDisplayPlaneSurfaceKHR>(vkGetInstanceProcAddr(instance, "vkCreateDisplayPlaneSurfaceKHR"));
-	    pfvkCreateSharedSwapchainsKHR = reinterpret_cast<PFN_vkCreateSharedSwapchainsKHR>(vkGetInstanceProcAddr(instance, "vkCreateSharedSwapchainsKHR"));
-	    pfvkCreateDebugReportCallbackEXT = reinterpret_cast<PFN_vkCreateDebugReportCallbackEXT>(vkGetInstanceProcAddr(instance, "vkCreateDebugReportCallbackEXT"));
-	    pfvkDestroyDebugReportCallbackEXT = reinterpret_cast<PFN_vkDestroyDebugReportCallbackEXT>(vkGetInstanceProcAddr(instance, "vkDestroyDebugReportCallbackEXT"));
+#ifdef VK_EXT_debug_report
 	    pfvkDebugReportMessageEXT = reinterpret_cast<PFN_vkDebugReportMessageEXT>(vkGetInstanceProcAddr(instance, "vkDebugReportMessageEXT"));
-	    pfvkDebugMarkerSetObjectTagEXT = reinterpret_cast<PFN_vkDebugMarkerSetObjectTagEXT>(vkGetInstanceProcAddr(instance, "vkDebugMarkerSetObjectTagEXT"));
-	    pfvkDebugMarkerSetObjectNameEXT = reinterpret_cast<PFN_vkDebugMarkerSetObjectNameEXT>(vkGetInstanceProcAddr(instance, "vkDebugMarkerSetObjectNameEXT"));
-	    pfvkCmdDebugMarkerBeginEXT = reinterpret_cast<PFN_vkCmdDebugMarkerBeginEXT>(vkGetInstanceProcAddr(instance, "vkCmdDebugMarkerBeginEXT"));
-	    pfvkCmdDebugMarkerEndEXT = reinterpret_cast<PFN_vkCmdDebugMarkerEndEXT>(vkGetInstanceProcAddr(instance, "vkCmdDebugMarkerEndEXT"));
+#endif
+#ifdef VK_KHR_display
+	    pfvkGetPhysicalDeviceDisplayPlanePropertiesKHR = reinterpret_cast<PFN_vkGetPhysicalDeviceDisplayPlanePropertiesKHR>(vkGetInstanceProcAddr(instance, "vkGetPhysicalDeviceDisplayPlanePropertiesKHR"));
+#endif
+#ifdef VK_KHR_display
+	    pfvkGetDisplayModePropertiesKHR = reinterpret_cast<PFN_vkGetDisplayModePropertiesKHR>(vkGetInstanceProcAddr(instance, "vkGetDisplayModePropertiesKHR"));
+#endif
+#ifdef VK_KHR_display
+	    pfvkDestroySurfaceKHR = reinterpret_cast<PFN_vkDestroySurfaceKHR>(vkGetInstanceProcAddr(instance, "vkDestroySurfaceKHR"));
+#endif
+#ifdef VK_KHR_display_swapchain
+	    pfvkCreateSharedSwapchainsKHR = reinterpret_cast<PFN_vkCreateSharedSwapchainsKHR>(vkGetInstanceProcAddr(instance, "vkCreateSharedSwapchainsKHR"));
+#endif
+#ifdef VK_EXT_debug_marker
 	    pfvkCmdDebugMarkerInsertEXT = reinterpret_cast<PFN_vkCmdDebugMarkerInsertEXT>(vkGetInstanceProcAddr(instance, "vkCmdDebugMarkerInsertEXT"));
-	    pfvkCmdDrawIndirectCountAMD = reinterpret_cast<PFN_vkCmdDrawIndirectCountAMD>(vkGetInstanceProcAddr(instance, "vkCmdDrawIndirectCountAMD"));
+#endif
+#ifdef VK_EXT_debug_marker
+	    pfvkCmdDebugMarkerEndEXT = reinterpret_cast<PFN_vkCmdDebugMarkerEndEXT>(vkGetInstanceProcAddr(instance, "vkCmdDebugMarkerEndEXT"));
+#endif
+#ifdef VK_EXT_debug_marker
+	    pfvkCmdDebugMarkerBeginEXT = reinterpret_cast<PFN_vkCmdDebugMarkerBeginEXT>(vkGetInstanceProcAddr(instance, "vkCmdDebugMarkerBeginEXT"));
+#endif
+#ifdef VK_AMD_draw_indirect_count
 	    pfvkCmdDrawIndexedIndirectCountAMD = reinterpret_cast<PFN_vkCmdDrawIndexedIndirectCountAMD>(vkGetInstanceProcAddr(instance, "vkCmdDrawIndexedIndirectCountAMD"));
+#endif
+#ifdef VK_NV_external_memory_capabilities
 	    pfvkGetPhysicalDeviceExternalImageFormatPropertiesNV = reinterpret_cast<PFN_vkGetPhysicalDeviceExternalImageFormatPropertiesNV>(vkGetInstanceProcAddr(instance, "vkGetPhysicalDeviceExternalImageFormatPropertiesNV"));
+#endif
+#ifdef VK_EXT_debug_marker
+	    pfvkDebugMarkerSetObjectNameEXT = reinterpret_cast<PFN_vkDebugMarkerSetObjectNameEXT>(vkGetInstanceProcAddr(instance, "vkDebugMarkerSetObjectNameEXT"));
+#endif
+#ifdef VK_EXT_debug_marker
+	    pfvkDebugMarkerSetObjectTagEXT = reinterpret_cast<PFN_vkDebugMarkerSetObjectTagEXT>(vkGetInstanceProcAddr(instance, "vkDebugMarkerSetObjectTagEXT"));
+#endif
+#ifdef VK_AMD_draw_indirect_count
+	    pfvkCmdDrawIndirectCountAMD = reinterpret_cast<PFN_vkCmdDrawIndirectCountAMD>(vkGetInstanceProcAddr(instance, "vkCmdDrawIndirectCountAMD"));
+#endif
+#ifdef VK_KHR_display
+	    pfvkGetPhysicalDeviceDisplayPropertiesKHR = reinterpret_cast<PFN_vkGetPhysicalDeviceDisplayPropertiesKHR>(vkGetInstanceProcAddr(instance, "vkGetPhysicalDeviceDisplayPropertiesKHR"));
+#endif
+#ifdef VK_KHR_display
+	    pfvkCreateDisplayPlaneSurfaceKHR = reinterpret_cast<PFN_vkCreateDisplayPlaneSurfaceKHR>(vkGetInstanceProcAddr(instance, "vkCreateDisplayPlaneSurfaceKHR"));
+#endif
+#ifdef VK_KHR_display
+	    pfvkGetDisplayPlaneSupportedDisplaysKHR = reinterpret_cast<PFN_vkGetDisplayPlaneSupportedDisplaysKHR>(vkGetInstanceProcAddr(instance, "vkGetDisplayPlaneSupportedDisplaysKHR"));
+#endif
+#ifdef VK_KHR_display
+	    pfvkCreateDisplayModeKHR = reinterpret_cast<PFN_vkCreateDisplayModeKHR>(vkGetInstanceProcAddr(instance, "vkCreateDisplayModeKHR"));
+#endif
+#ifdef VK_EXT_debug_report
+	    pfvkCreateDebugReportCallbackEXT = reinterpret_cast<PFN_vkCreateDebugReportCallbackEXT>(vkGetInstanceProcAddr(instance, "vkCreateDebugReportCallbackEXT"));
+#endif
+#ifdef VK_EXT_debug_report
+	    pfvkDestroyDebugReportCallbackEXT = reinterpret_cast<PFN_vkDestroyDebugReportCallbackEXT>(vkGetInstanceProcAddr(instance, "vkDestroyDebugReportCallbackEXT"));
+#endif
+#ifdef VK_KHR_display
+	    pfvkGetDisplayPlaneCapabilitiesKHR = reinterpret_cast<PFN_vkGetDisplayPlaneCapabilitiesKHR>(vkGetInstanceProcAddr(instance, "vkGetDisplayPlaneCapabilitiesKHR"));
+#endif
+#ifdef VK_NV_external_memory_win32
 	    pfvkGetMemoryWin32HandleNV = reinterpret_cast<PFN_vkGetMemoryWin32HandleNV>(vkGetInstanceProcAddr(instance, "vkGetMemoryWin32HandleNV"));
+#endif
   }
 %}
 
@@ -9982,7 +10068,7 @@ std::shared_ptr<VkSurfaceKHR_T> createDisplayPlaneSurfaceKHR(
           nullptr,
           &hSurface  ));
       return std::shared_ptr<VkSurfaceKHR_T>(hSurface, 
-              [=](VkSurfaceKHR to_free) {vkDestroySurfaceKHR(instance, to_free, nullptr);});
+              [=](VkSurfaceKHR to_free) {pfvkDestroySurfaceKHR(instance, to_free, nullptr);});
    }
 
 VkDisplayPresentInfoKHR DisplayPresentInfoKHR(
@@ -10051,7 +10137,7 @@ std::shared_ptr<VkSurfaceKHR_T> createXlibSurfaceKHR(
           nullptr,
           &hSurface  ));
       return std::shared_ptr<VkSurfaceKHR_T>(hSurface, 
-              [=](VkSurfaceKHR to_free) {vkDestroySurfaceKHR(instance, to_free, nullptr);});
+              [=](VkSurfaceKHR to_free) {pfvkDestroySurfaceKHR(instance, to_free, nullptr);});
    }
 
 std::shared_ptr< Display > getPhysicalDeviceXlibPresentationSupportKHR(
@@ -10095,7 +10181,7 @@ std::shared_ptr<VkSurfaceKHR_T> createXcbSurfaceKHR(
           nullptr,
           &hSurface  ));
       return std::shared_ptr<VkSurfaceKHR_T>(hSurface, 
-              [=](VkSurfaceKHR to_free) {vkDestroySurfaceKHR(instance, to_free, nullptr);});
+              [=](VkSurfaceKHR to_free) {pfvkDestroySurfaceKHR(instance, to_free, nullptr);});
    }
 
 std::shared_ptr< xcb_connection_t > getPhysicalDeviceXcbPresentationSupportKHR(
@@ -10139,7 +10225,7 @@ std::shared_ptr<VkSurfaceKHR_T> createWaylandSurfaceKHR(
           nullptr,
           &hSurface  ));
       return std::shared_ptr<VkSurfaceKHR_T>(hSurface, 
-              [=](VkSurfaceKHR to_free) {vkDestroySurfaceKHR(instance, to_free, nullptr);});
+              [=](VkSurfaceKHR to_free) {pfvkDestroySurfaceKHR(instance, to_free, nullptr);});
    }
 
 std::shared_ptr< wl_display > getPhysicalDeviceWaylandPresentationSupportKHR(
@@ -10181,7 +10267,7 @@ std::shared_ptr<VkSurfaceKHR_T> createMirSurfaceKHR(
           nullptr,
           &hSurface  ));
       return std::shared_ptr<VkSurfaceKHR_T>(hSurface, 
-              [=](VkSurfaceKHR to_free) {vkDestroySurfaceKHR(instance, to_free, nullptr);});
+              [=](VkSurfaceKHR to_free) {pfvkDestroySurfaceKHR(instance, to_free, nullptr);});
    }
 
 std::shared_ptr< MirConnection > getPhysicalDeviceMirPresentationSupportKHR(
@@ -10221,7 +10307,7 @@ std::shared_ptr<VkSurfaceKHR_T> createAndroidSurfaceKHR(
           nullptr,
           &hSurface  ));
       return std::shared_ptr<VkSurfaceKHR_T>(hSurface, 
-              [=](VkSurfaceKHR to_free) {vkDestroySurfaceKHR(instance, to_free, nullptr);});
+              [=](VkSurfaceKHR to_free) {pfvkDestroySurfaceKHR(instance, to_free, nullptr);});
    }
 
 #endif /* VK_USE_PLATFORM_ANDROID_KHR*/
@@ -10251,7 +10337,7 @@ std::shared_ptr<VkSurfaceKHR_T> createWin32SurfaceKHR(
           nullptr,
           &hSurface  ));
       return std::shared_ptr<VkSurfaceKHR_T>(hSurface, 
-              [=](VkSurfaceKHR to_free) {vkDestroySurfaceKHR(instance, to_free, nullptr);});
+              [=](VkSurfaceKHR to_free) {pfvkDestroySurfaceKHR(instance, to_free, nullptr);});
    }
 
 void  getPhysicalDeviceWin32PresentationSupportKHR(

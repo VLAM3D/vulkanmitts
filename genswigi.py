@@ -164,38 +164,21 @@ class CSWIGOutputGenerator(COutputGenerator):
         self.structTypes = set()
         self.structCArrayTypes = set()
         self.nonRAIIStruct = set()
+        self.currentFeature = None
 
-        # list the functions ptrs not loaded by the Lunar Vulkan SDK on Windows
-        self.notLoadedBySDK = [ 'vkGetPhysicalDeviceDisplayPropertiesKHR',
-                                'vkGetPhysicalDeviceDisplayPlanePropertiesKHR',
-                                'vkGetDisplayPlaneSupportedDisplaysKHR',
-                                'vkGetDisplayModePropertiesKHR',
-                                'vkCreateDisplayModeKHR',
-                                'vkGetDisplayPlaneCapabilitiesKHR',
-                                'vkCreateDisplayPlaneSurfaceKHR',
-                                'vkCreateSharedSwapchainsKHR', 
-                                'vkCreateDebugReportCallbackEXT',
-                                'vkDestroyDebugReportCallbackEXT',
-                                'vkDebugReportMessageEXT',
-                                'vkDebugMarkerSetObjectTagEXT',
-                                'vkDebugMarkerSetObjectNameEXT',
-                                'vkCmdDebugMarkerBeginEXT',
-                                'vkCmdDebugMarkerEndEXT',
-                                'vkCmdDebugMarkerInsertEXT',
-                                'vkCmdDrawIndirectCountAMD',
-                                'vkCmdDrawIndexedIndirectCountAMD',
-                                'vkGetPhysicalDeviceExternalImageFormatPropertiesNV',
-                                'vkGetMemoryWin32HandleNV']
-        self.loadPtrs = """
-    void load_vulkan_fct_ptrs(VkInstance instance)
-    {
-"""
-        for command_name in self.notLoadedBySDK:
-            self.loadPtrs += '	    pf%(command_name)s = reinterpret_cast<PFN_%(command_name)s>(vkGetInstanceProcAddr(instance, "%(command_name)s"));\n' % locals()
-
-        self.loadPtrs += "  }\n"
-        self.loadPtrs += "%}\n"
-    
+        # list the functions ptrs not loaded by the Lunar Vulkan SDK 
+        self.featureNotRequiringGetProcAddr = [ 'VK_VERSION_1_0',
+                                                'VK_KHR_surface',
+                                                'VK_KHR_swapchain',
+                                                'VK_KHR_xlib_surface',
+                                                'VK_KHR_xcb_surface',
+                                                'VK_KHR_wayland_surface',
+                                                'VK_KHR_mir_surface',
+                                                'VK_KHR_android_surface',
+                                                'VK_KHR_win32_surface']
+        
+        self.notLoadedBySDK = {}                                                
+                                            
     def findBaseTypes(self):
         all_types = self.registry.reg.findall("types/type")
         for type in all_types:
@@ -315,8 +298,28 @@ class CSWIGOutputGenerator(COutputGenerator):
         write('         return nullptr;', file=self.outFile)
         write('     }\n', file=self.outFile)
 
-    def endFile(self):     
+    def endFile(self): 
         write("void load_vulkan_fct_ptrs(VkInstance instance);\n", file=self.outFile)
+        for command_name in self.notLoadedBySDK:
+            feature = self.notLoadedBySDK[command_name]
+            self.fctPtrDecl.append('#ifdef ' + feature)
+            self.fctPtrDecl.append("PFN_%(command_name)s pf%(command_name)s;" % locals())
+            self.fctPtrDecl.append('#endif //' + feature )
+
+        self.loadPtrs = """
+    void load_vulkan_fct_ptrs(VkInstance instance)
+    {
+"""
+        for command_name in self.notLoadedBySDK:
+            feature = self.notLoadedBySDK[command_name]
+            self.loadPtrs += '#ifdef ' + feature + '\n'
+            self.loadPtrs += '	    pf%(command_name)s = reinterpret_cast<PFN_%(command_name)s>(vkGetInstanceProcAddr(instance, "%(command_name)s"));\n' % locals()
+            self.loadPtrs += '#endif' + '\n'
+
+        self.loadPtrs += "  }\n"
+        self.loadPtrs += "%}\n"
+
+
         write("%{\n", file=self.outFile)
         self.writeVkErrorStringImpl()
         write('\n    '.join(self.fctPtrDecl), end='\n', file=self.outFile)
@@ -372,8 +375,9 @@ class CSWIGOutputGenerator(COutputGenerator):
         # Start processing in superclass
         COutputGenerator.beginFeature(self, interface, emit)   
         self.swigFeatureImpl = []     
+        self.currentFeature = self.featureName         
 
-    def endFeature(self):
+    def endFeature(self):        
         # Finish processing in superclass
         if (self.genOpts.protectFeature):
             self.swigImpl.append('#ifdef ' + self.featureName)
@@ -720,6 +724,10 @@ class CSWIGOutputGenerator(COutputGenerator):
 
         free_command_name, free_command_params_name_type = self.findFreeCommand(is_allocation_cmd, command_name)
 
+        if is_allocation_cmd and free_command_name is not None:            
+            if self.currentFeature not in self.featureNotRequiringGetProcAddr:
+                self.notLoadedBySDK[free_command_name] = self.currentFeature
+
         swig_command_name = remove_vk_prefix(command_name)
         tuple_decl = ""
         
@@ -997,6 +1005,10 @@ class CSWIGOutputGenerator(COutputGenerator):
         command_name = proto[1].text
         params = cmd.findall('param')
 
+        # building the list of commands for which we will to call GetProcAddress
+        if self.currentFeature not in self.featureNotRequiringGetProcAddr:
+            self.notLoadedBySDK[command_name] = self.currentFeature
+
         for p in params:
             is_ptr, is_const, ptr_depth = is_param_pointer(p)
             if ptr_depth > 1 or return_type_str == 'PFN_vkVoidFunction':
@@ -1085,9 +1097,7 @@ class CSWIGOutputGenerator(COutputGenerator):
                         count_to_vector_param_map  )
 
         decls = self.makeCDecls(cmdinfo.elem)
-        self.appendSection('commandPointer', decls[1])
-        if command_name in self.notLoadedBySDK:
-            self.fctPtrDecl.append("PFN_%(command_name)s pf%(command_name)s;" % locals())
+        self.appendSection('commandPointer', decls[1])        
 
 khronosPrefixStrings = [
     '/*',

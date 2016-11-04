@@ -17,7 +17,7 @@ Please read SWIG_DOC_
 .. _SWIG: http://www.swig.org/
 .. _SWIG_DOC: http://www.swig.org/Doc1.3/Python.html#Python_nn65
 "
-%enddef 
+%enddef
  
 %module(docstring=DOCSTRING) pyvulkan
 
@@ -375,7 +375,7 @@ typedef HINSTANCE__* HINSTANCE;
 uint32_t makeVersion(uint32_t major, uint32_t minor, uint32_t patch);
 
 %{
-    void ThrowOnVkError(VkResult res, char* statement, char* file, long line)
+    void ThrowOnVkError(VkResult res, const char* statement, const char* file, long line)
     {
         if (res != VK_SUCCESS)
         {
