@@ -89,6 +89,14 @@ def is_param_const(param):
         return 'const' in param.text
     return False
 
+# ex vkGetPipelineCacheData
+# C API would write the cache to a user allocated raw byte buffer
+# the Python API will return a list of bytes 
+def argout_void_to_char(argout_type):
+    if argout_type == 'void':
+        return 'uint8_t'
+    return argout_type
+
 # this works for V1.0 - we could parse the comment field in vk.xml  - don't know which will be more robust to change
 def struct_typename_to_VkStructureType_enum(struct_typename):
     enum_string = "VK_STRUCTURE_TYPE"
@@ -228,16 +236,14 @@ class CSWIGOutputGenerator(COutputGenerator):
                 if typename not in self.hideFromSWIGTypes:
                     members = type.findall('.//member')
                     members_name_type = [ (get_param_name(m),get_param_type(m)) for m in members]
-                    for m in members:
+                    for i,m in enumerate(members):
                         if 'len' in m.keys():
                             if 'null-terminated' in m.get('len'):
                                 self.nonRAIIStruct.add(typename)
                                 break
                             else:
-                                len_members = m.get('len').split(',')
-                                for len_member in len_members:
-                                    nt_pair = (len_member, 'uint32_t')
-                                    if nt_pair in members_name_type:  
+                                for j, nt_pair in enumerate(members_name_type):
+                                    if j!=i and nt_pair[0] in m.get('len') and nt_pair[1] in ['uint32_t','size_t']:
                                         self.nonRAIIStruct.add(typename)
                                         break
                         else:
@@ -443,12 +449,10 @@ class CSWIGOutputGenerator(COutputGenerator):
         count_member_to_vector_member = {}
         structure_type_member_index = -1
         for i,m in enumerate(members):            
-            if 'len' in m.keys():                
-                len_members = m.get('len').split(',')
-                for len_member in len_members:
-                    nt_pair = (len_member, 'uint32_t')
-                    if nt_pair in members_name_type:  
-                        l_pair = (i, members_name_type.index(nt_pair))                  
+            if 'len' in m.keys():
+                for j, nt_pair in enumerate(members_name_type):
+                    if j!=i and nt_pair[0] in m.get('len') and nt_pair[1] in ['uint32_t','size_t']:
+                        l_pair = (i, j)
                         if typeName not in ['VkWriteDescriptorSet','VkDescriptorSetLayoutBinding']:
                             members_to_remove.add(l_pair[1])                       
                             if l_pair[1] not in count_member_to_vector_member:                            
@@ -457,9 +461,9 @@ class CSWIGOutputGenerator(COutputGenerator):
                                 print(typeName, ' member', members_name_type[i][0], ' size is not used ' )
 
                         members_to_vectorize.add(l_pair[0])
-
-                        if members_name_type[i][1] != 'void' and members_name_type[i][1] not in self.hideFromSWIGTypes:
-                            self.std_vector_types.add( members_name_type[i][1] )
+                        member_type = argout_void_to_char(members_name_type[i][1])
+                        if member_type not in self.hideFromSWIGTypes:
+                            self.std_vector_types.add( member_type )
             else:
                 member_name,member_type_name = members_name_type[i]
                 is_ptr, is_const, ptr_depth = is_param_pointer(m) 
@@ -468,7 +472,7 @@ class CSWIGOutputGenerator(COutputGenerator):
 
         for i,member in enumerate(members):
             member_type_name = get_param_type(member)         
-            if member_type_name == 'void':  
+            if member_type_name == 'void' and i not in members_to_vectorize:  
                 members_to_remove.add(i)
             elif member_type_name == 'VkStructureType':
                 structure_type_member_index = i
@@ -499,7 +503,7 @@ class CSWIGOutputGenerator(COutputGenerator):
                 if i in members_to_remove:
                     continue
                 elif i in members_to_vectorize:
-                    vec_ele_type_name = member_type_name
+                    vec_ele_type_name = argout_void_to_char(member_type_name)
                     if member_type_name == 'char':
                         vec_ele_type_name = 'std::string'
                     
@@ -577,7 +581,8 @@ class CSWIGOutputGenerator(COutputGenerator):
             indentdecl = "std::shared_ptr<%(raii_type_name)s> %(swig_maker_name)s" % locals() + indentdecl;
             self.appendSection('struct', raii_struct_body)
         else:
-            assert(typeName not in self.nonRAIIStruct)
+            if typeName in self.nonRAIIStruct:
+                raise RuntimeError(typeName + ' should NOT be in the non-RAII struct list')
             indentdecl = "%(typeName)s %(swig_maker_name)s" % locals() + indentdecl;
             self.copyableBaseTypes.add(typeName)
 
@@ -596,9 +601,9 @@ class CSWIGOutputGenerator(COutputGenerator):
                         param_name = vector_member_name_type[0]
                         vector_member_name = p_name_to_vec(vector_member_name_type[0])
                         if vector_member_name_type[1] in self.arrayBaseTypes:
-                            swig_impl += '      raii_obj->nonRaiiObj.%(member_name)s = static_cast<uint32_t>(%(param_name)s_dim1);\n' % locals()
+                            swig_impl += '      raii_obj->nonRaiiObj.%(member_name)s = static_cast<%(member_type_name)s>(%(param_name)s_dim1);\n' % locals()
                         else:
-                            swig_impl += '      raii_obj->nonRaiiObj.%(member_name)s = static_cast<uint32_t>(%(vector_member_name)s.size());\n' % locals()
+                            swig_impl += '      raii_obj->nonRaiiObj.%(member_name)s = static_cast<%(member_type_name)s>(%(vector_member_name)s.size());\n' % locals()
                     elif i == structure_type_member_index:
                         swig_impl += '      raii_obj->nonRaiiObj.%(member_name)s = %(vkstructureenumstring)s;\n' % locals()
                     else:

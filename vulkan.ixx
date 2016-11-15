@@ -53,7 +53,7 @@ const char* vkGetErrorString(VkResult retval);
 #define VK_VERSION_MINOR(version) (((uint32_t)(version) >> 12) & 0x3ff)
 #define VK_VERSION_PATCH(version) ((uint32_t)(version) & 0xfff)
 // Version of this file
-#define VK_HEADER_VERSION 32
+#define VK_HEADER_VERSION 30
 
 
 #define VK_NULL_HANDLE 0
@@ -1766,6 +1766,11 @@ typedef struct VkShaderModuleCreateInfo {
     const uint32_t*              pCode;
 } VkShaderModuleCreateInfo;
 
+struct VkShaderModuleCreateInfoRAII {
+   VkShaderModuleCreateInfo nonRaiiObj;
+    std::vector<uint32_t>                       vecCode;
+};
+
 typedef struct VkPipelineCacheCreateInfo {
     VkStructureType               sType;
     const void*                   pNext;
@@ -1773,6 +1778,11 @@ typedef struct VkPipelineCacheCreateInfo {
     size_t                        initialDataSize;
     const void*                   pInitialData;
 } VkPipelineCacheCreateInfo;
+
+struct VkPipelineCacheCreateInfoRAII {
+   VkPipelineCacheCreateInfo nonRaiiObj;
+    std::vector<uint8_t>                        vecInitialData;
+};
 
 typedef struct VkSpecializationMapEntry {
     uint32_t    constantID;
@@ -1790,6 +1800,7 @@ typedef struct VkSpecializationInfo {
 struct VkSpecializationInfoRAII {
    VkSpecializationInfo nonRaiiObj;
     std::vector<VkSpecializationMapEntry>       vecMapEntries;
+    std::vector<uint8_t>                        vecData;
 };
 
 typedef struct VkPipelineShaderStageCreateInfo {
@@ -3217,19 +3228,18 @@ std::shared_ptr<VkImageView_T> createImageView(
         VkDevice device,
         const VkImageViewCreateInfo & pCreateInfo);
 
-VkShaderModuleCreateInfo ShaderModuleCreateInfo(
+std::shared_ptr<VkShaderModuleCreateInfoRAII> ShaderModuleCreateInfo(
     VkShaderModuleCreateFlags                   flags,
-    size_t                                      codeSize,
-    const uint32_t*                             pCode);
+    unsigned int* pCode_in_array1, int pCode_dim1);
 
 
 std::shared_ptr<VkShaderModule_T> createShaderModule(
         VkDevice device,
         const VkShaderModuleCreateInfo & pCreateInfo);
 
-VkPipelineCacheCreateInfo PipelineCacheCreateInfo(
+std::shared_ptr<VkPipelineCacheCreateInfoRAII> PipelineCacheCreateInfo(
     VkPipelineCacheCreateFlags                  flags,
-    size_t                                      initialDataSize);
+    const std::vector<uint8_t> &                vecInitialData);
 
 
 std::shared_ptr<VkPipelineCache_T> createPipelineCache(
@@ -3253,7 +3263,7 @@ VkSpecializationMapEntry SpecializationMapEntry(
 
 std::shared_ptr<VkSpecializationInfoRAII> SpecializationInfo(
     const std::vector<VkSpecializationMapEntry> &vecMapEntries,
-    size_t                                      dataSize);
+    const std::vector<uint8_t> &                vecData);
 
 
 std::shared_ptr<VkPipelineShaderStageCreateInfoRAII> PipelineShaderStageCreateInfo(
@@ -4866,6 +4876,11 @@ typedef struct VkDebugMarkerObjectTagInfoEXT {
     const void*                   pTag;
 } VkDebugMarkerObjectTagInfoEXT;
 
+struct VkDebugMarkerObjectTagInfoEXTRAII {
+   VkDebugMarkerObjectTagInfoEXT nonRaiiObj;
+    std::vector<uint8_t>                        vecTag;
+};
+
 typedef struct VkDebugMarkerMarkerInfoEXT {
     VkStructureType    sType;
     const void*        pNext;
@@ -4891,11 +4906,11 @@ std::shared_ptr<VkDebugMarkerObjectNameInfoEXTRAII> DebugMarkerObjectNameInfoEXT
     const std::string &                         strObjectName);
 
 
-VkDebugMarkerObjectTagInfoEXT DebugMarkerObjectTagInfoEXT(
+std::shared_ptr<VkDebugMarkerObjectTagInfoEXTRAII> DebugMarkerObjectTagInfoEXT(
     VkDebugReportObjectTypeEXT                  objectType,
     uint64_t                                    object,
     uint64_t                                    tagName,
-    size_t                                      tagSize);
+    const std::vector<uint8_t> &                vecTag);
 
 
 std::shared_ptr<VkDebugMarkerMarkerInfoEXTRAII> DebugMarkerMarkerInfoEXT(
@@ -4903,7 +4918,7 @@ std::shared_ptr<VkDebugMarkerMarkerInfoEXTRAII> DebugMarkerMarkerInfoEXT(
     float                                       color[4]);
 
 
-VkDebugMarkerObjectTagInfoEXT debugMarkerSetObjectTagEXT(
+std::shared_ptr< VkDebugMarkerObjectTagInfoEXT > debugMarkerSetObjectTagEXT(
         VkDevice device);
 
 std::shared_ptr< VkDebugMarkerObjectNameInfoEXT > debugMarkerSetObjectNameEXT(
@@ -4989,7 +5004,7 @@ void  cmdDrawIndexedIndirectCountAMD(
 
 
 #define VK_AMD_negative_viewport_height 1
-#define VK_AMD_NEGATIVE_VIEWPORT_HEIGHT_SPEC_VERSION 1
+#define VK_AMD_NEGATIVE_VIEWPORT_HEIGHT_SPEC_VERSION 0
 #define VK_AMD_NEGATIVE_VIEWPORT_HEIGHT_EXTENSION_NAME "VK_AMD_negative_viewport_height"
 
 
@@ -4999,7 +5014,7 @@ void  cmdDrawIndexedIndirectCountAMD(
 
 
 #define VK_AMD_shader_ballot 1
-#define VK_AMD_SHADER_BALLOT_SPEC_VERSION 1
+#define VK_AMD_SHADER_BALLOT_SPEC_VERSION 0
 #define VK_AMD_SHADER_BALLOT_EXTENSION_NAME "VK_AMD_shader_ballot"
 
 
@@ -7200,18 +7215,30 @@ std::shared_ptr<VkImageView_T> createImageView(
               [=](VkImageView to_free) {vkDestroyImageView(device, to_free, nullptr);});
    }
 
-VkShaderModuleCreateInfo ShaderModuleCreateInfo(
+struct VkShaderModuleCreateInfoRAII {
+   VkShaderModuleCreateInfo nonRaiiObj;
+    std::vector<uint32_t>                       vecCode;
+};
+
+std::shared_ptr<VkShaderModuleCreateInfoRAII> ShaderModuleCreateInfo(
     VkShaderModuleCreateFlags                   flags,
-    size_t                                      codeSize,
-    const uint32_t*                             pCode)
+    unsigned int* pCode_in_array1, int pCode_dim1)
    {
-      VkShaderModuleCreateInfo obj;
-      obj.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
-      obj.pNext = nullptr;
-      obj.flags = flags;
-      obj.codeSize = codeSize * sizeof(unsigned int);
-      obj.pCode = pCode;
-      return obj;
+      std::shared_ptr<VkShaderModuleCreateInfoRAII> raii_obj(new VkShaderModuleCreateInfoRAII);
+      raii_obj->nonRaiiObj.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
+      raii_obj->nonRaiiObj.pNext = nullptr;
+      raii_obj->nonRaiiObj.flags = flags;
+      raii_obj->nonRaiiObj.codeSize = static_cast<size_t>(pCode_dim1);
+      raii_obj->vecCode.assign(pCode_in_array1, pCode_in_array1 + pCode_dim1);
+      if ( raii_obj->vecCode.size() > 0)
+      {
+          raii_obj->nonRaiiObj.pCode = &raii_obj->vecCode[0];
+      }
+      else
+      {
+          raii_obj->nonRaiiObj.pCode = nullptr;
+      }
+      return raii_obj;
    }
 
 std::shared_ptr<VkShaderModule_T> createShaderModule(
@@ -7228,17 +7255,30 @@ std::shared_ptr<VkShaderModule_T> createShaderModule(
               [=](VkShaderModule to_free) {vkDestroyShaderModule(device, to_free, nullptr);});
    }
 
-VkPipelineCacheCreateInfo PipelineCacheCreateInfo(
+struct VkPipelineCacheCreateInfoRAII {
+   VkPipelineCacheCreateInfo nonRaiiObj;
+    std::vector<uint8_t>                        vecInitialData;
+};
+
+std::shared_ptr<VkPipelineCacheCreateInfoRAII> PipelineCacheCreateInfo(
     VkPipelineCacheCreateFlags                  flags,
-    size_t                                      initialDataSize)
+    const std::vector<uint8_t> &                vecInitialData)
    {
-      VkPipelineCacheCreateInfo obj;
-      obj.sType = VK_STRUCTURE_TYPE_PIPELINE_CACHE_CREATE_INFO;
-      obj.pNext = nullptr;
-      obj.flags = flags;
-      obj.initialDataSize = initialDataSize;
-      obj.pInitialData = nullptr;
-      return obj;
+      std::shared_ptr<VkPipelineCacheCreateInfoRAII> raii_obj(new VkPipelineCacheCreateInfoRAII);
+      raii_obj->nonRaiiObj.sType = VK_STRUCTURE_TYPE_PIPELINE_CACHE_CREATE_INFO;
+      raii_obj->nonRaiiObj.pNext = nullptr;
+      raii_obj->nonRaiiObj.flags = flags;
+      raii_obj->nonRaiiObj.initialDataSize = static_cast<size_t>(vecInitialData.size());
+      raii_obj->vecInitialData = vecInitialData;
+      if ( raii_obj->vecInitialData.size() > 0)
+      {
+          raii_obj->nonRaiiObj.pInitialData = &raii_obj->vecInitialData[0];
+      }
+      else
+      {
+          raii_obj->nonRaiiObj.pInitialData = nullptr;
+      }
+      return raii_obj;
    }
 
 std::shared_ptr<VkPipelineCache_T> createPipelineCache(
@@ -7295,11 +7335,12 @@ VkSpecializationMapEntry SpecializationMapEntry(
 struct VkSpecializationInfoRAII {
    VkSpecializationInfo nonRaiiObj;
     std::vector<VkSpecializationMapEntry>       vecMapEntries;
+    std::vector<uint8_t>                        vecData;
 };
 
 std::shared_ptr<VkSpecializationInfoRAII> SpecializationInfo(
     const std::vector<VkSpecializationMapEntry> &vecMapEntries,
-    size_t                                      dataSize)
+    const std::vector<uint8_t> &                vecData)
    {
       std::shared_ptr<VkSpecializationInfoRAII> raii_obj(new VkSpecializationInfoRAII);
       raii_obj->nonRaiiObj.mapEntryCount = static_cast<uint32_t>(vecMapEntries.size());
@@ -7312,8 +7353,16 @@ std::shared_ptr<VkSpecializationInfoRAII> SpecializationInfo(
       {
           raii_obj->nonRaiiObj.pMapEntries = nullptr;
       }
-      raii_obj->nonRaiiObj.dataSize = dataSize;
-      raii_obj->nonRaiiObj.pData = nullptr;
+      raii_obj->nonRaiiObj.dataSize = static_cast<size_t>(vecData.size());
+      raii_obj->vecData = vecData;
+      if ( raii_obj->vecData.size() > 0)
+      {
+          raii_obj->nonRaiiObj.pData = &raii_obj->vecData[0];
+      }
+      else
+      {
+          raii_obj->nonRaiiObj.pData = nullptr;
+      }
       return raii_obj;
    }
 
@@ -10438,21 +10487,34 @@ std::shared_ptr<VkDebugMarkerObjectNameInfoEXTRAII> DebugMarkerObjectNameInfoEXT
       return raii_obj;
    }
 
-VkDebugMarkerObjectTagInfoEXT DebugMarkerObjectTagInfoEXT(
+struct VkDebugMarkerObjectTagInfoEXTRAII {
+   VkDebugMarkerObjectTagInfoEXT nonRaiiObj;
+    std::vector<uint8_t>                        vecTag;
+};
+
+std::shared_ptr<VkDebugMarkerObjectTagInfoEXTRAII> DebugMarkerObjectTagInfoEXT(
     VkDebugReportObjectTypeEXT                  objectType,
     uint64_t                                    object,
     uint64_t                                    tagName,
-    size_t                                      tagSize)
+    const std::vector<uint8_t> &                vecTag)
    {
-      VkDebugMarkerObjectTagInfoEXT obj;
-      obj.sType = VK_STRUCTURE_TYPE_DEBUG_MARKER_OBJECT_TAG_INFO_EXT;
-      obj.pNext = nullptr;
-      obj.objectType = objectType;
-      obj.object = object;
-      obj.tagName = tagName;
-      obj.tagSize = tagSize;
-      obj.pTag = nullptr;
-      return obj;
+      std::shared_ptr<VkDebugMarkerObjectTagInfoEXTRAII> raii_obj(new VkDebugMarkerObjectTagInfoEXTRAII);
+      raii_obj->nonRaiiObj.sType = VK_STRUCTURE_TYPE_DEBUG_MARKER_OBJECT_TAG_INFO_EXT;
+      raii_obj->nonRaiiObj.pNext = nullptr;
+      raii_obj->nonRaiiObj.objectType = objectType;
+      raii_obj->nonRaiiObj.object = object;
+      raii_obj->nonRaiiObj.tagName = tagName;
+      raii_obj->nonRaiiObj.tagSize = static_cast<size_t>(vecTag.size());
+      raii_obj->vecTag = vecTag;
+      if ( raii_obj->vecTag.size() > 0)
+      {
+          raii_obj->nonRaiiObj.pTag = &raii_obj->vecTag[0];
+      }
+      else
+      {
+          raii_obj->nonRaiiObj.pTag = nullptr;
+      }
+      return raii_obj;
    }
 
 struct VkDebugMarkerMarkerInfoEXTRAII {
@@ -10473,7 +10535,7 @@ std::shared_ptr<VkDebugMarkerMarkerInfoEXTRAII> DebugMarkerMarkerInfoEXT(
       return raii_obj;
    }
 
-VkDebugMarkerObjectTagInfoEXT debugMarkerSetObjectTagEXT(
+std::shared_ptr< VkDebugMarkerObjectTagInfoEXT > debugMarkerSetObjectTagEXT(
         VkDevice device)
    {
       if ( nullptr == pfvkDebugMarkerSetObjectTagEXT )
@@ -10481,11 +10543,11 @@ VkDebugMarkerObjectTagInfoEXT debugMarkerSetObjectTagEXT(
                                    "Review you instance create info\n"
                                    "and call load_vulkan_fct_ptrs() with the new instance");
 
-      VkDebugMarkerObjectTagInfoEXT pTagInfo; 
+      std::shared_ptr<VkDebugMarkerObjectTagInfoEXT> ptrpTagInfo(new VkDebugMarkerObjectTagInfoEXT); 
       V( pfvkDebugMarkerSetObjectTagEXT(
           device,
-          &pTagInfo  ));
-      return pTagInfo; 
+          ptrpTagInfo.get()  ));
+      return ptrpTagInfo; 
    }
 
 std::shared_ptr< VkDebugMarkerObjectNameInfoEXT > debugMarkerSetObjectNameEXT(
@@ -10848,6 +10910,8 @@ std::shared_ptr<VkValidationFlagsEXTRAII> ValidationFlagsEXT(
 
 %template (VkInstanceCreateInfoPtr) std::shared_ptr<VkInstanceCreateInfoRAII>;
 
+%template (VkPipelineCacheCreateInfoPtr) std::shared_ptr<VkPipelineCacheCreateInfoRAII>;
+
 #ifdef VK_NV_win32_keyed_mutex
 
 %template (VkWin32KeyedMutexAcquireReleaseInfoNVPtr) std::shared_ptr<VkWin32KeyedMutexAcquireReleaseInfoNVRAII>;
@@ -10864,7 +10928,7 @@ std::shared_ptr<VkValidationFlagsEXTRAII> ValidationFlagsEXT(
 
 #ifdef VK_EXT_debug_marker
 
-%template (VkDebugMarkerMarkerInfoEXTPtr) std::shared_ptr<VkDebugMarkerMarkerInfoEXTRAII>;
+%template (VkDebugMarkerObjectTagInfoEXTPtr) std::shared_ptr<VkDebugMarkerObjectTagInfoEXTRAII>;
 
 #endif
 
@@ -10912,6 +10976,8 @@ std::shared_ptr<VkValidationFlagsEXTRAII> ValidationFlagsEXT(
 
 %template (VkRenderPassCreateInfoPtr) std::shared_ptr<VkRenderPassCreateInfoRAII>;
 
+%template (VkShaderModuleCreateInfoPtr) std::shared_ptr<VkShaderModuleCreateInfoRAII>;
+
 %template (VkPresentInfoKHRPtr) std::shared_ptr<VkPresentInfoKHRRAII>;
 
 %template (VkWriteDescriptorSetPtr) std::shared_ptr<VkWriteDescriptorSetRAII>;
@@ -10921,6 +10987,12 @@ std::shared_ptr<VkValidationFlagsEXTRAII> ValidationFlagsEXT(
 %template (VkDescriptorSetLayoutBindingPtr) std::shared_ptr<VkDescriptorSetLayoutBindingRAII>;
 
 %template (VkApplicationInfoPtr) std::shared_ptr<VkApplicationInfoRAII>;
+
+#ifdef VK_EXT_debug_marker
+
+%template (VkDebugMarkerMarkerInfoEXTPtr) std::shared_ptr<VkDebugMarkerMarkerInfoEXTRAII>;
+
+#endif
 
 %template (VkPipelineLayoutCreateInfoPtr) std::shared_ptr<VkPipelineLayoutCreateInfoRAII>;
 
@@ -10969,6 +11041,8 @@ std::shared_ptr<VkValidationFlagsEXTRAII> ValidationFlagsEXT(
 %template (VkBindSparseInfoVector) std::vector< std::shared_ptr<VkBindSparseInfoRAII> >;
 
 %template (VkDeviceMemoryVector) std::vector<VkDeviceMemory>;
+
+%template (uint8_tVector) std::vector<uint8_t>;
 
 #ifdef VK_KHR_display
 

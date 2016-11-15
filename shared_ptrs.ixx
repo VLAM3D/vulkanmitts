@@ -33,19 +33,21 @@
 %ref_counted_handle(VkDisplayKHR)
 %ref_counted_handle(VkDescriptorPool)
 %shared_ptr(HANDLE)
+%shared_ptr(VkDebugMarkerMarkerInfoEXT)
 %shared_ptr(wl_display)
 %shared_ptr(Display)
 %shared_ptr(VkDebugMarkerObjectNameInfoEXT)
-%shared_ptr(VkDebugMarkerMarkerInfoEXT)
+%shared_ptr(VkDebugMarkerObjectTagInfoEXT)
 %shared_ptr(MirConnection)
 %shared_ptr(xcb_connection_t)
 %raii_struct(VkDeviceCreateInfo)
 %raii_struct(VkValidationFlagsEXT)
 %raii_struct(VkInstanceCreateInfo)
+%raii_struct(VkPipelineCacheCreateInfo)
 %raii_struct(VkWin32KeyedMutexAcquireReleaseInfoNV)
 %raii_struct(VkSparseBufferMemoryBindInfo)
 %raii_struct(VkDisplayPropertiesKHR)
-%raii_struct(VkDebugMarkerMarkerInfoEXT)
+%raii_struct(VkDebugMarkerObjectTagInfoEXT)
 %raii_struct(VkSwapchainCreateInfoKHR)
 %raii_struct(VkPipelineColorBlendStateCreateInfo)
 %raii_struct(VkBindSparseInfo)
@@ -66,20 +68,23 @@
 %raii_struct(VkPipelineViewportStateCreateInfo)
 %raii_struct(VkSubmitInfo)
 %raii_struct(VkRenderPassCreateInfo)
+%raii_struct(VkShaderModuleCreateInfo)
 %raii_struct(VkPresentInfoKHR)
 %raii_struct(VkWriteDescriptorSet)
 %raii_struct(VkSpecializationInfo)
 %raii_struct(VkDescriptorSetLayoutBinding)
 %raii_struct(VkApplicationInfo)
+%raii_struct(VkDebugMarkerMarkerInfoEXT)
 %raii_struct(VkPipelineLayoutCreateInfo)
 %raii_struct(VkDebugMarkerObjectNameInfoEXT)
 %raii_struct(VkRenderPassBeginInfo)
 %raii_struct(VkGraphicsPipelineCreateInfo)
 %raii_struct(VkFramebufferCreateInfo)
 
+%apply (unsigned int* IN_ARRAY1, int DIM1) {(unsigned int* pPreserveAttachments_in_array1, int pPreserveAttachments_dim1)};
 %apply (unsigned int* IN_ARRAY1, int DIM1) {(unsigned int* pQueueFamilyIndices_in_array1, int pQueueFamilyIndices_dim1)};
 %apply (unsigned int* IN_ARRAY1, int DIM1) {(unsigned int* pImageIndices_in_array1, int pImageIndices_dim1)};
 %apply (unsigned int* IN_ARRAY1, int DIM1) {(unsigned int* pDynamicOffsets_in_array1, int pDynamicOffsets_dim1)};
 %apply (unsigned int* IN_ARRAY1, int DIM1) {(unsigned int* pAcquireTimeoutMilliseconds_in_array1, int pAcquireTimeoutMilliseconds_dim1)};
 %apply (float* IN_ARRAY1, int DIM1) {(float* pQueuePriorities_in_array1, int pQueuePriorities_dim1)};
-%apply (unsigned int* IN_ARRAY1, int DIM1) {(unsigned int* pPreserveAttachments_in_array1, int pPreserveAttachments_dim1)};
+%apply (unsigned int* IN_ARRAY1, int DIM1) {(unsigned int* pCode_in_array1, int pCode_dim1)};
