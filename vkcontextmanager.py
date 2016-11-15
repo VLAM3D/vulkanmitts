@@ -851,7 +851,7 @@ class VkContextManager:
     def __del__(self):
         self.stack.close()
 
-    def __init__(self, init_stages = VKC_INIT_PIPELINE, surface_type = VKC_WIN32, widget = None, vertex_data = None, texture_file_path = None):
+    def __init__(self, init_stages = VKC_INIT_PIPELINE, surface_type = VKC_OFFSCREEN, widget = None, vertex_data = None, texture_file_path = None):
         self.output_size = (512,512)
         self.init_stages = init_stages
         self.surface_type = surface_type
@@ -887,6 +887,7 @@ class VkContextManager:
                     self.init_readback_image()
                 else:
                     self.init_swap_chain()
+                    self.present_complete_semaphore = self.ESP( vk.createSemaphore(self.device, vk.SemaphoreCreateInfo(0)) )
             if self.init_stages >= VkContextManager.VKC_INIT_DEPTH_BUFFER:
                 self.init_depth_buffer()
             if self.init_stages >= VkContextManager.VKC_INIT_TEXTURE:
@@ -913,8 +914,7 @@ class VkContextManager:
                 self.init_descriptor_set()
             if self.init_stages >= VkContextManager.VKC_INIT_PIPELINE:
                 self.init_pipeline_cache()
-                self.init_pipeline(self.vertex_data[0].nbytes)
-                self.present_complete_semaphore = self.ESP( vk.createSemaphore(self.device, vk.SemaphoreCreateInfo(0)) )
+                self.init_pipeline(self.vertex_data[0].nbytes)                
 
         except:
             self.stack.close()
