@@ -79,7 +79,9 @@ class VkContextManager:
             self.instance_layer_properties.extend(ext_props)  
 
     def init_instance(self):
-        self.instance_ext_names = [vk.VK_KHR_SURFACE_EXTENSION_NAME, vk.VK_KHR_WIN32_SURFACE_EXTENSION_NAME, vk.VK_EXT_DEBUG_REPORT_EXTENSION_NAME]        
+        self.instance_ext_names = [vk.VK_KHR_SURFACE_EXTENSION_NAME, vk.VK_EXT_DEBUG_REPORT_EXTENSION_NAME]        
+        if self.surface_type == VkContextManager.VKC_WIN32:
+            self.instance_ext_names.append(vk.VK_KHR_WIN32_SURFACE_EXTENSION_NAME)
         app = vk.ApplicationInfo("foo", 1, "bar", 1, vk.makeVersion(1,0,3))
         assert(app is not None)
         instance_create_info = vk.InstanceCreateInfo(0, app, ['VK_LAYER_LUNARG_standard_validation'], self.instance_ext_names)

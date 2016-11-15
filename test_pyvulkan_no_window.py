@@ -39,7 +39,7 @@ class GlobalLayersTestCase(unittest.TestCase):
 
 class CreateInstanceTestCase(unittest.TestCase):
     def setUp(self):
-        self.instance_ext_names = [vk.VK_KHR_SURFACE_EXTENSION_NAME, vk.VK_KHR_WIN32_SURFACE_EXTENSION_NAME]
+        self.instance_ext_names = [vk.VK_KHR_SURFACE_EXTENSION_NAME]
         self.device_extension_names = [vk.VK_KHR_SWAPCHAIN_EXTENSION_NAME]
 
     def test_application_info(self):
@@ -58,7 +58,7 @@ class CreateInstanceTestCase(unittest.TestCase):
         
 class PhysicalDeviceTestCase(unittest.TestCase):
     def setUp(self):
-        self.instance_ext_names = [vk.VK_KHR_SURFACE_EXTENSION_NAME, vk.VK_KHR_WIN32_SURFACE_EXTENSION_NAME]
+        self.instance_ext_names = [vk.VK_KHR_SURFACE_EXTENSION_NAME]
         self.device_extension_names = [vk.VK_KHR_SWAPCHAIN_EXTENSION_NAME]
         self.app = vk.ApplicationInfo("foo", 1, "bar", 1, vk.makeVersion(1,0,3))
         self.assertIsNotNone(self.app)

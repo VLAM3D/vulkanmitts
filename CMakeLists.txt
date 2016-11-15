@@ -139,8 +139,8 @@ if (WIN32)
 		set_source_files_properties(SOURCE pyglslang.i PROPERTIES SWIG_FLAGS "-D_WIN32;-D_WIN64")
 	endif()
 else()
-    set_source_files_properties(SOURCE pyvulkan.i PROPERTIES SWIG_FLAGS "-D__LP64__")
-	set_source_files_properties(SOURCE pyglslang.i PROPERTIES SWIG_FLAGS "-D__LP64__")
+    set_source_files_properties(SOURCE pyvulkan.i PROPERTIES SWIG_FLAGS "-D__LP64__;-DSWIGWORDSIZE64")
+	set_source_files_properties(SOURCE pyglslang.i PROPERTIES SWIG_FLAGS "-D__LP64__;-DSWIGWORDSIZE64")
 endif()
 
 # This preprocessor variable disables the automatic linking of pythonXY_d.lib to use the release version of python.lib

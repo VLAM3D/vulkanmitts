@@ -249,6 +249,10 @@ Please read SWIG_DOC_
 %include "std_ios.i"
 %include "typemaps.i"
 %include "cpointer.i" 
+#ifndef _WIN32
+#define SWIGWORDSIZE64
+%include "stdint.i"
+#endif
 
 %exception   
 { 
@@ -293,7 +297,9 @@ Please read SWIG_DOC_
 typedef unsigned int uint32_t;
 typedef int int32_t;
 typedef unsigned long long uint64_t;
+#endif
 
+#ifdef _WIN32
 struct HWND__
 {
 private:
