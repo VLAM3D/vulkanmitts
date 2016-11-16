@@ -21,7 +21,6 @@ More test cases are welcome.
 
 The unit tests depends on the following packages:
 
-* pyqt=4.11.4
 * contextlib2
 * pillow
 
