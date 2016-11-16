@@ -616,7 +616,7 @@ class VkContextManager:
         vk.updateDescriptorSets(self.device, writes, vk.VkCopyDescriptorSetVector())
 
     def init_pipeline_cache(self):
-        self.pipeline_cache = self.ESP( vk.createPipelineCache( self.device, vk.PipelineCacheCreateInfo(0, []) ) )
+        self.pipeline_cache = self.ESP( vk.createPipelineCache( self.device, vk.PipelineCacheCreateInfo(0, vk.uint8Vector()) ) )
         assert(self.pipeline_cache is not None)
 
     def init_pipeline(self, vertex_buffer_stride_bytes):

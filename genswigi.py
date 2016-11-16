@@ -349,13 +349,14 @@ class CSWIGOutputGenerator(COutputGenerator):
                 write('#endif\n', file=self.outFile)
             
         for type_name in self.std_vector_types:
-            if not type_name in ['void','char','uint32_t','uint64_t']:
+            if not type_name in ['void','char','uint32_t','uint64_t']:                
                 feature_name = None
                 if type_name in self.platformSpecicTypes:
                     feature_name = self.platformSpecicTypes[type_name]
                     write('#ifdef ' + feature_name + '\n', file=self.outFile)       
                 if type_name not in self.nonRAIIStruct:
-                    write('%%template (%(type_name)sVector) std::vector<%(type_name)s>;\n' % locals(), file=self.outFile)
+                    nice_type_name = type_name.replace('_t','')
+                    write('%%template (%(nice_type_name)sVector) std::vector<%(type_name)s>;\n' % locals(), file=self.outFile)
                 else:                    
                     write('%%template (%(type_name)sVector) std::vector< std::shared_ptr<%(type_name)sRAII> >;\n' % locals(), file=self.outFile)
                 if feature_name is not None:

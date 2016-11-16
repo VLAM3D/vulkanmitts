@@ -11042,7 +11042,7 @@ std::shared_ptr<VkValidationFlagsEXTRAII> ValidationFlagsEXT(
 
 %template (VkDeviceMemoryVector) std::vector<VkDeviceMemory>;
 
-%template (uint8_tVector) std::vector<uint8_t>;
+%template (uint8Vector) std::vector<uint8_t>;
 
 #ifdef VK_KHR_display
 
