@@ -24,7 +24,7 @@ Conda recipes are available in the conda-recipes subfolder but they rely on some
 * Numpy
 * [Vulkan-Docs](https://github.com/KhronosGroup/Vulkan-Docs)
 * [SWIG](https://github.com/swig/swig)
-* Lunar Vulkan SDK (tested with 1.0.26)
+* Lunar Vulkan SDK (tested with 1.0.30)
 
 The Lunar Vulkan SDK glslang and spirv-tools libraries are required to build pyglslang which is required to compile GLSL to bytecode.
 
@@ -46,8 +46,7 @@ Example for a cloned repo in c:\dev\pyvulkan using Visual Studio 2015, this is f
 
 ```
 cd c:\build\pyvulkan
-cmake ..\..\dev\pyvulkan -G "Visual Studio 14 2015 Win64" -DSWIG_DIR=C:\DEV\swigwin-3.0.10 -DSWIG_EXECUTABLE=C:\dev\swigwin-3.0.10\swig.exe -DNUMPY_SWIG_DIR=C:\dev\pyvulkan\numpy_swig\ -DCMAKE_INSTALL_PREFIX=c:\build\pyvulkan  -DVULKAN_INCLUDE_DIR=C:\dev\Vulkan-Docs\src -DVULKAN_LIB_DIR=c:/VulkanSDK/1.0.26.0/Bin -DGLSLANG_INCLUDE_DIR=c:/VulkanSDK/1.0.26.0/glslang/glslang/Public;c:/VulkanSDK/1.0.26.0/glslang/glslang/Include -DGLSLANG_DIR=C:/VulkanSDK/1.0.26.0/glslang/build -DSPIRVTOOLS_DIR=C:/VulkanSDK/1.0.26.0/spirv-tools/build
-
+cmake ..\..\dev\pyvulkan -G "Visual Studio 14 2015 Win64" -DSWIG_DIR=C:\DEV\swigwin-3.0.10 -DSWIG_EXECUTABLE=C:\dev\swigwin-3.0.10\swig.exe -DNUMPY_SWIG_DIR=C:\dev\pyvulkan\numpy_swig\ -DCMAKE_INSTALL_PREFIX=c:\build\pyvulkan  -DVULKAN_SDK=c:/VulkanSDK/1.0.30.0
 ```
 
 ### Conda build commands
