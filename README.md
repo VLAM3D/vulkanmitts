@@ -8,10 +8,10 @@ pyvulkan and pyglslang depends on Numpy, therefore they are distributed with the
 
 First install Anaconda or Miniconda then do:
 
-'''
+```
 conda install --channel mlamarre pyglslang
 conda install --channel mlamarre pyvulkan
-'''
+```
 
 ## Overview
 
