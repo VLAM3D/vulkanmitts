@@ -2,6 +2,17 @@
 
 # Vulkan Python Bindings
 
+## How to install
+
+pyvulkan and pyglslang depends on Numpy, therefore they are distributed with the [conda tool](https://www.continuum.io/downloads).
+
+First install Anaconda or Miniconda then do:
+
+'''
+conda install --channel mlamarre pyglslang
+conda install --channel mlamarre pyvulkan
+'''
+
 ## Overview
 
 These python bindings are for the most part generated from vk.xml in [Vulkan-Docs](https://github.com/KhronosGroup/Vulkan-Docs) using a script derived from [generator.py](https://github.com/KhronosGroup/Vulkan-Docs/blob/1.0/src/spec/generator.py). 
