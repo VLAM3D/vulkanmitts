@@ -600,7 +600,11 @@ class CSWIGOutputGenerator(COutputGenerator):
                         vector_member_name_type = members_name_type[vector_member_index]
                         param_name = vector_member_name_type[0]
                         vector_member_name = p_name_to_vec(vector_member_name_type[0])
-                        if vector_member_name_type[1] in self.arrayBaseTypes:
+                         # this seems absurd in VkShaderModuleCreateInfo "pCode" is an unsigned int pointer but "codeSize" must still be specified in bytes
+                         # the workaround is implemented here because we still need the ctor to be generated 
+                        if member_name == 'codeSize':
+                            swig_impl += '      raii_obj->nonRaiiObj.%(member_name)s = static_cast<%(member_type_name)s>(%(param_name)s_dim1) * sizeof(unsigned int);\n' % locals()
+                        elif vector_member_name_type[1] in self.arrayBaseTypes:
                             swig_impl += '      raii_obj->nonRaiiObj.%(member_name)s = static_cast<%(member_type_name)s>(%(param_name)s_dim1);\n' % locals()
                         else:
                             swig_impl += '      raii_obj->nonRaiiObj.%(member_name)s = static_cast<%(member_type_name)s>(%(vector_member_name)s.size());\n' % locals()
@@ -673,11 +677,7 @@ class CSWIGOutputGenerator(COutputGenerator):
                 elif member_type_name == "VkStructureType":
                     swig_impl += '      obj.%(member_name)s = %(vkstructureenumstring)s;\n' % locals()
                 elif is_c_array:
-                    swig_impl += '      std::copy(%(member_name)s, %(member_name)s + %(num_elem)s, obj.%(member_name)s);\n' % locals()
-                # this seems absurd in VkShaderModuleCreateInfo "pCode" is an unsigned int pointer but "codeSize" must still be specified in bytes
-                # the workaround is implemented here because we still need the ctor to be generated 
-                elif member_name == 'codeSize':
-                    swig_impl += '      obj.%(member_name)s = %(member_name)s * sizeof(unsigned int);\n' % locals()
+                    swig_impl += '      std::copy(%(member_name)s, %(member_name)s + %(num_elem)s, obj.%(member_name)s);\n' % locals()               
                 else:
                     swig_impl += '      obj.%(member_name)s = %(member_name)s;\n' % locals()
             swig_impl += '      return obj;\n'

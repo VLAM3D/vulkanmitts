@@ -7228,7 +7228,7 @@ std::shared_ptr<VkShaderModuleCreateInfoRAII> ShaderModuleCreateInfo(
       raii_obj->nonRaiiObj.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
       raii_obj->nonRaiiObj.pNext = nullptr;
       raii_obj->nonRaiiObj.flags = flags;
-      raii_obj->nonRaiiObj.codeSize = static_cast<size_t>(pCode_dim1);
+      raii_obj->nonRaiiObj.codeSize = static_cast<size_t>(pCode_dim1) * sizeof(unsigned int);
       raii_obj->vecCode.assign(pCode_in_array1, pCode_in_array1 + pCode_dim1);
       if ( raii_obj->vecCode.size() > 0)
       {
