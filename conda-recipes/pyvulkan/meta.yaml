@@ -1,6 +1,6 @@
 package:
   name: pyvulkan
-  version: "0.4"
+  version: "0.5"
 
 source:
   git_url: https://github.com/VLAM3D/pyvulkan.git
