@@ -13,7 +13,31 @@ conda install --channel mlamarre pyglslang
 conda install --channel mlamarre pyvulkan
 ```
 
-## Overview
+### Tests
+
+Coverage is very limited. Currently we have the equivalent of the "template" sample in the Lunar SDK. It's a textured cube. 
+
+More test cases are welcome.
+
+The unit tests depends on the following packages:
+
+* pyqt=4.11.4
+* contextlib2
+* pillow
+
+After cloning this repository:
+
+```
+python test_pyvulkan_no_window.py
+python hello_pyvkoffscreen.py
+```
+
+If you are running on a Linux headless server with NVIDIA cards you still need to install Xorg and set this environment variable:
+```
+export DISPLAY=:0
+```
+
+## Developer Overview
 
 These python bindings are for the most part generated from vk.xml in [Vulkan-Docs](https://github.com/KhronosGroup/Vulkan-Docs) using a script derived from [generator.py](https://github.com/KhronosGroup/Vulkan-Docs/blob/1.0/src/spec/generator.py). 
 
@@ -43,9 +67,9 @@ To build these libraries, follow the instruction in C:\VulkanSDK\<version>\Sampl
 
 **However**, on Windows, it's mandatory to add the following line to every CMakeList.txt
 
-'''
+```
 add_definitions(-D_ITERATOR_DEBUG_LEVEL=0)
-'''
+```
 
 With MSVS the same value for _ITERATOR_DEBUG_LEVEL must be shared between all compilation units which includes all static libs.
 
@@ -72,25 +96,6 @@ conda build pyglslang
 conda build pyvulkan
 ```
 
-### Tests
-
-Coverage is very limited. Currently we have the equivalent of the "template" sample in the Lunar SDK. It's a textured cube. 
-
-More test cases are welcome.
-
-The unit tests depends on the following packages:
-
-* pyqt=4.11.4
-* contextlib2
-* pillow
-
-Example run after building in folders similar to the above
-
-```
-cd c:\dev\pyvulkan
-set PYTHONPATH=c:\build\pyvulkan\bin
-python hello_pyvkoffscreen.py
-```
 
 
 
