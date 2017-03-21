@@ -810,7 +810,7 @@ class VkContextManager:
 
     def save_readback_image(self,filename):
         currshape = self.read_back_host_array.shape
-        reshaped_host_array = np.reshape(self.read_back_host_array,newshape=(currshape[0],currshape[1]/4,4))
+        reshaped_host_array = np.reshape(self.read_back_host_array,newshape=(currshape[0],currshape[1]//4,4))
         im = Image.fromarray(reshaped_host_array,mode='RGBA')
         im.save(filename)
            
