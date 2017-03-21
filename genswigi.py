@@ -154,6 +154,7 @@ class CSWIGOutputGenerator(COutputGenerator):
         COutputGenerator.__init__(self, errFile, warnFile, diagFile)
         self.shared_ptr_types = set()
         self.std_vector_types = set()
+        self.redundant_typedef_types = set(['VkPipelineStageFlags','VkObjectEntryUsageFlagsNVX'])
         self.swigImpl = []
         self.fctPtrDecl = []
         self.skippedCommands = []
@@ -164,10 +165,11 @@ class CSWIGOutputGenerator(COutputGenerator):
         # via SWIG standard library typemaps we can either have an array of dumb handles or an array of shared_ptr, so we have to make some customization
         self.hideFromSWIGTypes = set(['VkCommandBuffer', 'VkDescriptorSet'])
         # here we map the base type for a x64 architecture to match numpy.i typemaps
-        self.arrayBaseTypes = {'size_t':'unsigned long long', 'uint32_t' : 'unsigned int', 'float' : 'float', 'int32_t': 'int' }
+        self.arrayBaseTypes = {'size_t':'unsigned long long', 'uint32_t' : 'unsigned int', 'float' : 'float', 'int32_t': 'int', 'int':'int' }
         # the base types that we can encounter in the interface, not the list of a C/C++ base types
         # they are augmented using the registry info, these types are known to be cheap to copy, so passed and returned by value 
         self.copyableBaseTypes = set(self.arrayBaseTypes.keys())
+        self.copyableBaseTypes = self.copyableBaseTypes | set(['uint64_t','HANDLE','Display','xcb_connection_t','wl_display','MirConnection'])
         self.applyARRAY1types = set()
         self.structTypes = set()
         self.structCArrayTypes = set()
@@ -349,7 +351,7 @@ class CSWIGOutputGenerator(COutputGenerator):
                 write('#endif\n', file=self.outFile)
             
         for type_name in self.std_vector_types:
-            if not type_name in ['void','char','uint32_t','uint64_t']:                
+            if not type_name in ['void','char','uint32_t','uint64_t'] and not type_name in self.redundant_typedef_types:                
                 feature_name = None
                 if type_name in self.platformSpecicTypes:
                     feature_name = self.platformSpecicTypes[type_name]
@@ -377,7 +379,7 @@ class CSWIGOutputGenerator(COutputGenerator):
         # Finish processing in superclass
         OutputGenerator.endFile(self)        
         shared_ptrs_ixx_file = os.path.join(self.outdir, 'shared_ptrs.ixx')
-        with open(shared_ptrs_ixx_file,'w') as file_out:
+        with open(shared_ptrs_ixx_file, 'w', encoding='utf-8') as file_out:
             file_out.write("%carray_of_float(float)\n")
             file_out.write("%carray_of_long(int32_t)\n")
             file_out.write("%carray_of_long(uint32_t)\n")
@@ -707,7 +709,11 @@ class CSWIGOutputGenerator(COutputGenerator):
             free_command_name = 'vkDestroyPipeline'
         elif surface_khr_re.match(command_name):
             free_command_name = 'vkDestroySurfaceKHR'
+        elif command_name in ['vkRegisterDeviceEventEXT','vkRegisterDisplayEventEXT'] :
+            free_command_name = 'vkDestroyFence'
         else:
+            typical_named = command_name.find('Create') != -1 or command_name.find('Allocate') != -1
+            assert(typical_named)
             free_command_name = command_name.replace('Create','Destroy')
             free_command_name = free_command_name.replace('Allocate','Free')
 
@@ -766,7 +772,10 @@ class CSWIGOutputGenerator(COutputGenerator):
         # RETURN TYPE
         if n_argout_params == 0:
             indentdecl = "void " 
-        elif n_argout_params == 1:
+        else:
+            if n_argout_params > 1:
+                print('Warning: multiple argout parameter found for command %s - this function is not correctly wrapped' % command_name)
+
             if len(argout_params_to_vectorize) == 1:
                 argout_type = params_name_type[ list(argout_params_to_vectorize)[0] ][1]
                 indentdecl = "std::vector< %(argout_type)s >" % locals()
@@ -787,8 +796,6 @@ class CSWIGOutputGenerator(COutputGenerator):
             else: 
                 argout_type = params_name_type[ list(params_to_return_by_value)[0] ][1]
                 indentdecl = "%(argout_type)s" % locals()
-        else:
-            assert(False) # tuple return not yet needed
 
         indentdecl += ' %(swig_command_name)s' % locals()
         freeparams = ""
@@ -979,7 +986,7 @@ class CSWIGOutputGenerator(COutputGenerator):
         allocated_ptr_type = findAllocatedPtrType(is_allocation_cmd, params)
 
         # FUNCTION BODY : Optional return statement
-        if n_argout_params == 1:
+        if n_argout_params >= 1:
             if len(argout_params_to_vectorize) == 1:
                 argout_param_name = params_name_type[ list(argout_params_to_vectorize)[0] ][0]
                 swig_impl += '      return vec%(argout_param_name)s; \n' % locals()
@@ -1022,9 +1029,6 @@ class CSWIGOutputGenerator(COutputGenerator):
                 argout_param_name = params_name_type[ list(params_to_return_by_value)[0] ][0]
                 swig_impl += '      return %(argout_param_name)s; \n' % locals()
                     
-        elif n_argout_params > 1:
-            assert(False) # Not yet required by the vk.xml
-
         swig_impl += '   }\n'
         self.swigFeatureImpl.append(swig_impl)
 
@@ -1043,7 +1047,7 @@ class CSWIGOutputGenerator(COutputGenerator):
 
         for p in params:
             is_ptr, is_const, ptr_depth = is_param_pointer(p)
-            if ptr_depth > 1 or return_type_str == 'PFN_vkVoidFunction':
+            if ptr_depth > 1 or return_type_str == 'PFN_vkVoidFunction' or (is_ptr and is_const and get_param_type(p) == 'void'):
                 self.skippedCommands.append(command_name)
                 return
 
@@ -1212,12 +1216,13 @@ def genswigi(vkxml, output_folder):
         alignFuncParam    = 48)
 
     errWarn = sys.stderr
-    with open(diagFilename, 'w') as diag:
+    with open(diagFilename, 'w', encoding='utf-8') as diag:
         gen = CSWIGOutputGenerator(errFile=errWarn, warnFile=errWarn, diagFile=diag)
         reg.setGenerator(gen)
         reg.apiGen(genOpts)
 
 if __name__ == '__main__':
+    # ex: C:\dev\Vulkan-Docs\src\spec\vk.xml .
     parser = argparse.ArgumentParser(description='Generates a SWIG interface from vk.xml.')
     parser.add_argument('vkxml',type=str,help='Path to vk.xml')
     parser.add_argument('output_folder',type=str,help='Folder where to write the SWIG interface')

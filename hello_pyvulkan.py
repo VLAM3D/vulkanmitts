@@ -39,7 +39,7 @@ def render_textured_cube(vkc, cube_coords, frame_no):
             
     with vkreleasing( vk.createFence(vkc.device, vk.FenceCreateInfo(0)) ) as draw_fence:
         submit_info_vec = vk.VkSubmitInfoVector()
-        submit_info_vec.append( vk.SubmitInfo( vk.VkSemaphoreVector(1,vkc.present_complete_semaphore), vk.VkPipelineStageFlagsVector(1,vk.VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT), vkc.command_buffers, vk.VkSemaphoreVector()) )
+        submit_info_vec.append( vk.SubmitInfo( vk.VkSemaphoreVector(1,vkc.present_complete_semaphore), vk.VkFlagVector(1,vk.VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT), vkc.command_buffers, vk.VkSemaphoreVector()) )
         vk.queueSubmit(vkc.device_queue, submit_info_vec, draw_fence)
         command_buffer_finished = False
         cmd_fences = vk.VkFenceVector(1,draw_fence)
@@ -61,4 +61,4 @@ if __name__ == '__main__':
     frame_no = [0] # using a list in the closure because Int is immutable 
     def render_textured_cube_closure(vkc):
         render_textured_cube(vkc, cube_coords, frame_no)
-    win32_vk_main(render_textured_cube_closure, 16)
+    win32_vk_main(render_textured_cube_closure, 8)

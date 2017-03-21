@@ -115,7 +115,7 @@ def win32_vk_main(vulkan_render_fct, redraw_interval_ms):
                     quit = True
                     break
 
-                if msg.message == WM_TIMER and msg.wParam == 0xDEADBEEF:
+                if msg.message == WM_TIMER and msg.wParam == 1:
                     redraw = True
             
                 windll.user32.TranslateMessage(lpmsg)
@@ -129,7 +129,7 @@ def win32_vk_main(vulkan_render_fct, redraw_interval_ms):
                 redraw = False 
 
             if set_timer:
-                windll.user32.SetTimer(hWnd, 0xDEADBEEF, redraw_interval_ms, 0)
+                success = windll.user32.SetTimer(hWnd, 1, redraw_interval_ms, 0)
                 set_timer = False
     
         print('done.')

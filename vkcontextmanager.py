@@ -211,19 +211,6 @@ class VkContextManager:
         self.image_views = []
         for img in self.images:
             subresource_range = vk.ImageSubresourceRange(vk.VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1)
-            img_mem_barrier = vk.ImageMemoryBarrier(0, 
-                                                    vk.VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT, 
-                                                    vk.VK_IMAGE_LAYOUT_UNDEFINED, 
-                                                    vk.VK_IMAGE_LAYOUT_PRESENT_SRC_KHR, 
-                                                    0, 0, img, subresource_range)
-            
-            vk.cmdPipelineBarrier(  self.command_buffers[0], 
-                                    vk.VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, 
-                                    vk.VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, 0, 
-                                    vk.VkMemoryBarrierVector(), 
-                                    vk.VkBufferMemoryBarrierVector(),
-                                    vk.VkImageMemoryBarrierVector(1,img_mem_barrier))
-
             ivci = vk.ImageViewCreateInfo(0, img, vk.VK_IMAGE_VIEW_TYPE_2D, self.format, components, subresource_range)            
             self.image_views.append( self.ESP(vk.createImageView(self.device, ivci)) )
 
@@ -310,7 +297,7 @@ class VkContextManager:
         self.depth_mem = self.ESP( vk.allocateMemory(self.device, vk.MemoryAllocateInfo(mem_reqs.size, mem_type_index) ) )
         vk.bindImageMemory(self.device, self.depth_image, self.depth_mem, 0)
 
-        subresource_range = vk.ImageSubresourceRange(vk.VK_IMAGE_ASPECT_DEPTH_BIT|vk.VK_IMAGE_ASPECT_STENCIL_BIT, 0, 1, 0, 1)
+        subresource_range = vk.ImageSubresourceRange(vk.VK_IMAGE_ASPECT_DEPTH_BIT, 0, 1, 0, 1)
         img_mem_barrier = vk.ImageMemoryBarrier(0, vk.VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT, vk.VK_IMAGE_LAYOUT_UNDEFINED, vk.VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL, 0, 0, self.depth_image, subresource_range)
 
         vk.cmdPipelineBarrier(self.command_buffers[0], 
@@ -390,7 +377,7 @@ class VkContextManager:
         with vkreleasing( vk.createFence(self.device, vk.FenceCreateInfo(0)) ) as cmd_fence:
             submit_info_vec = vk.VkSubmitInfoVector()
             cmd_buf = vk.VkCommandBufferVector(1, self.command_buffers[0])        
-            submit_info_vec.append( vk.SubmitInfo(vk.VkSemaphoreVector(), vk.VkPipelineStageFlagsVector(), cmd_buf, vk.VkSemaphoreVector()) ) 
+            submit_info_vec.append( vk.SubmitInfo(vk.VkSemaphoreVector(), vk.VkFlagVector(), cmd_buf, vk.VkSemaphoreVector()) ) 
             vk.queueSubmit(self.device_queue, submit_info_vec, cmd_fence)
         
             layout = vk.getImageSubresourceLayout(self.device, self.tex_image, vk.ImageSubresource(vk.VK_IMAGE_ASPECT_COLOR_BIT, 0, 0))
@@ -531,7 +518,7 @@ class VkContextManager:
         if self.surface_type == VkContextManager.VKC_OFFSCREEN:
             initial_layout = vk.VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL
         else:
-            initial_layout = vk.VK_IMAGE_LAYOUT_PRESENT_SRC_KHR
+            initial_layout = vk.VK_IMAGE_LAYOUT_UNDEFINED
 
         attachments = vk.VkAttachmentDescriptionVector()        
         attachments.append( vk.AttachmentDescription(0, self.format, 
@@ -692,11 +679,10 @@ class VkContextManager:
         w,h = self.get_surface_extent()
         vk.cmdSetScissor(self.command_buffers[0], 0, vk.VkRect2DVector(1, vk.Rect2D(vk.Offset2D(0,0), vk.Extent2D(w,h))))
 
+    # http://stackoverflow.com/questions/37524032/how-to-deal-with-the-layouts-of-presentable-images
     # Here's the mandatory explicit transition from VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL to VK_IMAGE_LAYOUT_PRESENT_SRC_KHR
     # to avoid any validation error after queuePresentKHR - note that we don't need an explicit transition back to VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL
-    # because we specified this transition in the render pass, also note that we get validation errors after a couple of calls to queuePresentKHR
-    # if the swap chain images were not transitionned for VK_IMAGE_LAYOUT_UNDEFINED to VK_IMAGE_LAYOUT_PRESENT_SRC_KHR first
-    # i.e. we're basically forced to do VK_IMAGE_LAYOUT_UNDEFINED => VK_IMAGE_LAYOUT_PRESENT_SRC_KHR first.
+    # because we specified this transition in the render pass
     def execute_pre_present_barrier(self):
         pre_present_barrier = vk.ImageMemoryBarrier(vk.VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT, 
                                                     vk.VK_ACCESS_MEMORY_READ_BIT,

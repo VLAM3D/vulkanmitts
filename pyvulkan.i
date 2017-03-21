@@ -620,3 +620,5 @@ std::shared_ptr< std::vector<VkCommandBuffer> > allocateCommandBuffers(VkDevice 
 	}
 %}
 
+%template (VkFlagVector) std::vector<VkFlags>;
+
