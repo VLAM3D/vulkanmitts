@@ -189,7 +189,7 @@ class TestDepthStencil(unittest.TestCase):
 
                     vk.cmdPipelineBarrier(vkc.command_buffers[0], 
                                           vk.VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
-                                          vk.VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
+                                          vk.VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT,
                                           0,
                                           vk.VkMemoryBarrierVector(), 
                                           vk.VkBufferMemoryBarrierVector(), 

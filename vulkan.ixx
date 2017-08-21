@@ -44,16 +44,16 @@ const char* vkGetErrorString(VkResult retval);
     (((major) << 22) | ((minor) << 12) | (patch))
 
 // DEPRECATED: This define has been removed. Specific version defines (e.g. VK_API_VERSION_1_0), or the VK_MAKE_VERSION macro, should be used instead.
-//#define VK_API_VERSION VK_MAKE_VERSION(1, 0, 0)
+//#define VK_API_VERSION VK_MAKE_VERSION(1, 0, 0) // Patch version should always be set to 0
 
 // Vulkan 1.0 version number
-#define VK_API_VERSION_1_0 VK_MAKE_VERSION(1, 0, 0)
+#define VK_API_VERSION_1_0 VK_MAKE_VERSION(1, 0, 0)// Patch version should always be set to 0
 
 #define VK_VERSION_MAJOR(version) ((uint32_t)(version) >> 22)
 #define VK_VERSION_MINOR(version) (((uint32_t)(version) >> 12) & 0x3ff)
 #define VK_VERSION_PATCH(version) ((uint32_t)(version) & 0xfff)
 // Version of this file
-#define VK_HEADER_VERSION 42
+#define VK_HEADER_VERSION 57
 
 
 #define VK_NULL_HANDLE 0
@@ -154,7 +154,7 @@ typedef enum VkResult {
     VK_ERROR_VALIDATION_FAILED_EXT = -1000011001,
     VK_ERROR_INVALID_SHADER_NV = -1000012000,
     VK_ERROR_OUT_OF_POOL_MEMORY_KHR = -1000069000,
-    VK_ERROR_INVALID_EXTERNAL_HANDLE_KHX = -1000072003,
+    VK_ERROR_INVALID_EXTERNAL_HANDLE_KHR = -1000072003,
     VK_RESULT_BEGIN_RANGE = VK_ERROR_FRAGMENTED_POOL,
     VK_RESULT_END_RANGE = VK_INCOMPLETE,
     VK_RESULT_RANGE_SIZE = (VK_INCOMPLETE - VK_ERROR_FRAGMENTED_POOL + 1),
@@ -230,6 +230,7 @@ typedef enum VkStructureType {
     VK_STRUCTURE_TYPE_DEDICATED_ALLOCATION_IMAGE_CREATE_INFO_NV = 1000026000,
     VK_STRUCTURE_TYPE_DEDICATED_ALLOCATION_BUFFER_CREATE_INFO_NV = 1000026001,
     VK_STRUCTURE_TYPE_DEDICATED_ALLOCATION_MEMORY_ALLOCATE_INFO_NV = 1000026002,
+    VK_STRUCTURE_TYPE_TEXTURE_LOD_GATHER_FORMAT_PROPERTIES_AMD = 1000041000,
     VK_STRUCTURE_TYPE_RENDER_PASS_MULTIVIEW_CREATE_INFO_KHX = 1000053000,
     VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MULTIVIEW_FEATURES_KHX = 1000053001,
     VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MULTIVIEW_PROPERTIES_KHX = 1000053002,
@@ -264,31 +265,34 @@ typedef enum VkStructureType {
     VK_STRUCTURE_TYPE_VI_SURFACE_CREATE_INFO_NN = 1000062000,
     VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_GROUP_PROPERTIES_KHX = 1000070000,
     VK_STRUCTURE_TYPE_DEVICE_GROUP_DEVICE_CREATE_INFO_KHX = 1000070001,
-    VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTERNAL_IMAGE_FORMAT_INFO_KHX = 1000071000,
-    VK_STRUCTURE_TYPE_EXTERNAL_IMAGE_FORMAT_PROPERTIES_KHX = 1000071001,
-    VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTERNAL_BUFFER_INFO_KHX = 1000071002,
-    VK_STRUCTURE_TYPE_EXTERNAL_BUFFER_PROPERTIES_KHX = 1000071003,
-    VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ID_PROPERTIES_KHX = 1000071004,
-    VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROPERTIES_2_KHX = 1000071005,
-    VK_STRUCTURE_TYPE_IMAGE_FORMAT_PROPERTIES_2_KHX = 1000071006,
-    VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_FORMAT_INFO_2_KHX = 1000071007,
-    VK_STRUCTURE_TYPE_EXTERNAL_MEMORY_BUFFER_CREATE_INFO_KHX = 1000072000,
-    VK_STRUCTURE_TYPE_EXTERNAL_MEMORY_IMAGE_CREATE_INFO_KHX = 1000072001,
-    VK_STRUCTURE_TYPE_EXPORT_MEMORY_ALLOCATE_INFO_KHX = 1000072002,
-    VK_STRUCTURE_TYPE_IMPORT_MEMORY_WIN32_HANDLE_INFO_KHX = 1000073000,
-    VK_STRUCTURE_TYPE_EXPORT_MEMORY_WIN32_HANDLE_INFO_KHX = 1000073001,
-    VK_STRUCTURE_TYPE_MEMORY_WIN32_HANDLE_PROPERTIES_KHX = 1000073002,
-    VK_STRUCTURE_TYPE_IMPORT_MEMORY_FD_INFO_KHX = 1000074000,
-    VK_STRUCTURE_TYPE_MEMORY_FD_PROPERTIES_KHX = 1000074001,
-    VK_STRUCTURE_TYPE_WIN32_KEYED_MUTEX_ACQUIRE_RELEASE_INFO_KHX = 1000075000,
-    VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTERNAL_SEMAPHORE_INFO_KHX = 1000076000,
-    VK_STRUCTURE_TYPE_EXTERNAL_SEMAPHORE_PROPERTIES_KHX = 1000076001,
-    VK_STRUCTURE_TYPE_EXPORT_SEMAPHORE_CREATE_INFO_KHX = 1000077000,
-    VK_STRUCTURE_TYPE_IMPORT_SEMAPHORE_WIN32_HANDLE_INFO_KHX = 1000078000,
-    VK_STRUCTURE_TYPE_EXPORT_SEMAPHORE_WIN32_HANDLE_INFO_KHX = 1000078001,
-    VK_STRUCTURE_TYPE_D3D12_FENCE_SUBMIT_INFO_KHX = 1000078002,
-    VK_STRUCTURE_TYPE_IMPORT_SEMAPHORE_FD_INFO_KHX = 1000079000,
+    VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTERNAL_IMAGE_FORMAT_INFO_KHR = 1000071000,
+    VK_STRUCTURE_TYPE_EXTERNAL_IMAGE_FORMAT_PROPERTIES_KHR = 1000071001,
+    VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTERNAL_BUFFER_INFO_KHR = 1000071002,
+    VK_STRUCTURE_TYPE_EXTERNAL_BUFFER_PROPERTIES_KHR = 1000071003,
+    VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ID_PROPERTIES_KHR = 1000071004,
+    VK_STRUCTURE_TYPE_EXTERNAL_MEMORY_BUFFER_CREATE_INFO_KHR = 1000072000,
+    VK_STRUCTURE_TYPE_EXTERNAL_MEMORY_IMAGE_CREATE_INFO_KHR = 1000072001,
+    VK_STRUCTURE_TYPE_EXPORT_MEMORY_ALLOCATE_INFO_KHR = 1000072002,
+    VK_STRUCTURE_TYPE_IMPORT_MEMORY_WIN32_HANDLE_INFO_KHR = 1000073000,
+    VK_STRUCTURE_TYPE_EXPORT_MEMORY_WIN32_HANDLE_INFO_KHR = 1000073001,
+    VK_STRUCTURE_TYPE_MEMORY_WIN32_HANDLE_PROPERTIES_KHR = 1000073002,
+    VK_STRUCTURE_TYPE_MEMORY_GET_WIN32_HANDLE_INFO_KHR = 1000073003,
+    VK_STRUCTURE_TYPE_IMPORT_MEMORY_FD_INFO_KHR = 1000074000,
+    VK_STRUCTURE_TYPE_MEMORY_FD_PROPERTIES_KHR = 1000074001,
+    VK_STRUCTURE_TYPE_MEMORY_GET_FD_INFO_KHR = 1000074002,
+    VK_STRUCTURE_TYPE_WIN32_KEYED_MUTEX_ACQUIRE_RELEASE_INFO_KHR = 1000075000,
+    VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTERNAL_SEMAPHORE_INFO_KHR = 1000076000,
+    VK_STRUCTURE_TYPE_EXTERNAL_SEMAPHORE_PROPERTIES_KHR = 1000076001,
+    VK_STRUCTURE_TYPE_EXPORT_SEMAPHORE_CREATE_INFO_KHR = 1000077000,
+    VK_STRUCTURE_TYPE_IMPORT_SEMAPHORE_WIN32_HANDLE_INFO_KHR = 1000078000,
+    VK_STRUCTURE_TYPE_EXPORT_SEMAPHORE_WIN32_HANDLE_INFO_KHR = 1000078001,
+    VK_STRUCTURE_TYPE_D3D12_FENCE_SUBMIT_INFO_KHR = 1000078002,
+    VK_STRUCTURE_TYPE_SEMAPHORE_GET_WIN32_HANDLE_INFO_KHR = 1000078003,
+    VK_STRUCTURE_TYPE_IMPORT_SEMAPHORE_FD_INFO_KHR = 1000079000,
+    VK_STRUCTURE_TYPE_SEMAPHORE_GET_FD_INFO_KHR = 1000079001,
     VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PUSH_DESCRIPTOR_PROPERTIES_KHR = 1000080000,
+    VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_16BIT_STORAGE_FEATURES_KHR = 1000083000,
+    VK_STRUCTURE_TYPE_PRESENT_REGIONS_KHR = 1000084000,
     VK_STRUCTURE_TYPE_DESCRIPTOR_UPDATE_TEMPLATE_CREATE_INFO_KHR = 1000085000,
     VK_STRUCTURE_TYPE_OBJECT_TABLE_CREATE_INFO_NVX = 1000086000,
     VK_STRUCTURE_TYPE_INDIRECT_COMMANDS_LAYOUT_CREATE_INFO_NVX = 1000086001,
@@ -302,12 +306,41 @@ typedef enum VkStructureType {
     VK_STRUCTURE_TYPE_DEVICE_EVENT_INFO_EXT = 1000091001,
     VK_STRUCTURE_TYPE_DISPLAY_EVENT_INFO_EXT = 1000091002,
     VK_STRUCTURE_TYPE_SWAPCHAIN_COUNTER_CREATE_INFO_EXT = 1000091003,
+    VK_STRUCTURE_TYPE_PRESENT_TIMES_INFO_GOOGLE = 1000092000,
     VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MULTIVIEW_PER_VIEW_ATTRIBUTES_PROPERTIES_NVX = 1000097000,
     VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_SWIZZLE_STATE_CREATE_INFO_NV = 1000098000,
     VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DISCARD_RECTANGLE_PROPERTIES_EXT = 1000099000,
     VK_STRUCTURE_TYPE_PIPELINE_DISCARD_RECTANGLE_STATE_CREATE_INFO_EXT = 1000099001,
+    VK_STRUCTURE_TYPE_HDR_METADATA_EXT = 1000105000,
+    VK_STRUCTURE_TYPE_SHARED_PRESENT_SURFACE_CAPABILITIES_KHR = 1000111000,
+    VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTERNAL_FENCE_INFO_KHR = 1000112000,
+    VK_STRUCTURE_TYPE_EXTERNAL_FENCE_PROPERTIES_KHR = 1000112001,
+    VK_STRUCTURE_TYPE_EXPORT_FENCE_CREATE_INFO_KHR = 1000113000,
+    VK_STRUCTURE_TYPE_IMPORT_FENCE_WIN32_HANDLE_INFO_KHR = 1000114000,
+    VK_STRUCTURE_TYPE_EXPORT_FENCE_WIN32_HANDLE_INFO_KHR = 1000114001,
+    VK_STRUCTURE_TYPE_FENCE_GET_WIN32_HANDLE_INFO_KHR = 1000114002,
+    VK_STRUCTURE_TYPE_IMPORT_FENCE_FD_INFO_KHR = 1000115000,
+    VK_STRUCTURE_TYPE_FENCE_GET_FD_INFO_KHR = 1000115001,
+    VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SURFACE_INFO_2_KHR = 1000119000,
+    VK_STRUCTURE_TYPE_SURFACE_CAPABILITIES_2_KHR = 1000119001,
+    VK_STRUCTURE_TYPE_SURFACE_FORMAT_2_KHR = 1000119002,
+    VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VARIABLE_POINTER_FEATURES_KHR = 1000120000,
     VK_STRUCTURE_TYPE_IOS_SURFACE_CREATE_INFO_MVK = 1000122000,
     VK_STRUCTURE_TYPE_MACOS_SURFACE_CREATE_INFO_MVK = 1000123000,
+    VK_STRUCTURE_TYPE_MEMORY_DEDICATED_REQUIREMENTS_KHR = 1000127000,
+    VK_STRUCTURE_TYPE_MEMORY_DEDICATED_ALLOCATE_INFO_KHR = 1000127001,
+    VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SAMPLER_FILTER_MINMAX_PROPERTIES_EXT = 1000130000,
+    VK_STRUCTURE_TYPE_SAMPLER_REDUCTION_MODE_CREATE_INFO_EXT = 1000130001,
+    VK_STRUCTURE_TYPE_BUFFER_MEMORY_REQUIREMENTS_INFO_2_KHR = 1000146000,
+    VK_STRUCTURE_TYPE_IMAGE_MEMORY_REQUIREMENTS_INFO_2_KHR = 1000146001,
+    VK_STRUCTURE_TYPE_IMAGE_SPARSE_MEMORY_REQUIREMENTS_INFO_2_KHR = 1000146002,
+    VK_STRUCTURE_TYPE_MEMORY_REQUIREMENTS_2_KHR = 1000146003,
+    VK_STRUCTURE_TYPE_SPARSE_IMAGE_MEMORY_REQUIREMENTS_2_KHR = 1000146004,
+    VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_BLEND_OPERATION_ADVANCED_FEATURES_EXT = 1000148000,
+    VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_BLEND_OPERATION_ADVANCED_PROPERTIES_EXT = 1000148001,
+    VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_ADVANCED_STATE_CREATE_INFO_EXT = 1000148002,
+    VK_STRUCTURE_TYPE_PIPELINE_COVERAGE_TO_COLOR_STATE_CREATE_INFO_NV = 1000149000,
+    VK_STRUCTURE_TYPE_PIPELINE_COVERAGE_MODULATION_STATE_CREATE_INFO_NV = 1000152000,
     VK_STRUCTURE_TYPE_BEGIN_RANGE = VK_STRUCTURE_TYPE_APPLICATION_INFO,
     VK_STRUCTURE_TYPE_END_RANGE = VK_STRUCTURE_TYPE_LOADER_DEVICE_CREATE_INFO,
     VK_STRUCTURE_TYPE_RANGE_SIZE = (VK_STRUCTURE_TYPE_LOADER_DEVICE_CREATE_INFO - VK_STRUCTURE_TYPE_APPLICATION_INFO + 1),
@@ -595,6 +628,7 @@ typedef enum VkImageLayout {
     VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL = 7,
     VK_IMAGE_LAYOUT_PREINITIALIZED = 8,
     VK_IMAGE_LAYOUT_PRESENT_SRC_KHR = 1000001002,
+    VK_IMAGE_LAYOUT_SHARED_PRESENT_KHR = 1000111000,
     VK_IMAGE_LAYOUT_BEGIN_RANGE = VK_IMAGE_LAYOUT_UNDEFINED,
     VK_IMAGE_LAYOUT_END_RANGE = VK_IMAGE_LAYOUT_PREINITIALIZED,
     VK_IMAGE_LAYOUT_RANGE_SIZE = (VK_IMAGE_LAYOUT_PREINITIALIZED - VK_IMAGE_LAYOUT_UNDEFINED + 1),
@@ -660,6 +694,7 @@ typedef enum VkPolygonMode {
     VK_POLYGON_MODE_FILL = 0,
     VK_POLYGON_MODE_LINE = 1,
     VK_POLYGON_MODE_POINT = 2,
+    VK_POLYGON_MODE_FILL_RECTANGLE_NV = 1000153000,
     VK_POLYGON_MODE_BEGIN_RANGE = VK_POLYGON_MODE_FILL,
     VK_POLYGON_MODE_END_RANGE = VK_POLYGON_MODE_POINT,
     VK_POLYGON_MODE_RANGE_SIZE = (VK_POLYGON_MODE_POINT - VK_POLYGON_MODE_FILL + 1),
@@ -760,6 +795,52 @@ typedef enum VkBlendOp {
     VK_BLEND_OP_REVERSE_SUBTRACT = 2,
     VK_BLEND_OP_MIN = 3,
     VK_BLEND_OP_MAX = 4,
+    VK_BLEND_OP_ZERO_EXT = 1000148000,
+    VK_BLEND_OP_SRC_EXT = 1000148001,
+    VK_BLEND_OP_DST_EXT = 1000148002,
+    VK_BLEND_OP_SRC_OVER_EXT = 1000148003,
+    VK_BLEND_OP_DST_OVER_EXT = 1000148004,
+    VK_BLEND_OP_SRC_IN_EXT = 1000148005,
+    VK_BLEND_OP_DST_IN_EXT = 1000148006,
+    VK_BLEND_OP_SRC_OUT_EXT = 1000148007,
+    VK_BLEND_OP_DST_OUT_EXT = 1000148008,
+    VK_BLEND_OP_SRC_ATOP_EXT = 1000148009,
+    VK_BLEND_OP_DST_ATOP_EXT = 1000148010,
+    VK_BLEND_OP_XOR_EXT = 1000148011,
+    VK_BLEND_OP_MULTIPLY_EXT = 1000148012,
+    VK_BLEND_OP_SCREEN_EXT = 1000148013,
+    VK_BLEND_OP_OVERLAY_EXT = 1000148014,
+    VK_BLEND_OP_DARKEN_EXT = 1000148015,
+    VK_BLEND_OP_LIGHTEN_EXT = 1000148016,
+    VK_BLEND_OP_COLORDODGE_EXT = 1000148017,
+    VK_BLEND_OP_COLORBURN_EXT = 1000148018,
+    VK_BLEND_OP_HARDLIGHT_EXT = 1000148019,
+    VK_BLEND_OP_SOFTLIGHT_EXT = 1000148020,
+    VK_BLEND_OP_DIFFERENCE_EXT = 1000148021,
+    VK_BLEND_OP_EXCLUSION_EXT = 1000148022,
+    VK_BLEND_OP_INVERT_EXT = 1000148023,
+    VK_BLEND_OP_INVERT_RGB_EXT = 1000148024,
+    VK_BLEND_OP_LINEARDODGE_EXT = 1000148025,
+    VK_BLEND_OP_LINEARBURN_EXT = 1000148026,
+    VK_BLEND_OP_VIVIDLIGHT_EXT = 1000148027,
+    VK_BLEND_OP_LINEARLIGHT_EXT = 1000148028,
+    VK_BLEND_OP_PINLIGHT_EXT = 1000148029,
+    VK_BLEND_OP_HARDMIX_EXT = 1000148030,
+    VK_BLEND_OP_HSL_HUE_EXT = 1000148031,
+    VK_BLEND_OP_HSL_SATURATION_EXT = 1000148032,
+    VK_BLEND_OP_HSL_COLOR_EXT = 1000148033,
+    VK_BLEND_OP_HSL_LUMINOSITY_EXT = 1000148034,
+    VK_BLEND_OP_PLUS_EXT = 1000148035,
+    VK_BLEND_OP_PLUS_CLAMPED_EXT = 1000148036,
+    VK_BLEND_OP_PLUS_CLAMPED_ALPHA_EXT = 1000148037,
+    VK_BLEND_OP_PLUS_DARKER_EXT = 1000148038,
+    VK_BLEND_OP_MINUS_EXT = 1000148039,
+    VK_BLEND_OP_MINUS_CLAMPED_EXT = 1000148040,
+    VK_BLEND_OP_CONTRAST_EXT = 1000148041,
+    VK_BLEND_OP_INVERT_OVG_EXT = 1000148042,
+    VK_BLEND_OP_RED_EXT = 1000148043,
+    VK_BLEND_OP_GREEN_EXT = 1000148044,
+    VK_BLEND_OP_BLUE_EXT = 1000148045,
     VK_BLEND_OP_BEGIN_RANGE = VK_BLEND_OP_ADD,
     VK_BLEND_OP_END_RANGE = VK_BLEND_OP_MAX,
     VK_BLEND_OP_RANGE_SIZE = (VK_BLEND_OP_MAX - VK_BLEND_OP_ADD + 1),
@@ -901,6 +982,47 @@ typedef enum VkSubpassContents {
     VK_SUBPASS_CONTENTS_MAX_ENUM = 0x7FFFFFFF
 } VkSubpassContents;
 
+typedef enum VkObjectType {
+    VK_OBJECT_TYPE_UNKNOWN = 0,
+    VK_OBJECT_TYPE_INSTANCE = 1,
+    VK_OBJECT_TYPE_PHYSICAL_DEVICE = 2,
+    VK_OBJECT_TYPE_DEVICE = 3,
+    VK_OBJECT_TYPE_QUEUE = 4,
+    VK_OBJECT_TYPE_SEMAPHORE = 5,
+    VK_OBJECT_TYPE_COMMAND_BUFFER = 6,
+    VK_OBJECT_TYPE_FENCE = 7,
+    VK_OBJECT_TYPE_DEVICE_MEMORY = 8,
+    VK_OBJECT_TYPE_BUFFER = 9,
+    VK_OBJECT_TYPE_IMAGE = 10,
+    VK_OBJECT_TYPE_EVENT = 11,
+    VK_OBJECT_TYPE_QUERY_POOL = 12,
+    VK_OBJECT_TYPE_BUFFER_VIEW = 13,
+    VK_OBJECT_TYPE_IMAGE_VIEW = 14,
+    VK_OBJECT_TYPE_SHADER_MODULE = 15,
+    VK_OBJECT_TYPE_PIPELINE_CACHE = 16,
+    VK_OBJECT_TYPE_PIPELINE_LAYOUT = 17,
+    VK_OBJECT_TYPE_RENDER_PASS = 18,
+    VK_OBJECT_TYPE_PIPELINE = 19,
+    VK_OBJECT_TYPE_DESCRIPTOR_SET_LAYOUT = 20,
+    VK_OBJECT_TYPE_SAMPLER = 21,
+    VK_OBJECT_TYPE_DESCRIPTOR_POOL = 22,
+    VK_OBJECT_TYPE_DESCRIPTOR_SET = 23,
+    VK_OBJECT_TYPE_FRAMEBUFFER = 24,
+    VK_OBJECT_TYPE_COMMAND_POOL = 25,
+    VK_OBJECT_TYPE_SURFACE_KHR = 1000000000,
+    VK_OBJECT_TYPE_SWAPCHAIN_KHR = 1000001000,
+    VK_OBJECT_TYPE_DISPLAY_KHR = 1000002000,
+    VK_OBJECT_TYPE_DISPLAY_MODE_KHR = 1000002001,
+    VK_OBJECT_TYPE_DEBUG_REPORT_CALLBACK_EXT = 1000011000,
+    VK_OBJECT_TYPE_DESCRIPTOR_UPDATE_TEMPLATE_KHR = 1000085000,
+    VK_OBJECT_TYPE_OBJECT_TABLE_NVX = 1000086000,
+    VK_OBJECT_TYPE_INDIRECT_COMMANDS_LAYOUT_NVX = 1000086001,
+    VK_OBJECT_TYPE_BEGIN_RANGE = VK_OBJECT_TYPE_UNKNOWN,
+    VK_OBJECT_TYPE_END_RANGE = VK_OBJECT_TYPE_COMMAND_POOL,
+    VK_OBJECT_TYPE_RANGE_SIZE = (VK_OBJECT_TYPE_COMMAND_POOL - VK_OBJECT_TYPE_UNKNOWN + 1),
+    VK_OBJECT_TYPE_MAX_ENUM = 0x7FFFFFFF
+} VkObjectType;
+
 typedef VkFlags VkInstanceCreateFlags;
 
 typedef enum VkFormatFeatureFlagBits {
@@ -920,6 +1042,7 @@ typedef enum VkFormatFeatureFlagBits {
     VK_FORMAT_FEATURE_SAMPLED_IMAGE_FILTER_CUBIC_BIT_IMG = 0x00002000,
     VK_FORMAT_FEATURE_TRANSFER_SRC_BIT_KHR = 0x00004000,
     VK_FORMAT_FEATURE_TRANSFER_DST_BIT_KHR = 0x00008000,
+    VK_FORMAT_FEATURE_SAMPLED_IMAGE_FILTER_MINMAX_BIT_EXT = 0x00010000,
     VK_FORMAT_FEATURE_FLAG_BITS_MAX_ENUM = 0x7FFFFFFF
 } VkFormatFeatureFlagBits;
 typedef VkFlags VkFormatFeatureFlags;
@@ -1197,6 +1320,7 @@ typedef enum VkAccessFlagBits {
     VK_ACCESS_MEMORY_WRITE_BIT = 0x00010000,
     VK_ACCESS_COMMAND_PROCESS_READ_BIT_NVX = 0x00020000,
     VK_ACCESS_COMMAND_PROCESS_WRITE_BIT_NVX = 0x00040000,
+    VK_ACCESS_COLOR_ATTACHMENT_READ_NONCOHERENT_BIT_EXT = 0x00080000,
     VK_ACCESS_FLAG_BITS_MAX_ENUM = 0x7FFFFFFF
 } VkAccessFlagBits;
 typedef VkFlags VkAccessFlags;
@@ -1250,37 +1374,6 @@ typedef enum VkStencilFaceFlagBits {
 } VkStencilFaceFlagBits;
 typedef VkFlags VkStencilFaceFlags;
 
-typedef void* (VKAPI_PTR *PFN_vkAllocationFunction)(
-    void*                                       pUserData,
-    size_t                                      size,
-    size_t                                      alignment,
-    VkSystemAllocationScope                     allocationScope);
-
-typedef void* (VKAPI_PTR *PFN_vkReallocationFunction)(
-    void*                                       pUserData,
-    void*                                       pOriginal,
-    size_t                                      size,
-    size_t                                      alignment,
-    VkSystemAllocationScope                     allocationScope);
-
-typedef void (VKAPI_PTR *PFN_vkFreeFunction)(
-    void*                                       pUserData,
-    void*                                       pMemory);
-
-typedef void (VKAPI_PTR *PFN_vkInternalAllocationNotification)(
-    void*                                       pUserData,
-    size_t                                      size,
-    VkInternalAllocationType                    allocationType,
-    VkSystemAllocationScope                     allocationScope);
-
-typedef void (VKAPI_PTR *PFN_vkInternalFreeNotification)(
-    void*                                       pUserData,
-    size_t                                      size,
-    VkInternalAllocationType                    allocationType,
-    VkSystemAllocationScope                     allocationScope);
-
-typedef void (VKAPI_PTR *PFN_vkVoidFunction)(void);
-
 typedef struct VkApplicationInfo {
     VkStructureType    sType;
     const void*        pNext;
@@ -1316,6 +1409,35 @@ struct VkInstanceCreateInfoRAII {
     std::vector<std::string>                    vecEnabledExtensionNames;
     std::vector<const char *>                   vecPtrEnabledExtensionNames;
 };
+
+typedef void* (VKAPI_PTR *PFN_vkAllocationFunction)(
+    void*                                       pUserData,
+    size_t                                      size,
+    size_t                                      alignment,
+    VkSystemAllocationScope                     allocationScope);
+
+typedef void* (VKAPI_PTR *PFN_vkReallocationFunction)(
+    void*                                       pUserData,
+    void*                                       pOriginal,
+    size_t                                      size,
+    size_t                                      alignment,
+    VkSystemAllocationScope                     allocationScope);
+
+typedef void (VKAPI_PTR *PFN_vkFreeFunction)(
+    void*                                       pUserData,
+    void*                                       pMemory);
+
+typedef void (VKAPI_PTR *PFN_vkInternalAllocationNotification)(
+    void*                                       pUserData,
+    size_t                                      size,
+    VkInternalAllocationType                    allocationType,
+    VkSystemAllocationScope                     allocationScope);
+
+typedef void (VKAPI_PTR *PFN_vkInternalFreeNotification)(
+    void*                                       pUserData,
+    size_t                                      size,
+    VkInternalAllocationType                    allocationType,
+    VkSystemAllocationScope                     allocationScope);
 
 typedef struct VkAllocationCallbacks {
     void*                                   pUserData;
@@ -1557,6 +1679,7 @@ typedef struct VkPhysicalDeviceMemoryProperties {
     VkMemoryHeap    memoryHeaps[VK_MAX_MEMORY_HEAPS];
 } VkPhysicalDeviceMemoryProperties;
 
+typedef void (VKAPI_PTR *PFN_vkVoidFunction)(void);
 typedef struct VkDeviceQueueCreateInfo {
     VkStructureType             sType;
     const void*                 pNext;
@@ -4152,6 +4275,20 @@ VK_DEFINE_NON_DISPATCHABLE_HANDLE(VkSurfaceKHR)
 
 typedef enum VkColorSpaceKHR {
     VK_COLOR_SPACE_SRGB_NONLINEAR_KHR = 0,
+    VK_COLOR_SPACE_DISPLAY_P3_NONLINEAR_EXT = 1000104001,
+    VK_COLOR_SPACE_EXTENDED_SRGB_LINEAR_EXT = 1000104002,
+    VK_COLOR_SPACE_DCI_P3_LINEAR_EXT = 1000104003,
+    VK_COLOR_SPACE_DCI_P3_NONLINEAR_EXT = 1000104004,
+    VK_COLOR_SPACE_BT709_LINEAR_EXT = 1000104005,
+    VK_COLOR_SPACE_BT709_NONLINEAR_EXT = 1000104006,
+    VK_COLOR_SPACE_BT2020_LINEAR_EXT = 1000104007,
+    VK_COLOR_SPACE_HDR10_ST2084_EXT = 1000104008,
+    VK_COLOR_SPACE_DOLBYVISION_EXT = 1000104009,
+    VK_COLOR_SPACE_HDR10_HLG_EXT = 1000104010,
+    VK_COLOR_SPACE_ADOBERGB_LINEAR_EXT = 1000104011,
+    VK_COLOR_SPACE_ADOBERGB_NONLINEAR_EXT = 1000104012,
+    VK_COLOR_SPACE_PASS_THROUGH_EXT = 1000104013,
+    VK_COLOR_SPACE_EXTENDED_SRGB_NONLINEAR_EXT = 1000104014,
     VK_COLOR_SPACE_BEGIN_RANGE_KHR = VK_COLOR_SPACE_SRGB_NONLINEAR_KHR,
     VK_COLOR_SPACE_END_RANGE_KHR = VK_COLOR_SPACE_SRGB_NONLINEAR_KHR,
     VK_COLOR_SPACE_RANGE_SIZE_KHR = (VK_COLOR_SPACE_SRGB_NONLINEAR_KHR - VK_COLOR_SPACE_SRGB_NONLINEAR_KHR + 1),
@@ -4163,6 +4300,8 @@ typedef enum VkPresentModeKHR {
     VK_PRESENT_MODE_MAILBOX_KHR = 1,
     VK_PRESENT_MODE_FIFO_KHR = 2,
     VK_PRESENT_MODE_FIFO_RELAXED_KHR = 3,
+    VK_PRESENT_MODE_SHARED_DEMAND_REFRESH_KHR = 1000111000,
+    VK_PRESENT_MODE_SHARED_CONTINUOUS_REFRESH_KHR = 1000111001,
     VK_PRESENT_MODE_BEGIN_RANGE_KHR = VK_PRESENT_MODE_IMMEDIATE_KHR,
     VK_PRESENT_MODE_END_RANGE_KHR = VK_PRESENT_MODE_FIFO_RELAXED_KHR,
     VK_PRESENT_MODE_RANGE_SIZE_KHR = (VK_PRESENT_MODE_FIFO_RELAXED_KHR - VK_PRESENT_MODE_IMMEDIATE_KHR + 1),
@@ -4642,7 +4781,7 @@ xcb_connection_t getPhysicalDeviceXcbPresentationSupportKHR(
 #define VK_KHR_wayland_surface 1
 #include <wayland-client.h>
 
-#define VK_KHR_WAYLAND_SURFACE_SPEC_VERSION 5
+#define VK_KHR_WAYLAND_SURFACE_SPEC_VERSION 6
 #define VK_KHR_WAYLAND_SURFACE_EXTENSION_NAME "VK_KHR_wayland_surface"
 
 typedef VkFlags VkWaylandSurfaceCreateFlagsKHR;
@@ -4746,7 +4885,7 @@ std::shared_ptr<VkSurfaceKHR_T> createAndroidSurfaceKHR(
 #define VK_KHR_win32_surface 1
 #include <windows.h>
 
-#define VK_KHR_WIN32_SURFACE_SPEC_VERSION 5
+#define VK_KHR_WIN32_SURFACE_SPEC_VERSION 6
 #define VK_KHR_WIN32_SURFACE_EXTENSION_NAME "VK_KHR_win32_surface"
 
 typedef VkFlags VkWin32SurfaceCreateFlagsKHR;
@@ -4947,6 +5086,525 @@ void  trimCommandPoolKHR(
         VkCommandPoolTrimFlagsKHR flags);
 
 
+#define VK_KHR_external_memory_capabilities 1
+#define VK_LUID_SIZE_KHR                  8
+#define VK_KHR_EXTERNAL_MEMORY_CAPABILITIES_SPEC_VERSION 1
+#define VK_KHR_EXTERNAL_MEMORY_CAPABILITIES_EXTENSION_NAME "VK_KHR_external_memory_capabilities"
+
+
+typedef enum VkExternalMemoryHandleTypeFlagBitsKHR {
+    VK_EXTERNAL_MEMORY_HANDLE_TYPE_OPAQUE_FD_BIT_KHR = 0x00000001,
+    VK_EXTERNAL_MEMORY_HANDLE_TYPE_OPAQUE_WIN32_BIT_KHR = 0x00000002,
+    VK_EXTERNAL_MEMORY_HANDLE_TYPE_OPAQUE_WIN32_KMT_BIT_KHR = 0x00000004,
+    VK_EXTERNAL_MEMORY_HANDLE_TYPE_D3D11_TEXTURE_BIT_KHR = 0x00000008,
+    VK_EXTERNAL_MEMORY_HANDLE_TYPE_D3D11_TEXTURE_KMT_BIT_KHR = 0x00000010,
+    VK_EXTERNAL_MEMORY_HANDLE_TYPE_D3D12_HEAP_BIT_KHR = 0x00000020,
+    VK_EXTERNAL_MEMORY_HANDLE_TYPE_D3D12_RESOURCE_BIT_KHR = 0x00000040,
+    VK_EXTERNAL_MEMORY_HANDLE_TYPE_FLAG_BITS_MAX_ENUM_KHR = 0x7FFFFFFF
+} VkExternalMemoryHandleTypeFlagBitsKHR;
+typedef VkFlags VkExternalMemoryHandleTypeFlagsKHR;
+
+typedef enum VkExternalMemoryFeatureFlagBitsKHR {
+    VK_EXTERNAL_MEMORY_FEATURE_DEDICATED_ONLY_BIT_KHR = 0x00000001,
+    VK_EXTERNAL_MEMORY_FEATURE_EXPORTABLE_BIT_KHR = 0x00000002,
+    VK_EXTERNAL_MEMORY_FEATURE_IMPORTABLE_BIT_KHR = 0x00000004,
+    VK_EXTERNAL_MEMORY_FEATURE_FLAG_BITS_MAX_ENUM_KHR = 0x7FFFFFFF
+} VkExternalMemoryFeatureFlagBitsKHR;
+typedef VkFlags VkExternalMemoryFeatureFlagsKHR;
+
+typedef struct VkExternalMemoryPropertiesKHR {
+    VkExternalMemoryFeatureFlagsKHR       externalMemoryFeatures;
+    VkExternalMemoryHandleTypeFlagsKHR    exportFromImportedHandleTypes;
+    VkExternalMemoryHandleTypeFlagsKHR    compatibleHandleTypes;
+} VkExternalMemoryPropertiesKHR;
+
+typedef struct VkPhysicalDeviceExternalImageFormatInfoKHR {
+    VkStructureType                          sType;
+    const void*                              pNext;
+    VkExternalMemoryHandleTypeFlagBitsKHR    handleType;
+} VkPhysicalDeviceExternalImageFormatInfoKHR;
+
+typedef struct VkExternalImageFormatPropertiesKHR {
+    VkStructureType                  sType;
+    void*                            pNext;
+    VkExternalMemoryPropertiesKHR    externalMemoryProperties;
+} VkExternalImageFormatPropertiesKHR;
+
+typedef struct VkPhysicalDeviceExternalBufferInfoKHR {
+    VkStructureType                          sType;
+    const void*                              pNext;
+    VkBufferCreateFlags                      flags;
+    VkBufferUsageFlags                       usage;
+    VkExternalMemoryHandleTypeFlagBitsKHR    handleType;
+} VkPhysicalDeviceExternalBufferInfoKHR;
+
+typedef struct VkExternalBufferPropertiesKHR {
+    VkStructureType                  sType;
+    void*                            pNext;
+    VkExternalMemoryPropertiesKHR    externalMemoryProperties;
+} VkExternalBufferPropertiesKHR;
+
+typedef struct VkPhysicalDeviceIDPropertiesKHR {
+    VkStructureType    sType;
+    void*              pNext;
+    uint8_t            deviceUUID[VK_UUID_SIZE];
+    uint8_t            driverUUID[VK_UUID_SIZE];
+    uint8_t            deviceLUID[VK_LUID_SIZE_KHR];
+    uint32_t           deviceNodeMask;
+    VkBool32           deviceLUIDValid;
+} VkPhysicalDeviceIDPropertiesKHR;
+
+
+typedef void (VKAPI_PTR *PFN_vkGetPhysicalDeviceExternalBufferPropertiesKHR)(VkPhysicalDevice physicalDevice, const VkPhysicalDeviceExternalBufferInfoKHR* pExternalBufferInfo, VkExternalBufferPropertiesKHR* pExternalBufferProperties);
+
+VkExternalMemoryPropertiesKHR ExternalMemoryPropertiesKHR(
+    VkExternalMemoryFeatureFlagsKHR             externalMemoryFeatures,
+    VkExternalMemoryHandleTypeFlagsKHR          exportFromImportedHandleTypes,
+    VkExternalMemoryHandleTypeFlagsKHR          compatibleHandleTypes);
+
+
+VkPhysicalDeviceExternalImageFormatInfoKHR PhysicalDeviceExternalImageFormatInfoKHR(
+    VkExternalMemoryHandleTypeFlagBitsKHR       handleType);
+
+
+VkExternalImageFormatPropertiesKHR ExternalImageFormatPropertiesKHR(
+    VkExternalMemoryPropertiesKHR               externalMemoryProperties);
+
+
+VkPhysicalDeviceExternalBufferInfoKHR PhysicalDeviceExternalBufferInfoKHR(
+    VkBufferCreateFlags                         flags,
+    VkBufferUsageFlags                          usage,
+    VkExternalMemoryHandleTypeFlagBitsKHR       handleType);
+
+
+VkExternalBufferPropertiesKHR ExternalBufferPropertiesKHR(
+    VkExternalMemoryPropertiesKHR               externalMemoryProperties);
+
+
+VkPhysicalDeviceIDPropertiesKHR PhysicalDeviceIDPropertiesKHR(
+    uint8_t                                     deviceUUID[VK_UUID_SIZE],
+    uint8_t                                     driverUUID[VK_UUID_SIZE],
+    uint8_t                                     deviceLUID[VK_LUID_SIZE_KHR],
+    uint32_t                                    deviceNodeMask,
+    VkBool32                                    deviceLUIDValid);
+
+
+VkExternalBufferPropertiesKHR getPhysicalDeviceExternalBufferPropertiesKHR(
+        VkPhysicalDevice physicalDevice,
+        const VkPhysicalDeviceExternalBufferInfoKHR & pExternalBufferInfo);
+
+
+#define VK_KHR_external_memory 1
+#define VK_KHR_EXTERNAL_MEMORY_SPEC_VERSION 1
+#define VK_KHR_EXTERNAL_MEMORY_EXTENSION_NAME "VK_KHR_external_memory"
+#define VK_QUEUE_FAMILY_EXTERNAL_KHR      (~0U-1)
+
+typedef struct VkExternalMemoryImageCreateInfoKHR {
+    VkStructureType                       sType;
+    const void*                           pNext;
+    VkExternalMemoryHandleTypeFlagsKHR    handleTypes;
+} VkExternalMemoryImageCreateInfoKHR;
+
+typedef struct VkExternalMemoryBufferCreateInfoKHR {
+    VkStructureType                       sType;
+    const void*                           pNext;
+    VkExternalMemoryHandleTypeFlagsKHR    handleTypes;
+} VkExternalMemoryBufferCreateInfoKHR;
+
+typedef struct VkExportMemoryAllocateInfoKHR {
+    VkStructureType                       sType;
+    const void*                           pNext;
+    VkExternalMemoryHandleTypeFlagsKHR    handleTypes;
+} VkExportMemoryAllocateInfoKHR;
+
+
+VkExternalMemoryImageCreateInfoKHR ExternalMemoryImageCreateInfoKHR(
+    VkExternalMemoryHandleTypeFlagsKHR          handleTypes);
+
+
+VkExternalMemoryBufferCreateInfoKHR ExternalMemoryBufferCreateInfoKHR(
+    VkExternalMemoryHandleTypeFlagsKHR          handleTypes);
+
+
+VkExportMemoryAllocateInfoKHR ExportMemoryAllocateInfoKHR(
+    VkExternalMemoryHandleTypeFlagsKHR          handleTypes);
+
+
+
+#ifdef VK_USE_PLATFORM_WIN32_KHR
+#define VK_KHR_external_memory_win32 1
+#define VK_KHR_EXTERNAL_MEMORY_WIN32_SPEC_VERSION 1
+#define VK_KHR_EXTERNAL_MEMORY_WIN32_EXTENSION_NAME "VK_KHR_external_memory_win32"
+
+typedef struct VkImportMemoryWin32HandleInfoKHR {
+    VkStructureType                          sType;
+    const void*                              pNext;
+    VkExternalMemoryHandleTypeFlagBitsKHR    handleType;
+    HANDLE                                   handle;
+    LPCWSTR                                  name;
+} VkImportMemoryWin32HandleInfoKHR;
+
+typedef struct VkExportMemoryWin32HandleInfoKHR {
+    VkStructureType               sType;
+    const void*                   pNext;
+    const SECURITY_ATTRIBUTES*    pAttributes;
+    DWORD                         dwAccess;
+    LPCWSTR                       name;
+} VkExportMemoryWin32HandleInfoKHR;
+
+struct VkExportMemoryWin32HandleInfoKHRRAII {
+   VkExportMemoryWin32HandleInfoKHR nonRaiiObj;
+    std::shared_ptr<SECURITY_ATTRIBUTES>        pAttributes;
+};
+
+typedef struct VkMemoryWin32HandlePropertiesKHR {
+    VkStructureType    sType;
+    void*              pNext;
+    uint32_t           memoryTypeBits;
+} VkMemoryWin32HandlePropertiesKHR;
+
+typedef struct VkMemoryGetWin32HandleInfoKHR {
+    VkStructureType                          sType;
+    const void*                              pNext;
+    VkDeviceMemory                           memory;
+    VkExternalMemoryHandleTypeFlagBitsKHR    handleType;
+} VkMemoryGetWin32HandleInfoKHR;
+
+
+typedef VkResult (VKAPI_PTR *PFN_vkGetMemoryWin32HandleKHR)(VkDevice device, const VkMemoryGetWin32HandleInfoKHR* pGetWin32HandleInfo, HANDLE* pHandle);
+typedef VkResult (VKAPI_PTR *PFN_vkGetMemoryWin32HandlePropertiesKHR)(VkDevice device, VkExternalMemoryHandleTypeFlagBitsKHR handleType, HANDLE handle, VkMemoryWin32HandlePropertiesKHR* pMemoryWin32HandleProperties);
+
+VkImportMemoryWin32HandleInfoKHR ImportMemoryWin32HandleInfoKHR(
+    VkExternalMemoryHandleTypeFlagBitsKHR       handleType,
+    HANDLE                                      handle,
+    LPCWSTR                                     name);
+
+
+std::shared_ptr<VkExportMemoryWin32HandleInfoKHRRAII> ExportMemoryWin32HandleInfoKHR(
+    const SECURITY_ATTRIBUTES *                 pAttributes,
+    DWORD                                       dwAccess,
+    LPCWSTR                                     name);
+
+
+VkMemoryWin32HandlePropertiesKHR MemoryWin32HandlePropertiesKHR(
+    uint32_t                                    memoryTypeBits);
+
+
+VkMemoryGetWin32HandleInfoKHR MemoryGetWin32HandleInfoKHR(
+    VkDeviceMemory                              memory,
+    VkExternalMemoryHandleTypeFlagBitsKHR       handleType);
+
+
+HANDLE getMemoryWin32HandleKHR(
+        VkDevice device,
+        const VkMemoryGetWin32HandleInfoKHR & pGetWin32HandleInfo);
+
+VkMemoryWin32HandlePropertiesKHR getMemoryWin32HandlePropertiesKHR(
+        VkDevice device,
+        VkExternalMemoryHandleTypeFlagBitsKHR handleType,
+        HANDLE handle);
+
+#endif /* VK_USE_PLATFORM_WIN32_KHR */
+
+#define VK_KHR_external_memory_fd 1
+#define VK_KHR_EXTERNAL_MEMORY_FD_SPEC_VERSION 1
+#define VK_KHR_EXTERNAL_MEMORY_FD_EXTENSION_NAME "VK_KHR_external_memory_fd"
+
+typedef struct VkImportMemoryFdInfoKHR {
+    VkStructureType                          sType;
+    const void*                              pNext;
+    VkExternalMemoryHandleTypeFlagBitsKHR    handleType;
+    int                                      fd;
+} VkImportMemoryFdInfoKHR;
+
+typedef struct VkMemoryFdPropertiesKHR {
+    VkStructureType    sType;
+    void*              pNext;
+    uint32_t           memoryTypeBits;
+} VkMemoryFdPropertiesKHR;
+
+typedef struct VkMemoryGetFdInfoKHR {
+    VkStructureType                          sType;
+    const void*                              pNext;
+    VkDeviceMemory                           memory;
+    VkExternalMemoryHandleTypeFlagBitsKHR    handleType;
+} VkMemoryGetFdInfoKHR;
+
+
+typedef VkResult (VKAPI_PTR *PFN_vkGetMemoryFdKHR)(VkDevice device, const VkMemoryGetFdInfoKHR* pGetFdInfo, int* pFd);
+typedef VkResult (VKAPI_PTR *PFN_vkGetMemoryFdPropertiesKHR)(VkDevice device, VkExternalMemoryHandleTypeFlagBitsKHR handleType, int fd, VkMemoryFdPropertiesKHR* pMemoryFdProperties);
+
+VkImportMemoryFdInfoKHR ImportMemoryFdInfoKHR(
+    VkExternalMemoryHandleTypeFlagBitsKHR       handleType,
+    int                                         fd);
+
+
+VkMemoryFdPropertiesKHR MemoryFdPropertiesKHR(
+    uint32_t                                    memoryTypeBits);
+
+
+VkMemoryGetFdInfoKHR MemoryGetFdInfoKHR(
+    VkDeviceMemory                              memory,
+    VkExternalMemoryHandleTypeFlagBitsKHR       handleType);
+
+
+int getMemoryFdKHR(
+        VkDevice device,
+        const VkMemoryGetFdInfoKHR & pGetFdInfo);
+
+VkMemoryFdPropertiesKHR getMemoryFdPropertiesKHR(
+        VkDevice device,
+        VkExternalMemoryHandleTypeFlagBitsKHR handleType,
+        int fd);
+
+
+#ifdef VK_USE_PLATFORM_WIN32_KHR
+#define VK_KHR_win32_keyed_mutex 1
+#define VK_KHR_WIN32_KEYED_MUTEX_SPEC_VERSION 1
+#define VK_KHR_WIN32_KEYED_MUTEX_EXTENSION_NAME "VK_KHR_win32_keyed_mutex"
+
+typedef struct VkWin32KeyedMutexAcquireReleaseInfoKHR {
+    VkStructureType          sType;
+    const void*              pNext;
+    uint32_t                 acquireCount;
+    const VkDeviceMemory*    pAcquireSyncs;
+    const uint64_t*          pAcquireKeys;
+    const uint32_t*          pAcquireTimeouts;
+    uint32_t                 releaseCount;
+    const VkDeviceMemory*    pReleaseSyncs;
+    const uint64_t*          pReleaseKeys;
+} VkWin32KeyedMutexAcquireReleaseInfoKHR;
+
+struct VkWin32KeyedMutexAcquireReleaseInfoKHRRAII {
+   VkWin32KeyedMutexAcquireReleaseInfoKHR nonRaiiObj;
+    std::vector<VkDeviceMemory>                 vecAcquireSyncs;
+    std::vector<uint64_t>                       vecAcquireKeys;
+    std::vector<uint32_t>                       vecAcquireTimeouts;
+    std::vector<VkDeviceMemory>                 vecReleaseSyncs;
+    std::vector<uint64_t>                       vecReleaseKeys;
+};
+
+
+std::shared_ptr<VkWin32KeyedMutexAcquireReleaseInfoKHRRAII> Win32KeyedMutexAcquireReleaseInfoKHR(
+    const std::vector<VkDeviceMemory> &         vecAcquireSyncs,
+    const std::vector<uint64_t> &               vecAcquireKeys,
+    unsigned int* pAcquireTimeouts_in_array1, int pAcquireTimeouts_dim1,
+    const std::vector<VkDeviceMemory> &         vecReleaseSyncs,
+    const std::vector<uint64_t> &               vecReleaseKeys);
+
+
+#endif /* VK_USE_PLATFORM_WIN32_KHR */
+
+#define VK_KHR_external_semaphore_capabilities 1
+#define VK_KHR_EXTERNAL_SEMAPHORE_CAPABILITIES_SPEC_VERSION 1
+#define VK_KHR_EXTERNAL_SEMAPHORE_CAPABILITIES_EXTENSION_NAME "VK_KHR_external_semaphore_capabilities"
+
+
+typedef enum VkExternalSemaphoreHandleTypeFlagBitsKHR {
+    VK_EXTERNAL_SEMAPHORE_HANDLE_TYPE_OPAQUE_FD_BIT_KHR = 0x00000001,
+    VK_EXTERNAL_SEMAPHORE_HANDLE_TYPE_OPAQUE_WIN32_BIT_KHR = 0x00000002,
+    VK_EXTERNAL_SEMAPHORE_HANDLE_TYPE_OPAQUE_WIN32_KMT_BIT_KHR = 0x00000004,
+    VK_EXTERNAL_SEMAPHORE_HANDLE_TYPE_D3D12_FENCE_BIT_KHR = 0x00000008,
+    VK_EXTERNAL_SEMAPHORE_HANDLE_TYPE_SYNC_FD_BIT_KHR = 0x00000010,
+    VK_EXTERNAL_SEMAPHORE_HANDLE_TYPE_FLAG_BITS_MAX_ENUM_KHR = 0x7FFFFFFF
+} VkExternalSemaphoreHandleTypeFlagBitsKHR;
+typedef VkFlags VkExternalSemaphoreHandleTypeFlagsKHR;
+
+typedef enum VkExternalSemaphoreFeatureFlagBitsKHR {
+    VK_EXTERNAL_SEMAPHORE_FEATURE_EXPORTABLE_BIT_KHR = 0x00000001,
+    VK_EXTERNAL_SEMAPHORE_FEATURE_IMPORTABLE_BIT_KHR = 0x00000002,
+    VK_EXTERNAL_SEMAPHORE_FEATURE_FLAG_BITS_MAX_ENUM_KHR = 0x7FFFFFFF
+} VkExternalSemaphoreFeatureFlagBitsKHR;
+typedef VkFlags VkExternalSemaphoreFeatureFlagsKHR;
+
+typedef struct VkPhysicalDeviceExternalSemaphoreInfoKHR {
+    VkStructureType                             sType;
+    const void*                                 pNext;
+    VkExternalSemaphoreHandleTypeFlagBitsKHR    handleType;
+} VkPhysicalDeviceExternalSemaphoreInfoKHR;
+
+typedef struct VkExternalSemaphorePropertiesKHR {
+    VkStructureType                          sType;
+    void*                                    pNext;
+    VkExternalSemaphoreHandleTypeFlagsKHR    exportFromImportedHandleTypes;
+    VkExternalSemaphoreHandleTypeFlagsKHR    compatibleHandleTypes;
+    VkExternalSemaphoreFeatureFlagsKHR       externalSemaphoreFeatures;
+} VkExternalSemaphorePropertiesKHR;
+
+
+typedef void (VKAPI_PTR *PFN_vkGetPhysicalDeviceExternalSemaphorePropertiesKHR)(VkPhysicalDevice physicalDevice, const VkPhysicalDeviceExternalSemaphoreInfoKHR* pExternalSemaphoreInfo, VkExternalSemaphorePropertiesKHR* pExternalSemaphoreProperties);
+
+VkPhysicalDeviceExternalSemaphoreInfoKHR PhysicalDeviceExternalSemaphoreInfoKHR(
+    VkExternalSemaphoreHandleTypeFlagBitsKHR    handleType);
+
+
+VkExternalSemaphorePropertiesKHR ExternalSemaphorePropertiesKHR(
+    VkExternalSemaphoreHandleTypeFlagsKHR       exportFromImportedHandleTypes,
+    VkExternalSemaphoreHandleTypeFlagsKHR       compatibleHandleTypes,
+    VkExternalSemaphoreFeatureFlagsKHR          externalSemaphoreFeatures);
+
+
+VkExternalSemaphorePropertiesKHR getPhysicalDeviceExternalSemaphorePropertiesKHR(
+        VkPhysicalDevice physicalDevice,
+        const VkPhysicalDeviceExternalSemaphoreInfoKHR & pExternalSemaphoreInfo);
+
+
+#define VK_KHR_external_semaphore 1
+#define VK_KHR_EXTERNAL_SEMAPHORE_SPEC_VERSION 1
+#define VK_KHR_EXTERNAL_SEMAPHORE_EXTENSION_NAME "VK_KHR_external_semaphore"
+
+
+typedef enum VkSemaphoreImportFlagBitsKHR {
+    VK_SEMAPHORE_IMPORT_TEMPORARY_BIT_KHR = 0x00000001,
+    VK_SEMAPHORE_IMPORT_FLAG_BITS_MAX_ENUM_KHR = 0x7FFFFFFF
+} VkSemaphoreImportFlagBitsKHR;
+typedef VkFlags VkSemaphoreImportFlagsKHR;
+
+typedef struct VkExportSemaphoreCreateInfoKHR {
+    VkStructureType                          sType;
+    const void*                              pNext;
+    VkExternalSemaphoreHandleTypeFlagsKHR    handleTypes;
+} VkExportSemaphoreCreateInfoKHR;
+
+
+VkExportSemaphoreCreateInfoKHR ExportSemaphoreCreateInfoKHR(
+    VkExternalSemaphoreHandleTypeFlagsKHR       handleTypes);
+
+
+
+#ifdef VK_USE_PLATFORM_WIN32_KHR
+#define VK_KHR_external_semaphore_win32 1
+#define VK_KHR_EXTERNAL_SEMAPHORE_WIN32_SPEC_VERSION 1
+#define VK_KHR_EXTERNAL_SEMAPHORE_WIN32_EXTENSION_NAME "VK_KHR_external_semaphore_win32"
+
+typedef struct VkImportSemaphoreWin32HandleInfoKHR {
+    VkStructureType                             sType;
+    const void*                                 pNext;
+    VkSemaphore                                 semaphore;
+    VkSemaphoreImportFlagsKHR                   flags;
+    VkExternalSemaphoreHandleTypeFlagBitsKHR    handleType;
+    HANDLE                                      handle;
+    LPCWSTR                                     name;
+} VkImportSemaphoreWin32HandleInfoKHR;
+
+typedef struct VkExportSemaphoreWin32HandleInfoKHR {
+    VkStructureType               sType;
+    const void*                   pNext;
+    const SECURITY_ATTRIBUTES*    pAttributes;
+    DWORD                         dwAccess;
+    LPCWSTR                       name;
+} VkExportSemaphoreWin32HandleInfoKHR;
+
+struct VkExportSemaphoreWin32HandleInfoKHRRAII {
+   VkExportSemaphoreWin32HandleInfoKHR nonRaiiObj;
+    std::shared_ptr<SECURITY_ATTRIBUTES>        pAttributes;
+};
+
+typedef struct VkD3D12FenceSubmitInfoKHR {
+    VkStructureType    sType;
+    const void*        pNext;
+    uint32_t           waitSemaphoreValuesCount;
+    const uint64_t*    pWaitSemaphoreValues;
+    uint32_t           signalSemaphoreValuesCount;
+    const uint64_t*    pSignalSemaphoreValues;
+} VkD3D12FenceSubmitInfoKHR;
+
+struct VkD3D12FenceSubmitInfoKHRRAII {
+   VkD3D12FenceSubmitInfoKHR nonRaiiObj;
+    std::vector<uint64_t>                       vecWaitSemaphoreValues;
+    std::vector<uint64_t>                       vecSignalSemaphoreValues;
+};
+
+typedef struct VkSemaphoreGetWin32HandleInfoKHR {
+    VkStructureType                             sType;
+    const void*                                 pNext;
+    VkSemaphore                                 semaphore;
+    VkExternalSemaphoreHandleTypeFlagBitsKHR    handleType;
+} VkSemaphoreGetWin32HandleInfoKHR;
+
+
+typedef VkResult (VKAPI_PTR *PFN_vkImportSemaphoreWin32HandleKHR)(VkDevice device, const VkImportSemaphoreWin32HandleInfoKHR* pImportSemaphoreWin32HandleInfo);
+typedef VkResult (VKAPI_PTR *PFN_vkGetSemaphoreWin32HandleKHR)(VkDevice device, const VkSemaphoreGetWin32HandleInfoKHR* pGetWin32HandleInfo, HANDLE* pHandle);
+
+VkImportSemaphoreWin32HandleInfoKHR ImportSemaphoreWin32HandleInfoKHR(
+    VkSemaphore                                 semaphore,
+    VkSemaphoreImportFlagsKHR                   flags,
+    VkExternalSemaphoreHandleTypeFlagBitsKHR    handleType,
+    HANDLE                                      handle,
+    LPCWSTR                                     name);
+
+
+std::shared_ptr<VkExportSemaphoreWin32HandleInfoKHRRAII> ExportSemaphoreWin32HandleInfoKHR(
+    const SECURITY_ATTRIBUTES *                 pAttributes,
+    DWORD                                       dwAccess,
+    LPCWSTR                                     name);
+
+
+std::shared_ptr<VkD3D12FenceSubmitInfoKHRRAII> D3D12FenceSubmitInfoKHR(
+    const std::vector<uint64_t> &               vecWaitSemaphoreValues,
+    const std::vector<uint64_t> &               vecSignalSemaphoreValues);
+
+
+VkSemaphoreGetWin32HandleInfoKHR SemaphoreGetWin32HandleInfoKHR(
+    VkSemaphore                                 semaphore,
+    VkExternalSemaphoreHandleTypeFlagBitsKHR    handleType);
+
+
+void  importSemaphoreWin32HandleKHR(
+        VkDevice device,
+        const VkImportSemaphoreWin32HandleInfoKHR & pImportSemaphoreWin32HandleInfo);
+
+HANDLE getSemaphoreWin32HandleKHR(
+        VkDevice device,
+        const VkSemaphoreGetWin32HandleInfoKHR & pGetWin32HandleInfo);
+
+#endif /* VK_USE_PLATFORM_WIN32_KHR */
+
+#define VK_KHR_external_semaphore_fd 1
+#define VK_KHR_EXTERNAL_SEMAPHORE_FD_SPEC_VERSION 1
+#define VK_KHR_EXTERNAL_SEMAPHORE_FD_EXTENSION_NAME "VK_KHR_external_semaphore_fd"
+
+typedef struct VkImportSemaphoreFdInfoKHR {
+    VkStructureType                             sType;
+    const void*                                 pNext;
+    VkSemaphore                                 semaphore;
+    VkSemaphoreImportFlagsKHR                   flags;
+    VkExternalSemaphoreHandleTypeFlagBitsKHR    handleType;
+    int                                         fd;
+} VkImportSemaphoreFdInfoKHR;
+
+typedef struct VkSemaphoreGetFdInfoKHR {
+    VkStructureType                             sType;
+    const void*                                 pNext;
+    VkSemaphore                                 semaphore;
+    VkExternalSemaphoreHandleTypeFlagBitsKHR    handleType;
+} VkSemaphoreGetFdInfoKHR;
+
+
+typedef VkResult (VKAPI_PTR *PFN_vkImportSemaphoreFdKHR)(VkDevice device, const VkImportSemaphoreFdInfoKHR* pImportSemaphoreFdInfo);
+typedef VkResult (VKAPI_PTR *PFN_vkGetSemaphoreFdKHR)(VkDevice device, const VkSemaphoreGetFdInfoKHR* pGetFdInfo, int* pFd);
+
+VkImportSemaphoreFdInfoKHR ImportSemaphoreFdInfoKHR(
+    VkSemaphore                                 semaphore,
+    VkSemaphoreImportFlagsKHR                   flags,
+    VkExternalSemaphoreHandleTypeFlagBitsKHR    handleType,
+    int                                         fd);
+
+
+VkSemaphoreGetFdInfoKHR SemaphoreGetFdInfoKHR(
+    VkSemaphore                                 semaphore,
+    VkExternalSemaphoreHandleTypeFlagBitsKHR    handleType);
+
+
+void  importSemaphoreFdKHR(
+        VkDevice device,
+        const VkImportSemaphoreFdInfoKHR & pImportSemaphoreFdInfo);
+
+int getSemaphoreFdKHR(
+        VkDevice device,
+        const VkSemaphoreGetFdInfoKHR & pGetFdInfo);
+
+
 #define VK_KHR_push_descriptor 1
 #define VK_KHR_PUSH_DESCRIPTOR_SPEC_VERSION 1
 #define VK_KHR_PUSH_DESCRIPTOR_EXTENSION_NAME "VK_KHR_push_descriptor"
@@ -4970,6 +5628,76 @@ void  cmdPushDescriptorSetKHR(
         VkPipelineLayout layout,
         uint32_t set,
         const std::vector<VkWriteDescriptorSet> & pDescriptorWrites);
+
+
+#define VK_KHR_16bit_storage 1
+#define VK_KHR_16BIT_STORAGE_SPEC_VERSION 1
+#define VK_KHR_16BIT_STORAGE_EXTENSION_NAME "VK_KHR_16bit_storage"
+
+typedef struct VkPhysicalDevice16BitStorageFeaturesKHR {
+    VkStructureType    sType;
+    void*              pNext;
+    VkBool32           storageBuffer16BitAccess;
+    VkBool32           uniformAndStorageBuffer16BitAccess;
+    VkBool32           storagePushConstant16;
+    VkBool32           storageInputOutput16;
+} VkPhysicalDevice16BitStorageFeaturesKHR;
+
+
+VkPhysicalDevice16BitStorageFeaturesKHR PhysicalDevice16BitStorageFeaturesKHR(
+    VkBool32                                    storageBuffer16BitAccess,
+    VkBool32                                    uniformAndStorageBuffer16BitAccess,
+    VkBool32                                    storagePushConstant16,
+    VkBool32                                    storageInputOutput16);
+
+
+
+#define VK_KHR_incremental_present 1
+#define VK_KHR_INCREMENTAL_PRESENT_SPEC_VERSION 1
+#define VK_KHR_INCREMENTAL_PRESENT_EXTENSION_NAME "VK_KHR_incremental_present"
+
+typedef struct VkRectLayerKHR {
+    VkOffset2D    offset;
+    VkExtent2D    extent;
+    uint32_t      layer;
+} VkRectLayerKHR;
+
+typedef struct VkPresentRegionKHR {
+    uint32_t                 rectangleCount;
+    const VkRectLayerKHR*    pRectangles;
+} VkPresentRegionKHR;
+
+struct VkPresentRegionKHRRAII {
+   VkPresentRegionKHR nonRaiiObj;
+    std::vector<VkRectLayerKHR>                 vecRectangles;
+};
+
+typedef struct VkPresentRegionsKHR {
+    VkStructureType              sType;
+    const void*                  pNext;
+    uint32_t                     swapchainCount;
+    const VkPresentRegionKHR*    pRegions;
+} VkPresentRegionsKHR;
+
+struct VkPresentRegionsKHRRAII {
+   VkPresentRegionsKHR nonRaiiObj;
+    std::vector<VkPresentRegionKHR>             vecRegions;
+};
+
+
+VkRectLayerKHR RectLayerKHR(
+    VkOffset2D                                  offset,
+    VkExtent2D                                  extent,
+    uint32_t                                    layer);
+
+
+std::shared_ptr<VkPresentRegionKHRRAII> PresentRegionKHR(
+    const std::vector<VkRectLayerKHR> &         vecRectangles);
+
+
+std::shared_ptr<VkPresentRegionsKHRRAII> PresentRegionsKHR(
+    const std::vector<VkPresentRegionKHR> &     vecRegions);
+
 
 
 #define VK_KHR_descriptor_update_template 1
@@ -5045,12 +5773,401 @@ std::shared_ptr<VkDescriptorUpdateTemplateKHR_T> createDescriptorUpdateTemplateK
         const VkDescriptorUpdateTemplateCreateInfoKHR & pCreateInfo);
 
 
+#define VK_KHR_shared_presentable_image 1
+#define VK_KHR_SHARED_PRESENTABLE_IMAGE_SPEC_VERSION 1
+#define VK_KHR_SHARED_PRESENTABLE_IMAGE_EXTENSION_NAME "VK_KHR_shared_presentable_image"
+
+typedef struct VkSharedPresentSurfaceCapabilitiesKHR {
+    VkStructureType      sType;
+    void*                pNext;
+    VkImageUsageFlags    sharedPresentSupportedUsageFlags;
+} VkSharedPresentSurfaceCapabilitiesKHR;
+
+
+typedef VkResult (VKAPI_PTR *PFN_vkGetSwapchainStatusKHR)(VkDevice device, VkSwapchainKHR swapchain);
+
+VkSharedPresentSurfaceCapabilitiesKHR SharedPresentSurfaceCapabilitiesKHR(
+    VkImageUsageFlags                           sharedPresentSupportedUsageFlags);
+
+
+void  getSwapchainStatusKHR(
+        VkDevice device,
+        VkSwapchainKHR swapchain);
+
+
+#define VK_KHR_external_fence_capabilities 1
+#define VK_KHR_EXTERNAL_FENCE_CAPABILITIES_SPEC_VERSION 1
+#define VK_KHR_EXTERNAL_FENCE_CAPABILITIES_EXTENSION_NAME "VK_KHR_external_fence_capabilities"
+
+
+typedef enum VkExternalFenceHandleTypeFlagBitsKHR {
+    VK_EXTERNAL_FENCE_HANDLE_TYPE_OPAQUE_FD_BIT_KHR = 0x00000001,
+    VK_EXTERNAL_FENCE_HANDLE_TYPE_OPAQUE_WIN32_BIT_KHR = 0x00000002,
+    VK_EXTERNAL_FENCE_HANDLE_TYPE_OPAQUE_WIN32_KMT_BIT_KHR = 0x00000004,
+    VK_EXTERNAL_FENCE_HANDLE_TYPE_SYNC_FD_BIT_KHR = 0x00000008,
+    VK_EXTERNAL_FENCE_HANDLE_TYPE_FLAG_BITS_MAX_ENUM_KHR = 0x7FFFFFFF
+} VkExternalFenceHandleTypeFlagBitsKHR;
+typedef VkFlags VkExternalFenceHandleTypeFlagsKHR;
+
+typedef enum VkExternalFenceFeatureFlagBitsKHR {
+    VK_EXTERNAL_FENCE_FEATURE_EXPORTABLE_BIT_KHR = 0x00000001,
+    VK_EXTERNAL_FENCE_FEATURE_IMPORTABLE_BIT_KHR = 0x00000002,
+    VK_EXTERNAL_FENCE_FEATURE_FLAG_BITS_MAX_ENUM_KHR = 0x7FFFFFFF
+} VkExternalFenceFeatureFlagBitsKHR;
+typedef VkFlags VkExternalFenceFeatureFlagsKHR;
+
+typedef struct VkPhysicalDeviceExternalFenceInfoKHR {
+    VkStructureType                         sType;
+    const void*                             pNext;
+    VkExternalFenceHandleTypeFlagBitsKHR    handleType;
+} VkPhysicalDeviceExternalFenceInfoKHR;
+
+typedef struct VkExternalFencePropertiesKHR {
+    VkStructureType                      sType;
+    void*                                pNext;
+    VkExternalFenceHandleTypeFlagsKHR    exportFromImportedHandleTypes;
+    VkExternalFenceHandleTypeFlagsKHR    compatibleHandleTypes;
+    VkExternalFenceFeatureFlagsKHR       externalFenceFeatures;
+} VkExternalFencePropertiesKHR;
+
+
+typedef void (VKAPI_PTR *PFN_vkGetPhysicalDeviceExternalFencePropertiesKHR)(VkPhysicalDevice physicalDevice, const VkPhysicalDeviceExternalFenceInfoKHR* pExternalFenceInfo, VkExternalFencePropertiesKHR* pExternalFenceProperties);
+
+VkPhysicalDeviceExternalFenceInfoKHR PhysicalDeviceExternalFenceInfoKHR(
+    VkExternalFenceHandleTypeFlagBitsKHR        handleType);
+
+
+VkExternalFencePropertiesKHR ExternalFencePropertiesKHR(
+    VkExternalFenceHandleTypeFlagsKHR           exportFromImportedHandleTypes,
+    VkExternalFenceHandleTypeFlagsKHR           compatibleHandleTypes,
+    VkExternalFenceFeatureFlagsKHR              externalFenceFeatures);
+
+
+VkExternalFencePropertiesKHR getPhysicalDeviceExternalFencePropertiesKHR(
+        VkPhysicalDevice physicalDevice,
+        const VkPhysicalDeviceExternalFenceInfoKHR & pExternalFenceInfo);
+
+
+#define VK_KHR_external_fence 1
+#define VK_KHR_EXTERNAL_FENCE_SPEC_VERSION 1
+#define VK_KHR_EXTERNAL_FENCE_EXTENSION_NAME "VK_KHR_external_fence"
+
+
+typedef enum VkFenceImportFlagBitsKHR {
+    VK_FENCE_IMPORT_TEMPORARY_BIT_KHR = 0x00000001,
+    VK_FENCE_IMPORT_FLAG_BITS_MAX_ENUM_KHR = 0x7FFFFFFF
+} VkFenceImportFlagBitsKHR;
+typedef VkFlags VkFenceImportFlagsKHR;
+
+typedef struct VkExportFenceCreateInfoKHR {
+    VkStructureType                      sType;
+    const void*                          pNext;
+    VkExternalFenceHandleTypeFlagsKHR    handleTypes;
+} VkExportFenceCreateInfoKHR;
+
+
+VkExportFenceCreateInfoKHR ExportFenceCreateInfoKHR(
+    VkExternalFenceHandleTypeFlagsKHR           handleTypes);
+
+
+
+#ifdef VK_USE_PLATFORM_WIN32_KHR
+#define VK_KHR_external_fence_win32 1
+#define VK_KHR_EXTERNAL_FENCE_WIN32_SPEC_VERSION 1
+#define VK_KHR_EXTERNAL_FENCE_WIN32_EXTENSION_NAME "VK_KHR_external_fence_win32"
+
+typedef struct VkImportFenceWin32HandleInfoKHR {
+    VkStructureType                         sType;
+    const void*                             pNext;
+    VkFence                                 fence;
+    VkFenceImportFlagsKHR                   flags;
+    VkExternalFenceHandleTypeFlagBitsKHR    handleType;
+    HANDLE                                  handle;
+    LPCWSTR                                 name;
+} VkImportFenceWin32HandleInfoKHR;
+
+typedef struct VkExportFenceWin32HandleInfoKHR {
+    VkStructureType               sType;
+    const void*                   pNext;
+    const SECURITY_ATTRIBUTES*    pAttributes;
+    DWORD                         dwAccess;
+    LPCWSTR                       name;
+} VkExportFenceWin32HandleInfoKHR;
+
+struct VkExportFenceWin32HandleInfoKHRRAII {
+   VkExportFenceWin32HandleInfoKHR nonRaiiObj;
+    std::shared_ptr<SECURITY_ATTRIBUTES>        pAttributes;
+};
+
+typedef struct VkFenceGetWin32HandleInfoKHR {
+    VkStructureType                         sType;
+    const void*                             pNext;
+    VkFence                                 fence;
+    VkExternalFenceHandleTypeFlagBitsKHR    handleType;
+} VkFenceGetWin32HandleInfoKHR;
+
+
+typedef VkResult (VKAPI_PTR *PFN_vkImportFenceWin32HandleKHR)(VkDevice device, const VkImportFenceWin32HandleInfoKHR* pImportFenceWin32HandleInfo);
+typedef VkResult (VKAPI_PTR *PFN_vkGetFenceWin32HandleKHR)(VkDevice device, const VkFenceGetWin32HandleInfoKHR* pGetWin32HandleInfo, HANDLE* pHandle);
+
+VkImportFenceWin32HandleInfoKHR ImportFenceWin32HandleInfoKHR(
+    VkFence                                     fence,
+    VkFenceImportFlagsKHR                       flags,
+    VkExternalFenceHandleTypeFlagBitsKHR        handleType,
+    HANDLE                                      handle,
+    LPCWSTR                                     name);
+
+
+std::shared_ptr<VkExportFenceWin32HandleInfoKHRRAII> ExportFenceWin32HandleInfoKHR(
+    const SECURITY_ATTRIBUTES *                 pAttributes,
+    DWORD                                       dwAccess,
+    LPCWSTR                                     name);
+
+
+VkFenceGetWin32HandleInfoKHR FenceGetWin32HandleInfoKHR(
+    VkFence                                     fence,
+    VkExternalFenceHandleTypeFlagBitsKHR        handleType);
+
+
+void  importFenceWin32HandleKHR(
+        VkDevice device,
+        const VkImportFenceWin32HandleInfoKHR & pImportFenceWin32HandleInfo);
+
+HANDLE getFenceWin32HandleKHR(
+        VkDevice device,
+        const VkFenceGetWin32HandleInfoKHR & pGetWin32HandleInfo);
+
+#endif /* VK_USE_PLATFORM_WIN32_KHR */
+
+#define VK_KHR_external_fence_fd 1
+#define VK_KHR_EXTERNAL_FENCE_FD_SPEC_VERSION 1
+#define VK_KHR_EXTERNAL_FENCE_FD_EXTENSION_NAME "VK_KHR_external_fence_fd"
+
+typedef struct VkImportFenceFdInfoKHR {
+    VkStructureType                         sType;
+    const void*                             pNext;
+    VkFence                                 fence;
+    VkFenceImportFlagsKHR                   flags;
+    VkExternalFenceHandleTypeFlagBitsKHR    handleType;
+    int                                     fd;
+} VkImportFenceFdInfoKHR;
+
+typedef struct VkFenceGetFdInfoKHR {
+    VkStructureType                         sType;
+    const void*                             pNext;
+    VkFence                                 fence;
+    VkExternalFenceHandleTypeFlagBitsKHR    handleType;
+} VkFenceGetFdInfoKHR;
+
+
+typedef VkResult (VKAPI_PTR *PFN_vkImportFenceFdKHR)(VkDevice device, const VkImportFenceFdInfoKHR* pImportFenceFdInfo);
+typedef VkResult (VKAPI_PTR *PFN_vkGetFenceFdKHR)(VkDevice device, const VkFenceGetFdInfoKHR* pGetFdInfo, int* pFd);
+
+VkImportFenceFdInfoKHR ImportFenceFdInfoKHR(
+    VkFence                                     fence,
+    VkFenceImportFlagsKHR                       flags,
+    VkExternalFenceHandleTypeFlagBitsKHR        handleType,
+    int                                         fd);
+
+
+VkFenceGetFdInfoKHR FenceGetFdInfoKHR(
+    VkFence                                     fence,
+    VkExternalFenceHandleTypeFlagBitsKHR        handleType);
+
+
+void  importFenceFdKHR(
+        VkDevice device,
+        const VkImportFenceFdInfoKHR & pImportFenceFdInfo);
+
+int getFenceFdKHR(
+        VkDevice device,
+        const VkFenceGetFdInfoKHR & pGetFdInfo);
+
+
+#define VK_KHR_get_surface_capabilities2 1
+#define VK_KHR_GET_SURFACE_CAPABILITIES_2_SPEC_VERSION 1
+#define VK_KHR_GET_SURFACE_CAPABILITIES_2_EXTENSION_NAME "VK_KHR_get_surface_capabilities2"
+
+typedef struct VkPhysicalDeviceSurfaceInfo2KHR {
+    VkStructureType    sType;
+    const void*        pNext;
+    VkSurfaceKHR       surface;
+} VkPhysicalDeviceSurfaceInfo2KHR;
+
+typedef struct VkSurfaceCapabilities2KHR {
+    VkStructureType             sType;
+    void*                       pNext;
+    VkSurfaceCapabilitiesKHR    surfaceCapabilities;
+} VkSurfaceCapabilities2KHR;
+
+typedef struct VkSurfaceFormat2KHR {
+    VkStructureType       sType;
+    void*                 pNext;
+    VkSurfaceFormatKHR    surfaceFormat;
+} VkSurfaceFormat2KHR;
+
+
+typedef VkResult (VKAPI_PTR *PFN_vkGetPhysicalDeviceSurfaceCapabilities2KHR)(VkPhysicalDevice physicalDevice, const VkPhysicalDeviceSurfaceInfo2KHR* pSurfaceInfo, VkSurfaceCapabilities2KHR* pSurfaceCapabilities);
+typedef VkResult (VKAPI_PTR *PFN_vkGetPhysicalDeviceSurfaceFormats2KHR)(VkPhysicalDevice physicalDevice, const VkPhysicalDeviceSurfaceInfo2KHR* pSurfaceInfo, uint32_t* pSurfaceFormatCount, VkSurfaceFormat2KHR* pSurfaceFormats);
+
+VkPhysicalDeviceSurfaceInfo2KHR PhysicalDeviceSurfaceInfo2KHR(
+    VkSurfaceKHR                                surface);
+
+
+VkSurfaceCapabilities2KHR SurfaceCapabilities2KHR(
+    VkSurfaceCapabilitiesKHR                    surfaceCapabilities);
+
+
+VkSurfaceFormat2KHR SurfaceFormat2KHR(
+    VkSurfaceFormatKHR                          surfaceFormat);
+
+
+VkSurfaceCapabilities2KHR getPhysicalDeviceSurfaceCapabilities2KHR(
+        VkPhysicalDevice physicalDevice,
+        const VkPhysicalDeviceSurfaceInfo2KHR & pSurfaceInfo);
+
+std::vector< VkSurfaceFormat2KHR > getPhysicalDeviceSurfaceFormats2KHR(
+        VkPhysicalDevice physicalDevice,
+        const VkPhysicalDeviceSurfaceInfo2KHR & pSurfaceInfo);
+
+
+#define VK_KHR_variable_pointers 1
+#define VK_KHR_VARIABLE_POINTERS_SPEC_VERSION 1
+#define VK_KHR_VARIABLE_POINTERS_EXTENSION_NAME "VK_KHR_variable_pointers"
+
+typedef struct VkPhysicalDeviceVariablePointerFeaturesKHR {
+    VkStructureType    sType;
+    void*              pNext;
+    VkBool32           variablePointersStorageBuffer;
+    VkBool32           variablePointers;
+} VkPhysicalDeviceVariablePointerFeaturesKHR;
+
+
+VkPhysicalDeviceVariablePointerFeaturesKHR PhysicalDeviceVariablePointerFeaturesKHR(
+    VkBool32                                    variablePointersStorageBuffer,
+    VkBool32                                    variablePointers);
+
+
+
+#define VK_KHR_dedicated_allocation 1
+#define VK_KHR_DEDICATED_ALLOCATION_SPEC_VERSION 1
+#define VK_KHR_DEDICATED_ALLOCATION_EXTENSION_NAME "VK_KHR_dedicated_allocation"
+
+typedef struct VkMemoryDedicatedRequirementsKHR {
+    VkStructureType    sType;
+    void*              pNext;
+    VkBool32           prefersDedicatedAllocation;
+    VkBool32           requiresDedicatedAllocation;
+} VkMemoryDedicatedRequirementsKHR;
+
+typedef struct VkMemoryDedicatedAllocateInfoKHR {
+    VkStructureType    sType;
+    const void*        pNext;
+    VkImage            image;
+    VkBuffer           buffer;
+} VkMemoryDedicatedAllocateInfoKHR;
+
+
+VkMemoryDedicatedRequirementsKHR MemoryDedicatedRequirementsKHR(
+    VkBool32                                    prefersDedicatedAllocation,
+    VkBool32                                    requiresDedicatedAllocation);
+
+
+VkMemoryDedicatedAllocateInfoKHR MemoryDedicatedAllocateInfoKHR(
+    VkImage                                     image,
+    VkBuffer                                    buffer);
+
+
+
+#define VK_KHR_storage_buffer_storage_class 1
+#define VK_KHR_STORAGE_BUFFER_STORAGE_CLASS_SPEC_VERSION 1
+#define VK_KHR_STORAGE_BUFFER_STORAGE_CLASS_EXTENSION_NAME "VK_KHR_storage_buffer_storage_class"
+
+
+#define VK_KHR_relaxed_block_layout 1
+#define VK_KHR_RELAXED_BLOCK_LAYOUT_SPEC_VERSION 1
+#define VK_KHR_RELAXED_BLOCK_LAYOUT_EXTENSION_NAME "VK_KHR_relaxed_block_layout"
+
+
+#define VK_KHR_get_memory_requirements2 1
+#define VK_KHR_GET_MEMORY_REQUIREMENTS_2_SPEC_VERSION 1
+#define VK_KHR_GET_MEMORY_REQUIREMENTS_2_EXTENSION_NAME "VK_KHR_get_memory_requirements2"
+
+typedef struct VkBufferMemoryRequirementsInfo2KHR {
+    VkStructureType    sType;
+    const void*        pNext;
+    VkBuffer           buffer;
+} VkBufferMemoryRequirementsInfo2KHR;
+
+typedef struct VkImageMemoryRequirementsInfo2KHR {
+    VkStructureType    sType;
+    const void*        pNext;
+    VkImage            image;
+} VkImageMemoryRequirementsInfo2KHR;
+
+typedef struct VkImageSparseMemoryRequirementsInfo2KHR {
+    VkStructureType    sType;
+    const void*        pNext;
+    VkImage            image;
+} VkImageSparseMemoryRequirementsInfo2KHR;
+
+typedef struct VkMemoryRequirements2KHR {
+    VkStructureType         sType;
+    void*                   pNext;
+    VkMemoryRequirements    memoryRequirements;
+} VkMemoryRequirements2KHR;
+
+typedef struct VkSparseImageMemoryRequirements2KHR {
+    VkStructureType                    sType;
+    void*                              pNext;
+    VkSparseImageMemoryRequirements    memoryRequirements;
+} VkSparseImageMemoryRequirements2KHR;
+
+
+typedef void (VKAPI_PTR *PFN_vkGetImageMemoryRequirements2KHR)(VkDevice device, const VkImageMemoryRequirementsInfo2KHR* pInfo, VkMemoryRequirements2KHR* pMemoryRequirements);
+typedef void (VKAPI_PTR *PFN_vkGetBufferMemoryRequirements2KHR)(VkDevice device, const VkBufferMemoryRequirementsInfo2KHR* pInfo, VkMemoryRequirements2KHR* pMemoryRequirements);
+typedef void (VKAPI_PTR *PFN_vkGetImageSparseMemoryRequirements2KHR)(VkDevice device, const VkImageSparseMemoryRequirementsInfo2KHR* pInfo, uint32_t* pSparseMemoryRequirementCount, VkSparseImageMemoryRequirements2KHR* pSparseMemoryRequirements);
+
+VkBufferMemoryRequirementsInfo2KHR BufferMemoryRequirementsInfo2KHR(
+    VkBuffer                                    buffer);
+
+
+VkImageMemoryRequirementsInfo2KHR ImageMemoryRequirementsInfo2KHR(
+    VkImage                                     image);
+
+
+VkImageSparseMemoryRequirementsInfo2KHR ImageSparseMemoryRequirementsInfo2KHR(
+    VkImage                                     image);
+
+
+VkMemoryRequirements2KHR MemoryRequirements2KHR(
+    VkMemoryRequirements                        memoryRequirements);
+
+
+VkSparseImageMemoryRequirements2KHR SparseImageMemoryRequirements2KHR(
+    VkSparseImageMemoryRequirements             memoryRequirements);
+
+
+VkMemoryRequirements2KHR getImageMemoryRequirements2KHR(
+        VkDevice device,
+        const VkImageMemoryRequirementsInfo2KHR & pInfo);
+
+VkMemoryRequirements2KHR getBufferMemoryRequirements2KHR(
+        VkDevice device,
+        const VkBufferMemoryRequirementsInfo2KHR & pInfo);
+
+std::vector< VkSparseImageMemoryRequirements2KHR > getImageSparseMemoryRequirements2KHR(
+        VkDevice device,
+        const VkImageSparseMemoryRequirementsInfo2KHR & pInfo);
+
+
 #define VK_EXT_debug_report 1
 VK_DEFINE_NON_DISPATCHABLE_HANDLE(VkDebugReportCallbackEXT)
 
-#define VK_EXT_DEBUG_REPORT_SPEC_VERSION  5
+#define VK_EXT_DEBUG_REPORT_SPEC_VERSION  8
 #define VK_EXT_DEBUG_REPORT_EXTENSION_NAME "VK_EXT_debug_report"
 #define VK_STRUCTURE_TYPE_DEBUG_REPORT_CREATE_INFO_EXT VK_STRUCTURE_TYPE_DEBUG_REPORT_CALLBACK_CREATE_INFO_EXT
+#define VK_DEBUG_REPORT_OBJECT_TYPE_DEBUG_REPORT_EXT VK_DEBUG_REPORT_OBJECT_TYPE_DEBUG_REPORT_CALLBACK_EXT_EXT
 
 
 typedef enum VkDebugReportObjectTypeEXT {
@@ -5082,25 +6199,17 @@ typedef enum VkDebugReportObjectTypeEXT {
     VK_DEBUG_REPORT_OBJECT_TYPE_COMMAND_POOL_EXT = 25,
     VK_DEBUG_REPORT_OBJECT_TYPE_SURFACE_KHR_EXT = 26,
     VK_DEBUG_REPORT_OBJECT_TYPE_SWAPCHAIN_KHR_EXT = 27,
-    VK_DEBUG_REPORT_OBJECT_TYPE_DEBUG_REPORT_EXT = 28,
+    VK_DEBUG_REPORT_OBJECT_TYPE_DEBUG_REPORT_CALLBACK_EXT_EXT = 28,
     VK_DEBUG_REPORT_OBJECT_TYPE_DISPLAY_KHR_EXT = 29,
     VK_DEBUG_REPORT_OBJECT_TYPE_DISPLAY_MODE_KHR_EXT = 30,
     VK_DEBUG_REPORT_OBJECT_TYPE_OBJECT_TABLE_NVX_EXT = 31,
     VK_DEBUG_REPORT_OBJECT_TYPE_INDIRECT_COMMANDS_LAYOUT_NVX_EXT = 32,
+    VK_DEBUG_REPORT_OBJECT_TYPE_DESCRIPTOR_UPDATE_TEMPLATE_KHR_EXT = 1000085000,
     VK_DEBUG_REPORT_OBJECT_TYPE_BEGIN_RANGE_EXT = VK_DEBUG_REPORT_OBJECT_TYPE_UNKNOWN_EXT,
     VK_DEBUG_REPORT_OBJECT_TYPE_END_RANGE_EXT = VK_DEBUG_REPORT_OBJECT_TYPE_INDIRECT_COMMANDS_LAYOUT_NVX_EXT,
     VK_DEBUG_REPORT_OBJECT_TYPE_RANGE_SIZE_EXT = (VK_DEBUG_REPORT_OBJECT_TYPE_INDIRECT_COMMANDS_LAYOUT_NVX_EXT - VK_DEBUG_REPORT_OBJECT_TYPE_UNKNOWN_EXT + 1),
     VK_DEBUG_REPORT_OBJECT_TYPE_MAX_ENUM_EXT = 0x7FFFFFFF
 } VkDebugReportObjectTypeEXT;
-
-typedef enum VkDebugReportErrorEXT {
-    VK_DEBUG_REPORT_ERROR_NONE_EXT = 0,
-    VK_DEBUG_REPORT_ERROR_CALLBACK_REF_EXT = 1,
-    VK_DEBUG_REPORT_ERROR_BEGIN_RANGE_EXT = VK_DEBUG_REPORT_ERROR_NONE_EXT,
-    VK_DEBUG_REPORT_ERROR_END_RANGE_EXT = VK_DEBUG_REPORT_ERROR_CALLBACK_REF_EXT,
-    VK_DEBUG_REPORT_ERROR_RANGE_SIZE_EXT = (VK_DEBUG_REPORT_ERROR_CALLBACK_REF_EXT - VK_DEBUG_REPORT_ERROR_NONE_EXT + 1),
-    VK_DEBUG_REPORT_ERROR_MAX_ENUM_EXT = 0x7FFFFFFF
-} VkDebugReportErrorEXT;
 
 
 typedef enum VkDebugReportFlagBitsEXT {
@@ -5122,7 +6231,6 @@ typedef VkBool32 (VKAPI_PTR *PFN_vkDebugReportCallbackEXT)(
     const char*                                 pLayerPrefix,
     const char*                                 pMessage,
     void*                                       pUserData);
-
 
 typedef struct VkDebugReportCallbackCreateInfoEXT {
     VkStructureType                 sType;
@@ -5160,6 +6268,11 @@ void  debugReportMessageEXT(
 #define VK_NV_glsl_shader 1
 #define VK_NV_GLSL_SHADER_SPEC_VERSION    1
 #define VK_NV_GLSL_SHADER_EXTENSION_NAME  "VK_NV_glsl_shader"
+
+
+#define VK_EXT_depth_range_unrestricted 1
+#define VK_EXT_DEPTH_RANGE_UNRESTRICTED_SPEC_VERSION 1
+#define VK_EXT_DEPTH_RANGE_UNRESTRICTED_EXTENSION_NAME "VK_EXT_depth_range_unrestricted"
 
 
 #define VK_IMG_filter_cubic 1
@@ -5248,11 +6361,11 @@ struct VkDebugMarkerMarkerInfoEXTRAII {
 };
 
 
-typedef VkResult (VKAPI_PTR *PFN_vkDebugMarkerSetObjectTagEXT)(VkDevice device, VkDebugMarkerObjectTagInfoEXT* pTagInfo);
-typedef VkResult (VKAPI_PTR *PFN_vkDebugMarkerSetObjectNameEXT)(VkDevice device, VkDebugMarkerObjectNameInfoEXT* pNameInfo);
-typedef void (VKAPI_PTR *PFN_vkCmdDebugMarkerBeginEXT)(VkCommandBuffer commandBuffer, VkDebugMarkerMarkerInfoEXT* pMarkerInfo);
+typedef VkResult (VKAPI_PTR *PFN_vkDebugMarkerSetObjectTagEXT)(VkDevice device, const VkDebugMarkerObjectTagInfoEXT* pTagInfo);
+typedef VkResult (VKAPI_PTR *PFN_vkDebugMarkerSetObjectNameEXT)(VkDevice device, const VkDebugMarkerObjectNameInfoEXT* pNameInfo);
+typedef void (VKAPI_PTR *PFN_vkCmdDebugMarkerBeginEXT)(VkCommandBuffer commandBuffer, const VkDebugMarkerMarkerInfoEXT* pMarkerInfo);
 typedef void (VKAPI_PTR *PFN_vkCmdDebugMarkerEndEXT)(VkCommandBuffer commandBuffer);
-typedef void (VKAPI_PTR *PFN_vkCmdDebugMarkerInsertEXT)(VkCommandBuffer commandBuffer, VkDebugMarkerMarkerInfoEXT* pMarkerInfo);
+typedef void (VKAPI_PTR *PFN_vkCmdDebugMarkerInsertEXT)(VkCommandBuffer commandBuffer, const VkDebugMarkerMarkerInfoEXT* pMarkerInfo);
 
 std::shared_ptr<VkDebugMarkerObjectNameInfoEXTRAII> DebugMarkerObjectNameInfoEXT(
     VkDebugReportObjectTypeEXT                  objectType,
@@ -5272,20 +6385,24 @@ std::shared_ptr<VkDebugMarkerMarkerInfoEXTRAII> DebugMarkerMarkerInfoEXT(
     float                                       color[4]);
 
 
-std::shared_ptr< VkDebugMarkerObjectTagInfoEXT > debugMarkerSetObjectTagEXT(
-        VkDevice device);
+void  debugMarkerSetObjectTagEXT(
+        VkDevice device,
+        const VkDebugMarkerObjectTagInfoEXT & pTagInfo);
 
-std::shared_ptr< VkDebugMarkerObjectNameInfoEXT > debugMarkerSetObjectNameEXT(
-        VkDevice device);
+void  debugMarkerSetObjectNameEXT(
+        VkDevice device,
+        const VkDebugMarkerObjectNameInfoEXT & pNameInfo);
 
-std::shared_ptr< VkDebugMarkerMarkerInfoEXT > cmdDebugMarkerBeginEXT(
-        VkCommandBuffer commandBuffer);
+void  cmdDebugMarkerBeginEXT(
+        VkCommandBuffer commandBuffer,
+        const VkDebugMarkerMarkerInfoEXT & pMarkerInfo);
 
 void  cmdDebugMarkerEndEXT(
         VkCommandBuffer commandBuffer);
 
-std::shared_ptr< VkDebugMarkerMarkerInfoEXT > cmdDebugMarkerInsertEXT(
-        VkCommandBuffer commandBuffer);
+void  cmdDebugMarkerInsertEXT(
+        VkCommandBuffer commandBuffer,
+        const VkDebugMarkerMarkerInfoEXT & pMarkerInfo);
 
 
 #define VK_AMD_gcn_shader 1
@@ -5370,6 +6487,22 @@ void  cmdDrawIndexedIndirectCountAMD(
 #define VK_AMD_shader_ballot 1
 #define VK_AMD_SHADER_BALLOT_SPEC_VERSION 1
 #define VK_AMD_SHADER_BALLOT_EXTENSION_NAME "VK_AMD_shader_ballot"
+
+
+#define VK_AMD_texture_gather_bias_lod 1
+#define VK_AMD_TEXTURE_GATHER_BIAS_LOD_SPEC_VERSION 1
+#define VK_AMD_TEXTURE_GATHER_BIAS_LOD_EXTENSION_NAME "VK_AMD_texture_gather_bias_lod"
+
+typedef struct VkTextureLODGatherFormatPropertiesAMD {
+    VkStructureType    sType;
+    void*              pNext;
+    VkBool32           supportsTextureGatherLODBiasAMD;
+} VkTextureLODGatherFormatPropertiesAMD;
+
+
+VkTextureLODGatherFormatPropertiesAMD TextureLODGatherFormatPropertiesAMD(
+    VkBool32                                    supportsTextureGatherLODBiasAMD);
+
 
 
 #define VK_KHX_multiview 1
@@ -5884,9 +7017,10 @@ std::vector< VkRect2D > getPhysicalDevicePresentRectanglesKHX(
 
 typedef enum VkValidationCheckEXT {
     VK_VALIDATION_CHECK_ALL_EXT = 0,
+    VK_VALIDATION_CHECK_SHADERS_EXT = 1,
     VK_VALIDATION_CHECK_BEGIN_RANGE_EXT = VK_VALIDATION_CHECK_ALL_EXT,
-    VK_VALIDATION_CHECK_END_RANGE_EXT = VK_VALIDATION_CHECK_ALL_EXT,
-    VK_VALIDATION_CHECK_RANGE_SIZE_EXT = (VK_VALIDATION_CHECK_ALL_EXT - VK_VALIDATION_CHECK_ALL_EXT + 1),
+    VK_VALIDATION_CHECK_END_RANGE_EXT = VK_VALIDATION_CHECK_SHADERS_EXT,
+    VK_VALIDATION_CHECK_RANGE_SIZE_EXT = (VK_VALIDATION_CHECK_SHADERS_EXT - VK_VALIDATION_CHECK_ALL_EXT + 1),
     VK_VALIDATION_CHECK_MAX_ENUM_EXT = 0x7FFFFFFF
 } VkValidationCheckEXT;
 
@@ -5951,7 +7085,7 @@ std::shared_ptr<VkSurfaceKHR_T> createViSurfaceNN(
 
 typedef struct VkPhysicalDeviceGroupPropertiesKHX {
     VkStructureType     sType;
-    const void*         pNext;
+    void*               pNext;
     uint32_t            physicalDeviceCount;
     VkPhysicalDevice    physicalDevices[VK_MAX_DEVICE_GROUP_SIZE_KHX];
     VkBool32            subsetAllocation;
@@ -5986,511 +7120,6 @@ std::vector< VkPhysicalDeviceGroupPropertiesKHX > enumeratePhysicalDeviceGroupsK
         VkInstance instance);
 
 
-#define VK_KHX_external_memory_capabilities 1
-#define VK_LUID_SIZE_KHX                  8
-#define VK_KHX_EXTERNAL_MEMORY_CAPABILITIES_SPEC_VERSION 1
-#define VK_KHX_EXTERNAL_MEMORY_CAPABILITIES_EXTENSION_NAME "VK_KHX_external_memory_capabilities"
-
-
-typedef enum VkExternalMemoryHandleTypeFlagBitsKHX {
-    VK_EXTERNAL_MEMORY_HANDLE_TYPE_OPAQUE_FD_BIT_KHX = 0x00000001,
-    VK_EXTERNAL_MEMORY_HANDLE_TYPE_OPAQUE_WIN32_BIT_KHX = 0x00000002,
-    VK_EXTERNAL_MEMORY_HANDLE_TYPE_OPAQUE_WIN32_KMT_BIT_KHX = 0x00000004,
-    VK_EXTERNAL_MEMORY_HANDLE_TYPE_D3D11_TEXTURE_BIT_KHX = 0x00000008,
-    VK_EXTERNAL_MEMORY_HANDLE_TYPE_D3D11_TEXTURE_KMT_BIT_KHX = 0x00000010,
-    VK_EXTERNAL_MEMORY_HANDLE_TYPE_D3D12_HEAP_BIT_KHX = 0x00000020,
-    VK_EXTERNAL_MEMORY_HANDLE_TYPE_D3D12_RESOURCE_BIT_KHX = 0x00000040,
-    VK_EXTERNAL_MEMORY_HANDLE_TYPE_FLAG_BITS_MAX_ENUM_KHX = 0x7FFFFFFF
-} VkExternalMemoryHandleTypeFlagBitsKHX;
-typedef VkFlags VkExternalMemoryHandleTypeFlagsKHX;
-
-typedef enum VkExternalMemoryFeatureFlagBitsKHX {
-    VK_EXTERNAL_MEMORY_FEATURE_DEDICATED_ONLY_BIT_KHX = 0x00000001,
-    VK_EXTERNAL_MEMORY_FEATURE_EXPORTABLE_BIT_KHX = 0x00000002,
-    VK_EXTERNAL_MEMORY_FEATURE_IMPORTABLE_BIT_KHX = 0x00000004,
-    VK_EXTERNAL_MEMORY_FEATURE_FLAG_BITS_MAX_ENUM_KHX = 0x7FFFFFFF
-} VkExternalMemoryFeatureFlagBitsKHX;
-typedef VkFlags VkExternalMemoryFeatureFlagsKHX;
-
-typedef struct VkExternalMemoryPropertiesKHX {
-    VkExternalMemoryFeatureFlagsKHX       externalMemoryFeatures;
-    VkExternalMemoryHandleTypeFlagsKHX    exportFromImportedHandleTypes;
-    VkExternalMemoryHandleTypeFlagsKHX    compatibleHandleTypes;
-} VkExternalMemoryPropertiesKHX;
-
-typedef struct VkPhysicalDeviceExternalImageFormatInfoKHX {
-    VkStructureType                          sType;
-    const void*                              pNext;
-    VkExternalMemoryHandleTypeFlagBitsKHX    handleType;
-} VkPhysicalDeviceExternalImageFormatInfoKHX;
-
-typedef struct VkExternalImageFormatPropertiesKHX {
-    VkStructureType                  sType;
-    void*                            pNext;
-    VkExternalMemoryPropertiesKHX    externalMemoryProperties;
-} VkExternalImageFormatPropertiesKHX;
-
-typedef struct VkPhysicalDeviceExternalBufferInfoKHX {
-    VkStructureType                          sType;
-    const void*                              pNext;
-    VkBufferCreateFlags                      flags;
-    VkBufferUsageFlags                       usage;
-    VkExternalMemoryHandleTypeFlagBitsKHX    handleType;
-} VkPhysicalDeviceExternalBufferInfoKHX;
-
-typedef struct VkExternalBufferPropertiesKHX {
-    VkStructureType                  sType;
-    void*                            pNext;
-    VkExternalMemoryPropertiesKHX    externalMemoryProperties;
-} VkExternalBufferPropertiesKHX;
-
-typedef struct VkPhysicalDeviceIDPropertiesKHX {
-    VkStructureType    sType;
-    void*              pNext;
-    uint8_t            deviceUUID[VK_UUID_SIZE];
-    uint8_t            driverUUID[VK_UUID_SIZE];
-    uint8_t            deviceLUID[VK_LUID_SIZE_KHX];
-    VkBool32           deviceLUIDValid;
-} VkPhysicalDeviceIDPropertiesKHX;
-
-typedef struct VkPhysicalDeviceProperties2KHX {
-    VkStructureType               sType;
-    void*                         pNext;
-    VkPhysicalDeviceProperties    properties;
-} VkPhysicalDeviceProperties2KHX;
-
-typedef struct VkImageFormatProperties2KHX {
-    VkStructureType            sType;
-    void*                      pNext;
-    VkImageFormatProperties    imageFormatProperties;
-} VkImageFormatProperties2KHX;
-
-typedef struct VkPhysicalDeviceImageFormatInfo2KHX {
-    VkStructureType       sType;
-    const void*           pNext;
-    VkFormat              format;
-    VkImageType           type;
-    VkImageTiling         tiling;
-    VkImageUsageFlags     usage;
-    VkImageCreateFlags    flags;
-} VkPhysicalDeviceImageFormatInfo2KHX;
-
-
-typedef void (VKAPI_PTR *PFN_vkGetPhysicalDeviceExternalBufferPropertiesKHX)(VkPhysicalDevice physicalDevice, const VkPhysicalDeviceExternalBufferInfoKHX* pExternalBufferInfo, VkExternalBufferPropertiesKHX* pExternalBufferProperties);
-typedef void (VKAPI_PTR *PFN_vkGetPhysicalDeviceProperties2KHX)(VkPhysicalDevice physicalDevice, VkPhysicalDeviceProperties2KHX* pProperties);
-typedef VkResult (VKAPI_PTR *PFN_vkGetPhysicalDeviceImageFormatProperties2KHX)(VkPhysicalDevice physicalDevice, const VkPhysicalDeviceImageFormatInfo2KHX* pImageFormatInfo, VkImageFormatProperties2KHX* pImageFormatProperties);
-
-VkExternalMemoryPropertiesKHX ExternalMemoryPropertiesKHX(
-    VkExternalMemoryFeatureFlagsKHX             externalMemoryFeatures,
-    VkExternalMemoryHandleTypeFlagsKHX          exportFromImportedHandleTypes,
-    VkExternalMemoryHandleTypeFlagsKHX          compatibleHandleTypes);
-
-
-VkPhysicalDeviceExternalImageFormatInfoKHX PhysicalDeviceExternalImageFormatInfoKHX(
-    VkExternalMemoryHandleTypeFlagBitsKHX       handleType);
-
-
-VkExternalImageFormatPropertiesKHX ExternalImageFormatPropertiesKHX(
-    VkExternalMemoryPropertiesKHX               externalMemoryProperties);
-
-
-VkPhysicalDeviceExternalBufferInfoKHX PhysicalDeviceExternalBufferInfoKHX(
-    VkBufferCreateFlags                         flags,
-    VkBufferUsageFlags                          usage,
-    VkExternalMemoryHandleTypeFlagBitsKHX       handleType);
-
-
-VkExternalBufferPropertiesKHX ExternalBufferPropertiesKHX(
-    VkExternalMemoryPropertiesKHX               externalMemoryProperties);
-
-
-VkPhysicalDeviceIDPropertiesKHX PhysicalDeviceIDPropertiesKHX(
-    uint8_t                                     deviceUUID[VK_UUID_SIZE],
-    uint8_t                                     driverUUID[VK_UUID_SIZE],
-    uint8_t                                     deviceLUID[VK_LUID_SIZE_KHX],
-    VkBool32                                    deviceLUIDValid);
-
-
-VkPhysicalDeviceProperties2KHX PhysicalDeviceProperties2KHX(
-    VkPhysicalDeviceProperties                  properties);
-
-
-VkImageFormatProperties2KHX ImageFormatProperties2KHX(
-    VkImageFormatProperties                     imageFormatProperties);
-
-
-VkPhysicalDeviceImageFormatInfo2KHX PhysicalDeviceImageFormatInfo2KHX(
-    VkFormat                                    format,
-    VkImageType                                 type,
-    VkImageTiling                               tiling,
-    VkImageUsageFlags                           usage,
-    VkImageCreateFlags                          flags);
-
-
-VkExternalBufferPropertiesKHX getPhysicalDeviceExternalBufferPropertiesKHX(
-        VkPhysicalDevice physicalDevice,
-        const VkPhysicalDeviceExternalBufferInfoKHX & pExternalBufferInfo);
-
-VkPhysicalDeviceProperties2KHX getPhysicalDeviceProperties2KHX(
-        VkPhysicalDevice physicalDevice);
-
-VkImageFormatProperties2KHX getPhysicalDeviceImageFormatProperties2KHX(
-        VkPhysicalDevice physicalDevice,
-        const VkPhysicalDeviceImageFormatInfo2KHX & pImageFormatInfo);
-
-
-#define VK_KHX_external_memory 1
-#define VK_KHX_EXTERNAL_MEMORY_SPEC_VERSION 1
-#define VK_KHX_EXTERNAL_MEMORY_EXTENSION_NAME "VK_KHX_external_memory"
-#define VK_QUEUE_FAMILY_EXTERNAL_KHX      (~0U-1)
-
-typedef struct VkExternalMemoryImageCreateInfoKHX {
-    VkStructureType                       sType;
-    const void*                           pNext;
-    VkExternalMemoryHandleTypeFlagsKHX    handleTypes;
-} VkExternalMemoryImageCreateInfoKHX;
-
-typedef struct VkExternalMemoryBufferCreateInfoKHX {
-    VkStructureType                       sType;
-    const void*                           pNext;
-    VkExternalMemoryHandleTypeFlagsKHX    handleTypes;
-} VkExternalMemoryBufferCreateInfoKHX;
-
-typedef struct VkExportMemoryAllocateInfoKHX {
-    VkStructureType                       sType;
-    const void*                           pNext;
-    VkExternalMemoryHandleTypeFlagsKHX    handleTypes;
-} VkExportMemoryAllocateInfoKHX;
-
-
-VkExternalMemoryImageCreateInfoKHX ExternalMemoryImageCreateInfoKHX(
-    VkExternalMemoryHandleTypeFlagsKHX          handleTypes);
-
-
-VkExternalMemoryBufferCreateInfoKHX ExternalMemoryBufferCreateInfoKHX(
-    VkExternalMemoryHandleTypeFlagsKHX          handleTypes);
-
-
-VkExportMemoryAllocateInfoKHX ExportMemoryAllocateInfoKHX(
-    VkExternalMemoryHandleTypeFlagsKHX          handleTypes);
-
-
-
-#ifdef VK_USE_PLATFORM_WIN32_KHR
-#define VK_KHX_external_memory_win32 1
-#define VK_KHX_EXTERNAL_MEMORY_WIN32_SPEC_VERSION 1
-#define VK_KHX_EXTERNAL_MEMORY_WIN32_EXTENSION_NAME "VK_KHX_external_memory_win32"
-
-typedef struct VkImportMemoryWin32HandleInfoKHX {
-    VkStructureType                          sType;
-    const void*                              pNext;
-    VkExternalMemoryHandleTypeFlagBitsKHX    handleType;
-    HANDLE                                   handle;
-} VkImportMemoryWin32HandleInfoKHX;
-
-typedef struct VkExportMemoryWin32HandleInfoKHX {
-    VkStructureType               sType;
-    const void*                   pNext;
-    const SECURITY_ATTRIBUTES*    pAttributes;
-    DWORD                         dwAccess;
-    LPCWSTR                       name;
-} VkExportMemoryWin32HandleInfoKHX;
-
-struct VkExportMemoryWin32HandleInfoKHXRAII {
-   VkExportMemoryWin32HandleInfoKHX nonRaiiObj;
-    std::shared_ptr<SECURITY_ATTRIBUTES>        pAttributes;
-};
-
-typedef struct VkMemoryWin32HandlePropertiesKHX {
-    VkStructureType    sType;
-    void*              pNext;
-    uint32_t           memoryTypeBits;
-} VkMemoryWin32HandlePropertiesKHX;
-
-
-typedef VkResult (VKAPI_PTR *PFN_vkGetMemoryWin32HandleKHX)(VkDevice device, VkDeviceMemory memory, VkExternalMemoryHandleTypeFlagBitsKHX handleType, HANDLE* pHandle);
-typedef VkResult (VKAPI_PTR *PFN_vkGetMemoryWin32HandlePropertiesKHX)(VkDevice device, VkExternalMemoryHandleTypeFlagBitsKHX handleType, HANDLE handle, VkMemoryWin32HandlePropertiesKHX* pMemoryWin32HandleProperties);
-
-VkImportMemoryWin32HandleInfoKHX ImportMemoryWin32HandleInfoKHX(
-    VkExternalMemoryHandleTypeFlagBitsKHX       handleType,
-    HANDLE                                      handle);
-
-
-std::shared_ptr<VkExportMemoryWin32HandleInfoKHXRAII> ExportMemoryWin32HandleInfoKHX(
-    const SECURITY_ATTRIBUTES *                 pAttributes,
-    DWORD                                       dwAccess,
-    LPCWSTR                                     name);
-
-
-VkMemoryWin32HandlePropertiesKHX MemoryWin32HandlePropertiesKHX(
-    uint32_t                                    memoryTypeBits);
-
-
-HANDLE getMemoryWin32HandleKHX(
-        VkDevice device,
-        VkDeviceMemory memory,
-        VkExternalMemoryHandleTypeFlagBitsKHX handleType);
-
-VkMemoryWin32HandlePropertiesKHX getMemoryWin32HandlePropertiesKHX(
-        VkDevice device,
-        VkExternalMemoryHandleTypeFlagBitsKHX handleType,
-        HANDLE handle);
-
-#endif /* VK_USE_PLATFORM_WIN32_KHR */
-
-#define VK_KHX_external_memory_fd 1
-#define VK_KHX_EXTERNAL_MEMORY_FD_SPEC_VERSION 1
-#define VK_KHX_EXTERNAL_MEMORY_FD_EXTENSION_NAME "VK_KHX_external_memory_fd"
-
-typedef struct VkImportMemoryFdInfoKHX {
-    VkStructureType                          sType;
-    const void*                              pNext;
-    VkExternalMemoryHandleTypeFlagBitsKHX    handleType;
-    int                                      fd;
-} VkImportMemoryFdInfoKHX;
-
-typedef struct VkMemoryFdPropertiesKHX {
-    VkStructureType    sType;
-    void*              pNext;
-    uint32_t           memoryTypeBits;
-} VkMemoryFdPropertiesKHX;
-
-
-typedef VkResult (VKAPI_PTR *PFN_vkGetMemoryFdKHX)(VkDevice device, VkDeviceMemory memory, VkExternalMemoryHandleTypeFlagBitsKHX handleType, int* pFd);
-typedef VkResult (VKAPI_PTR *PFN_vkGetMemoryFdPropertiesKHX)(VkDevice device, VkExternalMemoryHandleTypeFlagBitsKHX handleType, int fd, VkMemoryFdPropertiesKHX* pMemoryFdProperties);
-
-VkImportMemoryFdInfoKHX ImportMemoryFdInfoKHX(
-    VkExternalMemoryHandleTypeFlagBitsKHX       handleType,
-    int                                         fd);
-
-
-VkMemoryFdPropertiesKHX MemoryFdPropertiesKHX(
-    uint32_t                                    memoryTypeBits);
-
-
-int getMemoryFdKHX(
-        VkDevice device,
-        VkDeviceMemory memory,
-        VkExternalMemoryHandleTypeFlagBitsKHX handleType);
-
-VkMemoryFdPropertiesKHX getMemoryFdPropertiesKHX(
-        VkDevice device,
-        VkExternalMemoryHandleTypeFlagBitsKHX handleType,
-        int fd);
-
-
-#ifdef VK_USE_PLATFORM_WIN32_KHR
-#define VK_KHX_win32_keyed_mutex 1
-#define VK_KHX_WIN32_KEYED_MUTEX_SPEC_VERSION 1
-#define VK_KHX_WIN32_KEYED_MUTEX_EXTENSION_NAME "VK_KHX_win32_keyed_mutex"
-
-typedef struct VkWin32KeyedMutexAcquireReleaseInfoKHX {
-    VkStructureType          sType;
-    const void*              pNext;
-    uint32_t                 acquireCount;
-    const VkDeviceMemory*    pAcquireSyncs;
-    const uint64_t*          pAcquireKeys;
-    const uint32_t*          pAcquireTimeouts;
-    uint32_t                 releaseCount;
-    const VkDeviceMemory*    pReleaseSyncs;
-    const uint64_t*          pReleaseKeys;
-} VkWin32KeyedMutexAcquireReleaseInfoKHX;
-
-struct VkWin32KeyedMutexAcquireReleaseInfoKHXRAII {
-   VkWin32KeyedMutexAcquireReleaseInfoKHX nonRaiiObj;
-    std::vector<VkDeviceMemory>                 vecAcquireSyncs;
-    std::vector<uint64_t>                       vecAcquireKeys;
-    std::vector<uint32_t>                       vecAcquireTimeouts;
-    std::vector<VkDeviceMemory>                 vecReleaseSyncs;
-    std::vector<uint64_t>                       vecReleaseKeys;
-};
-
-
-std::shared_ptr<VkWin32KeyedMutexAcquireReleaseInfoKHXRAII> Win32KeyedMutexAcquireReleaseInfoKHX(
-    const std::vector<VkDeviceMemory> &         vecAcquireSyncs,
-    const std::vector<uint64_t> &               vecAcquireKeys,
-    unsigned int* pAcquireTimeouts_in_array1, int pAcquireTimeouts_dim1,
-    const std::vector<VkDeviceMemory> &         vecReleaseSyncs,
-    const std::vector<uint64_t> &               vecReleaseKeys);
-
-
-#endif /* VK_USE_PLATFORM_WIN32_KHR */
-
-#define VK_KHX_external_semaphore_capabilities 1
-#define VK_KHX_EXTERNAL_SEMAPHORE_CAPABILITIES_SPEC_VERSION 1
-#define VK_KHX_EXTERNAL_SEMAPHORE_CAPABILITIES_EXTENSION_NAME "VK_KHX_external_semaphore_capabilities"
-
-
-typedef enum VkExternalSemaphoreHandleTypeFlagBitsKHX {
-    VK_EXTERNAL_SEMAPHORE_HANDLE_TYPE_OPAQUE_FD_BIT_KHX = 0x00000001,
-    VK_EXTERNAL_SEMAPHORE_HANDLE_TYPE_OPAQUE_WIN32_BIT_KHX = 0x00000002,
-    VK_EXTERNAL_SEMAPHORE_HANDLE_TYPE_OPAQUE_WIN32_KMT_BIT_KHX = 0x00000004,
-    VK_EXTERNAL_SEMAPHORE_HANDLE_TYPE_D3D12_FENCE_BIT_KHX = 0x00000008,
-    VK_EXTERNAL_SEMAPHORE_HANDLE_TYPE_FENCE_FD_BIT_KHX = 0x00000010,
-    VK_EXTERNAL_SEMAPHORE_HANDLE_TYPE_FLAG_BITS_MAX_ENUM_KHX = 0x7FFFFFFF
-} VkExternalSemaphoreHandleTypeFlagBitsKHX;
-typedef VkFlags VkExternalSemaphoreHandleTypeFlagsKHX;
-
-typedef enum VkExternalSemaphoreFeatureFlagBitsKHX {
-    VK_EXTERNAL_SEMAPHORE_FEATURE_EXPORTABLE_BIT_KHX = 0x00000001,
-    VK_EXTERNAL_SEMAPHORE_FEATURE_IMPORTABLE_BIT_KHX = 0x00000002,
-    VK_EXTERNAL_SEMAPHORE_FEATURE_FLAG_BITS_MAX_ENUM_KHX = 0x7FFFFFFF
-} VkExternalSemaphoreFeatureFlagBitsKHX;
-typedef VkFlags VkExternalSemaphoreFeatureFlagsKHX;
-
-typedef struct VkPhysicalDeviceExternalSemaphoreInfoKHX {
-    VkStructureType                             sType;
-    const void*                                 pNext;
-    VkExternalSemaphoreHandleTypeFlagBitsKHX    handleType;
-} VkPhysicalDeviceExternalSemaphoreInfoKHX;
-
-typedef struct VkExternalSemaphorePropertiesKHX {
-    VkStructureType                          sType;
-    void*                                    pNext;
-    VkExternalSemaphoreHandleTypeFlagsKHX    exportFromImportedHandleTypes;
-    VkExternalSemaphoreHandleTypeFlagsKHX    compatibleHandleTypes;
-    VkExternalSemaphoreFeatureFlagsKHX       externalSemaphoreFeatures;
-} VkExternalSemaphorePropertiesKHX;
-
-
-typedef void (VKAPI_PTR *PFN_vkGetPhysicalDeviceExternalSemaphorePropertiesKHX)(VkPhysicalDevice physicalDevice, const VkPhysicalDeviceExternalSemaphoreInfoKHX* pExternalSemaphoreInfo, VkExternalSemaphorePropertiesKHX* pExternalSemaphoreProperties);
-
-VkPhysicalDeviceExternalSemaphoreInfoKHX PhysicalDeviceExternalSemaphoreInfoKHX(
-    VkExternalSemaphoreHandleTypeFlagBitsKHX    handleType);
-
-
-VkExternalSemaphorePropertiesKHX ExternalSemaphorePropertiesKHX(
-    VkExternalSemaphoreHandleTypeFlagsKHX       exportFromImportedHandleTypes,
-    VkExternalSemaphoreHandleTypeFlagsKHX       compatibleHandleTypes,
-    VkExternalSemaphoreFeatureFlagsKHX          externalSemaphoreFeatures);
-
-
-VkExternalSemaphorePropertiesKHX getPhysicalDeviceExternalSemaphorePropertiesKHX(
-        VkPhysicalDevice physicalDevice,
-        const VkPhysicalDeviceExternalSemaphoreInfoKHX & pExternalSemaphoreInfo);
-
-
-#define VK_KHX_external_semaphore 1
-#define VK_KHX_EXTERNAL_SEMAPHORE_SPEC_VERSION 1
-#define VK_KHX_EXTERNAL_SEMAPHORE_EXTENSION_NAME "VK_KHX_external_semaphore"
-
-typedef struct VkExportSemaphoreCreateInfoKHX {
-    VkStructureType                          sType;
-    const void*                              pNext;
-    VkExternalSemaphoreHandleTypeFlagsKHX    handleTypes;
-} VkExportSemaphoreCreateInfoKHX;
-
-
-VkExportSemaphoreCreateInfoKHX ExportSemaphoreCreateInfoKHX(
-    VkExternalSemaphoreHandleTypeFlagsKHX       handleTypes);
-
-
-
-#ifdef VK_USE_PLATFORM_WIN32_KHX
-#define VK_KHX_external_semaphore_win32 1
-#define VK_KHX_EXTERNAL_SEMAPHORE_WIN32_SPEC_VERSION 1
-#define VK_KHX_EXTERNAL_SEMAPHORE_WIN32_EXTENSION_NAME "VK_KHX_external_semaphore_win32"
-
-typedef struct VkImportSemaphoreWin32HandleInfoKHX {
-    VkStructureType                          sType;
-    const void*                              pNext;
-    VkSemaphore                              semaphore;
-    VkExternalSemaphoreHandleTypeFlagsKHX    handleType;
-    HANDLE                                   handle;
-} VkImportSemaphoreWin32HandleInfoKHX;
-
-typedef struct VkExportSemaphoreWin32HandleInfoKHX {
-    VkStructureType               sType;
-    const void*                   pNext;
-    const SECURITY_ATTRIBUTES*    pAttributes;
-    DWORD                         dwAccess;
-    LPCWSTR                       name;
-} VkExportSemaphoreWin32HandleInfoKHX;
-
-struct VkExportSemaphoreWin32HandleInfoKHXRAII {
-   VkExportSemaphoreWin32HandleInfoKHX nonRaiiObj;
-    std::shared_ptr<SECURITY_ATTRIBUTES>        pAttributes;
-};
-
-typedef struct VkD3D12FenceSubmitInfoKHX {
-    VkStructureType    sType;
-    const void*        pNext;
-    uint32_t           waitSemaphoreValuesCount;
-    const uint64_t*    pWaitSemaphoreValues;
-    uint32_t           signalSemaphoreValuesCount;
-    const uint64_t*    pSignalSemaphoreValues;
-} VkD3D12FenceSubmitInfoKHX;
-
-struct VkD3D12FenceSubmitInfoKHXRAII {
-   VkD3D12FenceSubmitInfoKHX nonRaiiObj;
-    std::vector<uint64_t>                       vecWaitSemaphoreValues;
-    std::vector<uint64_t>                       vecSignalSemaphoreValues;
-};
-
-
-typedef VkResult (VKAPI_PTR *PFN_vkImportSemaphoreWin32HandleKHX)(VkDevice device, const VkImportSemaphoreWin32HandleInfoKHX* pImportSemaphoreWin32HandleInfo);
-typedef VkResult (VKAPI_PTR *PFN_vkGetSemaphoreWin32HandleKHX)(VkDevice device, VkSemaphore semaphore, VkExternalSemaphoreHandleTypeFlagBitsKHX handleType, HANDLE* pHandle);
-
-VkImportSemaphoreWin32HandleInfoKHX ImportSemaphoreWin32HandleInfoKHX(
-    VkSemaphore                                 semaphore,
-    VkExternalSemaphoreHandleTypeFlagsKHX       handleType,
-    HANDLE                                      handle);
-
-
-std::shared_ptr<VkExportSemaphoreWin32HandleInfoKHXRAII> ExportSemaphoreWin32HandleInfoKHX(
-    const SECURITY_ATTRIBUTES *                 pAttributes,
-    DWORD                                       dwAccess,
-    LPCWSTR                                     name);
-
-
-std::shared_ptr<VkD3D12FenceSubmitInfoKHXRAII> D3D12FenceSubmitInfoKHX(
-    const std::vector<uint64_t> &               vecWaitSemaphoreValues,
-    const std::vector<uint64_t> &               vecSignalSemaphoreValues);
-
-
-void  importSemaphoreWin32HandleKHX(
-        VkDevice device,
-        const VkImportSemaphoreWin32HandleInfoKHX & pImportSemaphoreWin32HandleInfo);
-
-HANDLE getSemaphoreWin32HandleKHX(
-        VkDevice device,
-        VkSemaphore semaphore,
-        VkExternalSemaphoreHandleTypeFlagBitsKHX handleType);
-
-#endif /* VK_USE_PLATFORM_WIN32_KHX */
-
-#define VK_KHX_external_semaphore_fd 1
-#define VK_KHX_EXTERNAL_SEMAPHORE_FD_SPEC_VERSION 1
-#define VK_KHX_EXTERNAL_SEMAPHORE_FD_EXTENSION_NAME "VK_KHX_external_semaphore_fd"
-
-typedef struct VkImportSemaphoreFdInfoKHX {
-    VkStructureType                             sType;
-    const void*                                 pNext;
-    VkSemaphore                                 semaphore;
-    VkExternalSemaphoreHandleTypeFlagBitsKHX    handleType;
-    int                                         fd;
-} VkImportSemaphoreFdInfoKHX;
-
-
-typedef VkResult (VKAPI_PTR *PFN_vkImportSemaphoreFdKHX)(VkDevice device, const VkImportSemaphoreFdInfoKHX* pImportSemaphoreFdInfo);
-typedef VkResult (VKAPI_PTR *PFN_vkGetSemaphoreFdKHX)(VkDevice device, VkSemaphore semaphore, VkExternalSemaphoreHandleTypeFlagBitsKHX handleType, int* pFd);
-
-VkImportSemaphoreFdInfoKHX ImportSemaphoreFdInfoKHX(
-    VkSemaphore                                 semaphore,
-    VkExternalSemaphoreHandleTypeFlagBitsKHX    handleType,
-    int                                         fd);
-
-
-void  importSemaphoreFdKHX(
-        VkDevice device,
-        const VkImportSemaphoreFdInfoKHX & pImportSemaphoreFdInfo);
-
-int getSemaphoreFdKHX(
-        VkDevice device,
-        VkSemaphore semaphore,
-        VkExternalSemaphoreHandleTypeFlagBitsKHX handleType);
-
-
 #define VK_NVX_device_generated_commands 1
 VK_DEFINE_NON_DISPATCHABLE_HANDLE(VkObjectTableNVX)
 VK_DEFINE_NON_DISPATCHABLE_HANDLE(VkIndirectCommandsLayoutNVX)
@@ -6500,29 +7129,29 @@ VK_DEFINE_NON_DISPATCHABLE_HANDLE(VkIndirectCommandsLayoutNVX)
 
 
 typedef enum VkIndirectCommandsTokenTypeNVX {
-    VK_INDIRECT_COMMANDS_TOKEN_PIPELINE_NVX = 0,
-    VK_INDIRECT_COMMANDS_TOKEN_DESCRIPTOR_SET_NVX = 1,
-    VK_INDIRECT_COMMANDS_TOKEN_INDEX_BUFFER_NVX = 2,
-    VK_INDIRECT_COMMANDS_TOKEN_VERTEX_BUFFER_NVX = 3,
-    VK_INDIRECT_COMMANDS_TOKEN_PUSH_CONSTANT_NVX = 4,
-    VK_INDIRECT_COMMANDS_TOKEN_DRAW_INDEXED_NVX = 5,
-    VK_INDIRECT_COMMANDS_TOKEN_DRAW_NVX = 6,
-    VK_INDIRECT_COMMANDS_TOKEN_DISPATCH_NVX = 7,
-    VK_INDIRECT_COMMANDS_TOKEN_TYPE_BEGIN_RANGE_NVX = VK_INDIRECT_COMMANDS_TOKEN_PIPELINE_NVX,
-    VK_INDIRECT_COMMANDS_TOKEN_TYPE_END_RANGE_NVX = VK_INDIRECT_COMMANDS_TOKEN_DISPATCH_NVX,
-    VK_INDIRECT_COMMANDS_TOKEN_TYPE_RANGE_SIZE_NVX = (VK_INDIRECT_COMMANDS_TOKEN_DISPATCH_NVX - VK_INDIRECT_COMMANDS_TOKEN_PIPELINE_NVX + 1),
+    VK_INDIRECT_COMMANDS_TOKEN_TYPE_PIPELINE_NVX = 0,
+    VK_INDIRECT_COMMANDS_TOKEN_TYPE_DESCRIPTOR_SET_NVX = 1,
+    VK_INDIRECT_COMMANDS_TOKEN_TYPE_INDEX_BUFFER_NVX = 2,
+    VK_INDIRECT_COMMANDS_TOKEN_TYPE_VERTEX_BUFFER_NVX = 3,
+    VK_INDIRECT_COMMANDS_TOKEN_TYPE_PUSH_CONSTANT_NVX = 4,
+    VK_INDIRECT_COMMANDS_TOKEN_TYPE_DRAW_INDEXED_NVX = 5,
+    VK_INDIRECT_COMMANDS_TOKEN_TYPE_DRAW_NVX = 6,
+    VK_INDIRECT_COMMANDS_TOKEN_TYPE_DISPATCH_NVX = 7,
+    VK_INDIRECT_COMMANDS_TOKEN_TYPE_BEGIN_RANGE_NVX = VK_INDIRECT_COMMANDS_TOKEN_TYPE_PIPELINE_NVX,
+    VK_INDIRECT_COMMANDS_TOKEN_TYPE_END_RANGE_NVX = VK_INDIRECT_COMMANDS_TOKEN_TYPE_DISPATCH_NVX,
+    VK_INDIRECT_COMMANDS_TOKEN_TYPE_RANGE_SIZE_NVX = (VK_INDIRECT_COMMANDS_TOKEN_TYPE_DISPATCH_NVX - VK_INDIRECT_COMMANDS_TOKEN_TYPE_PIPELINE_NVX + 1),
     VK_INDIRECT_COMMANDS_TOKEN_TYPE_MAX_ENUM_NVX = 0x7FFFFFFF
 } VkIndirectCommandsTokenTypeNVX;
 
 typedef enum VkObjectEntryTypeNVX {
-    VK_OBJECT_ENTRY_DESCRIPTOR_SET_NVX = 0,
-    VK_OBJECT_ENTRY_PIPELINE_NVX = 1,
-    VK_OBJECT_ENTRY_INDEX_BUFFER_NVX = 2,
-    VK_OBJECT_ENTRY_VERTEX_BUFFER_NVX = 3,
-    VK_OBJECT_ENTRY_PUSH_CONSTANT_NVX = 4,
-    VK_OBJECT_ENTRY_TYPE_BEGIN_RANGE_NVX = VK_OBJECT_ENTRY_DESCRIPTOR_SET_NVX,
-    VK_OBJECT_ENTRY_TYPE_END_RANGE_NVX = VK_OBJECT_ENTRY_PUSH_CONSTANT_NVX,
-    VK_OBJECT_ENTRY_TYPE_RANGE_SIZE_NVX = (VK_OBJECT_ENTRY_PUSH_CONSTANT_NVX - VK_OBJECT_ENTRY_DESCRIPTOR_SET_NVX + 1),
+    VK_OBJECT_ENTRY_TYPE_DESCRIPTOR_SET_NVX = 0,
+    VK_OBJECT_ENTRY_TYPE_PIPELINE_NVX = 1,
+    VK_OBJECT_ENTRY_TYPE_INDEX_BUFFER_NVX = 2,
+    VK_OBJECT_ENTRY_TYPE_VERTEX_BUFFER_NVX = 3,
+    VK_OBJECT_ENTRY_TYPE_PUSH_CONSTANT_NVX = 4,
+    VK_OBJECT_ENTRY_TYPE_BEGIN_RANGE_NVX = VK_OBJECT_ENTRY_TYPE_DESCRIPTOR_SET_NVX,
+    VK_OBJECT_ENTRY_TYPE_END_RANGE_NVX = VK_OBJECT_ENTRY_TYPE_PUSH_CONSTANT_NVX,
+    VK_OBJECT_ENTRY_TYPE_RANGE_SIZE_NVX = (VK_OBJECT_ENTRY_TYPE_PUSH_CONSTANT_NVX - VK_OBJECT_ENTRY_TYPE_DESCRIPTOR_SET_NVX + 1),
     VK_OBJECT_ENTRY_TYPE_MAX_ENUM_NVX = 0x7FFFFFFF
 } VkObjectEntryTypeNVX;
 
@@ -7025,6 +7654,73 @@ uint64_t getSwapchainCounterEXT(
         VkSurfaceCounterFlagBitsEXT counter);
 
 
+#define VK_GOOGLE_display_timing 1
+#define VK_GOOGLE_DISPLAY_TIMING_SPEC_VERSION 1
+#define VK_GOOGLE_DISPLAY_TIMING_EXTENSION_NAME "VK_GOOGLE_display_timing"
+
+typedef struct VkRefreshCycleDurationGOOGLE {
+    uint64_t    refreshDuration;
+} VkRefreshCycleDurationGOOGLE;
+
+typedef struct VkPastPresentationTimingGOOGLE {
+    uint32_t    presentID;
+    uint64_t    desiredPresentTime;
+    uint64_t    actualPresentTime;
+    uint64_t    earliestPresentTime;
+    uint64_t    presentMargin;
+} VkPastPresentationTimingGOOGLE;
+
+typedef struct VkPresentTimeGOOGLE {
+    uint32_t    presentID;
+    uint64_t    desiredPresentTime;
+} VkPresentTimeGOOGLE;
+
+typedef struct VkPresentTimesInfoGOOGLE {
+    VkStructureType               sType;
+    const void*                   pNext;
+    uint32_t                      swapchainCount;
+    const VkPresentTimeGOOGLE*    pTimes;
+} VkPresentTimesInfoGOOGLE;
+
+struct VkPresentTimesInfoGOOGLERAII {
+   VkPresentTimesInfoGOOGLE nonRaiiObj;
+    std::vector<VkPresentTimeGOOGLE>            vecTimes;
+};
+
+
+typedef VkResult (VKAPI_PTR *PFN_vkGetRefreshCycleDurationGOOGLE)(VkDevice device, VkSwapchainKHR swapchain, VkRefreshCycleDurationGOOGLE* pDisplayTimingProperties);
+typedef VkResult (VKAPI_PTR *PFN_vkGetPastPresentationTimingGOOGLE)(VkDevice device, VkSwapchainKHR swapchain, uint32_t* pPresentationTimingCount, VkPastPresentationTimingGOOGLE* pPresentationTimings);
+
+VkRefreshCycleDurationGOOGLE RefreshCycleDurationGOOGLE(
+    uint64_t                                    refreshDuration);
+
+
+VkPastPresentationTimingGOOGLE PastPresentationTimingGOOGLE(
+    uint32_t                                    presentID,
+    uint64_t                                    desiredPresentTime,
+    uint64_t                                    actualPresentTime,
+    uint64_t                                    earliestPresentTime,
+    uint64_t                                    presentMargin);
+
+
+VkPresentTimeGOOGLE PresentTimeGOOGLE(
+    uint32_t                                    presentID,
+    uint64_t                                    desiredPresentTime);
+
+
+std::shared_ptr<VkPresentTimesInfoGOOGLERAII> PresentTimesInfoGOOGLE(
+    const std::vector<VkPresentTimeGOOGLE> &    vecTimes);
+
+
+VkRefreshCycleDurationGOOGLE getRefreshCycleDurationGOOGLE(
+        VkDevice device,
+        VkSwapchainKHR swapchain);
+
+std::vector< VkPastPresentationTimingGOOGLE > getPastPresentationTimingGOOGLE(
+        VkDevice device,
+        VkSwapchainKHR swapchain);
+
+
 #define VK_NV_sample_mask_override_coverage 1
 #define VK_NV_SAMPLE_MASK_OVERRIDE_COVERAGE_SPEC_VERSION 1
 #define VK_NV_SAMPLE_MASK_OVERRIDE_COVERAGE_EXTENSION_NAME "VK_NV_sample_mask_override_coverage"
@@ -7130,7 +7826,7 @@ typedef VkFlags VkPipelineDiscardRectangleStateCreateFlagsEXT;
 
 typedef struct VkPhysicalDeviceDiscardRectanglePropertiesEXT {
     VkStructureType    sType;
-    const void*        pNext;
+    void*              pNext;
     uint32_t           maxDiscardRectangles;
 } VkPhysicalDeviceDiscardRectanglePropertiesEXT;
 
@@ -7165,6 +7861,58 @@ void  cmdSetDiscardRectangleEXT(
         VkCommandBuffer commandBuffer,
         uint32_t firstDiscardRectangle,
         const std::vector<VkRect2D> & pDiscardRectangles);
+
+
+#define VK_EXT_swapchain_colorspace 1
+#define VK_EXT_SWAPCHAIN_COLOR_SPACE_SPEC_VERSION 3
+#define VK_EXT_SWAPCHAIN_COLOR_SPACE_EXTENSION_NAME "VK_EXT_swapchain_colorspace"
+
+
+#define VK_EXT_hdr_metadata 1
+#define VK_EXT_HDR_METADATA_SPEC_VERSION  1
+#define VK_EXT_HDR_METADATA_EXTENSION_NAME "VK_EXT_hdr_metadata"
+
+typedef struct VkXYColorEXT {
+    float    x;
+    float    y;
+} VkXYColorEXT;
+
+typedef struct VkHdrMetadataEXT {
+    VkStructureType    sType;
+    const void*        pNext;
+    VkXYColorEXT       displayPrimaryRed;
+    VkXYColorEXT       displayPrimaryGreen;
+    VkXYColorEXT       displayPrimaryBlue;
+    VkXYColorEXT       whitePoint;
+    float              maxLuminance;
+    float              minLuminance;
+    float              maxContentLightLevel;
+    float              maxFrameAverageLightLevel;
+} VkHdrMetadataEXT;
+
+
+typedef void (VKAPI_PTR *PFN_vkSetHdrMetadataEXT)(VkDevice device, uint32_t swapchainCount, const VkSwapchainKHR* pSwapchains, const VkHdrMetadataEXT* pMetadata);
+
+VkXYColorEXT XYColorEXT(
+    float                                       x,
+    float                                       y);
+
+
+VkHdrMetadataEXT HdrMetadataEXT(
+    VkXYColorEXT                                displayPrimaryRed,
+    VkXYColorEXT                                displayPrimaryGreen,
+    VkXYColorEXT                                displayPrimaryBlue,
+    VkXYColorEXT                                whitePoint,
+    float                                       maxLuminance,
+    float                                       minLuminance,
+    float                                       maxContentLightLevel,
+    float                                       maxFrameAverageLightLevel);
+
+
+void  setHdrMetadataEXT(
+        VkDevice device,
+        const std::vector<VkSwapchainKHR> & pSwapchains,
+        const std::vector<VkHdrMetadataEXT> & pMetadata);
 
 
 #ifdef VK_USE_PLATFORM_IOS_MVK
@@ -7220,6 +7968,190 @@ std::shared_ptr<VkSurfaceKHR_T> createMacOSSurfaceMVK(
         const VkMacOSSurfaceCreateInfoMVK & pCreateInfo);
 
 #endif /* VK_USE_PLATFORM_MACOS_MVK */
+
+#define VK_EXT_sampler_filter_minmax 1
+#define VK_EXT_SAMPLER_FILTER_MINMAX_SPEC_VERSION 1
+#define VK_EXT_SAMPLER_FILTER_MINMAX_EXTENSION_NAME "VK_EXT_sampler_filter_minmax"
+
+
+typedef enum VkSamplerReductionModeEXT {
+    VK_SAMPLER_REDUCTION_MODE_WEIGHTED_AVERAGE_EXT = 0,
+    VK_SAMPLER_REDUCTION_MODE_MIN_EXT = 1,
+    VK_SAMPLER_REDUCTION_MODE_MAX_EXT = 2,
+    VK_SAMPLER_REDUCTION_MODE_BEGIN_RANGE_EXT = VK_SAMPLER_REDUCTION_MODE_WEIGHTED_AVERAGE_EXT,
+    VK_SAMPLER_REDUCTION_MODE_END_RANGE_EXT = VK_SAMPLER_REDUCTION_MODE_MAX_EXT,
+    VK_SAMPLER_REDUCTION_MODE_RANGE_SIZE_EXT = (VK_SAMPLER_REDUCTION_MODE_MAX_EXT - VK_SAMPLER_REDUCTION_MODE_WEIGHTED_AVERAGE_EXT + 1),
+    VK_SAMPLER_REDUCTION_MODE_MAX_ENUM_EXT = 0x7FFFFFFF
+} VkSamplerReductionModeEXT;
+
+typedef struct VkSamplerReductionModeCreateInfoEXT {
+    VkStructureType              sType;
+    const void*                  pNext;
+    VkSamplerReductionModeEXT    reductionMode;
+} VkSamplerReductionModeCreateInfoEXT;
+
+typedef struct VkPhysicalDeviceSamplerFilterMinmaxPropertiesEXT {
+    VkStructureType    sType;
+    void*              pNext;
+    VkBool32           filterMinmaxSingleComponentFormats;
+    VkBool32           filterMinmaxImageComponentMapping;
+} VkPhysicalDeviceSamplerFilterMinmaxPropertiesEXT;
+
+
+VkSamplerReductionModeCreateInfoEXT SamplerReductionModeCreateInfoEXT(
+    VkSamplerReductionModeEXT                   reductionMode);
+
+
+VkPhysicalDeviceSamplerFilterMinmaxPropertiesEXT PhysicalDeviceSamplerFilterMinmaxPropertiesEXT(
+    VkBool32                                    filterMinmaxSingleComponentFormats,
+    VkBool32                                    filterMinmaxImageComponentMapping);
+
+
+
+#define VK_AMD_gpu_shader_int16 1
+#define VK_AMD_GPU_SHADER_INT16_SPEC_VERSION 1
+#define VK_AMD_GPU_SHADER_INT16_EXTENSION_NAME "VK_AMD_gpu_shader_int16"
+
+
+#define VK_AMD_mixed_attachment_samples 1
+#define VK_AMD_MIXED_ATTACHMENT_SAMPLES_SPEC_VERSION 1
+#define VK_AMD_MIXED_ATTACHMENT_SAMPLES_EXTENSION_NAME "VK_AMD_mixed_attachment_samples"
+
+
+#define VK_EXT_blend_operation_advanced 1
+#define VK_EXT_BLEND_OPERATION_ADVANCED_SPEC_VERSION 2
+#define VK_EXT_BLEND_OPERATION_ADVANCED_EXTENSION_NAME "VK_EXT_blend_operation_advanced"
+
+
+typedef enum VkBlendOverlapEXT {
+    VK_BLEND_OVERLAP_UNCORRELATED_EXT = 0,
+    VK_BLEND_OVERLAP_DISJOINT_EXT = 1,
+    VK_BLEND_OVERLAP_CONJOINT_EXT = 2,
+    VK_BLEND_OVERLAP_BEGIN_RANGE_EXT = VK_BLEND_OVERLAP_UNCORRELATED_EXT,
+    VK_BLEND_OVERLAP_END_RANGE_EXT = VK_BLEND_OVERLAP_CONJOINT_EXT,
+    VK_BLEND_OVERLAP_RANGE_SIZE_EXT = (VK_BLEND_OVERLAP_CONJOINT_EXT - VK_BLEND_OVERLAP_UNCORRELATED_EXT + 1),
+    VK_BLEND_OVERLAP_MAX_ENUM_EXT = 0x7FFFFFFF
+} VkBlendOverlapEXT;
+
+typedef struct VkPhysicalDeviceBlendOperationAdvancedFeaturesEXT {
+    VkStructureType    sType;
+    void*              pNext;
+    VkBool32           advancedBlendCoherentOperations;
+} VkPhysicalDeviceBlendOperationAdvancedFeaturesEXT;
+
+typedef struct VkPhysicalDeviceBlendOperationAdvancedPropertiesEXT {
+    VkStructureType    sType;
+    void*              pNext;
+    uint32_t           advancedBlendMaxColorAttachments;
+    VkBool32           advancedBlendIndependentBlend;
+    VkBool32           advancedBlendNonPremultipliedSrcColor;
+    VkBool32           advancedBlendNonPremultipliedDstColor;
+    VkBool32           advancedBlendCorrelatedOverlap;
+    VkBool32           advancedBlendAllOperations;
+} VkPhysicalDeviceBlendOperationAdvancedPropertiesEXT;
+
+typedef struct VkPipelineColorBlendAdvancedStateCreateInfoEXT {
+    VkStructureType      sType;
+    const void*          pNext;
+    VkBool32             srcPremultiplied;
+    VkBool32             dstPremultiplied;
+    VkBlendOverlapEXT    blendOverlap;
+} VkPipelineColorBlendAdvancedStateCreateInfoEXT;
+
+
+VkPhysicalDeviceBlendOperationAdvancedFeaturesEXT PhysicalDeviceBlendOperationAdvancedFeaturesEXT(
+    VkBool32                                    advancedBlendCoherentOperations);
+
+
+VkPhysicalDeviceBlendOperationAdvancedPropertiesEXT PhysicalDeviceBlendOperationAdvancedPropertiesEXT(
+    uint32_t                                    advancedBlendMaxColorAttachments,
+    VkBool32                                    advancedBlendIndependentBlend,
+    VkBool32                                    advancedBlendNonPremultipliedSrcColor,
+    VkBool32                                    advancedBlendNonPremultipliedDstColor,
+    VkBool32                                    advancedBlendCorrelatedOverlap,
+    VkBool32                                    advancedBlendAllOperations);
+
+
+VkPipelineColorBlendAdvancedStateCreateInfoEXT PipelineColorBlendAdvancedStateCreateInfoEXT(
+    VkBool32                                    srcPremultiplied,
+    VkBool32                                    dstPremultiplied,
+    VkBlendOverlapEXT                           blendOverlap);
+
+
+
+#define VK_NV_fragment_coverage_to_color 1
+#define VK_NV_FRAGMENT_COVERAGE_TO_COLOR_SPEC_VERSION 1
+#define VK_NV_FRAGMENT_COVERAGE_TO_COLOR_EXTENSION_NAME "VK_NV_fragment_coverage_to_color"
+
+typedef VkFlags VkPipelineCoverageToColorStateCreateFlagsNV;
+
+typedef struct VkPipelineCoverageToColorStateCreateInfoNV {
+    VkStructureType                                sType;
+    const void*                                    pNext;
+    VkPipelineCoverageToColorStateCreateFlagsNV    flags;
+    VkBool32                                       coverageToColorEnable;
+    uint32_t                                       coverageToColorLocation;
+} VkPipelineCoverageToColorStateCreateInfoNV;
+
+
+VkPipelineCoverageToColorStateCreateInfoNV PipelineCoverageToColorStateCreateInfoNV(
+    VkPipelineCoverageToColorStateCreateFlagsNV flags,
+    VkBool32                                    coverageToColorEnable,
+    uint32_t                                    coverageToColorLocation);
+
+
+
+#define VK_NV_framebuffer_mixed_samples 1
+#define VK_NV_FRAMEBUFFER_MIXED_SAMPLES_SPEC_VERSION 1
+#define VK_NV_FRAMEBUFFER_MIXED_SAMPLES_EXTENSION_NAME "VK_NV_framebuffer_mixed_samples"
+
+
+typedef enum VkCoverageModulationModeNV {
+    VK_COVERAGE_MODULATION_MODE_NONE_NV = 0,
+    VK_COVERAGE_MODULATION_MODE_RGB_NV = 1,
+    VK_COVERAGE_MODULATION_MODE_ALPHA_NV = 2,
+    VK_COVERAGE_MODULATION_MODE_RGBA_NV = 3,
+    VK_COVERAGE_MODULATION_MODE_BEGIN_RANGE_NV = VK_COVERAGE_MODULATION_MODE_NONE_NV,
+    VK_COVERAGE_MODULATION_MODE_END_RANGE_NV = VK_COVERAGE_MODULATION_MODE_RGBA_NV,
+    VK_COVERAGE_MODULATION_MODE_RANGE_SIZE_NV = (VK_COVERAGE_MODULATION_MODE_RGBA_NV - VK_COVERAGE_MODULATION_MODE_NONE_NV + 1),
+    VK_COVERAGE_MODULATION_MODE_MAX_ENUM_NV = 0x7FFFFFFF
+} VkCoverageModulationModeNV;
+
+typedef VkFlags VkPipelineCoverageModulationStateCreateFlagsNV;
+
+typedef struct VkPipelineCoverageModulationStateCreateInfoNV {
+    VkStructureType                                   sType;
+    const void*                                       pNext;
+    VkPipelineCoverageModulationStateCreateFlagsNV    flags;
+    VkCoverageModulationModeNV                        coverageModulationMode;
+    VkBool32                                          coverageModulationTableEnable;
+    uint32_t                                          coverageModulationTableCount;
+    const float*                                      pCoverageModulationTable;
+} VkPipelineCoverageModulationStateCreateInfoNV;
+
+struct VkPipelineCoverageModulationStateCreateInfoNVRAII {
+   VkPipelineCoverageModulationStateCreateInfoNV nonRaiiObj;
+    std::vector<float>                          vecCoverageModulationTable;
+};
+
+
+std::shared_ptr<VkPipelineCoverageModulationStateCreateInfoNVRAII> PipelineCoverageModulationStateCreateInfoNV(
+    VkPipelineCoverageModulationStateCreateFlagsNV flags,
+    VkCoverageModulationModeNV                  coverageModulationMode,
+    VkBool32                                    coverageModulationTableEnable,
+    float* pCoverageModulationTable_in_array1, int pCoverageModulationTable_dim1);
+
+
+
+#define VK_NV_fill_rectangle 1
+#define VK_NV_FILL_RECTANGLE_SPEC_VERSION 1
+#define VK_NV_FILL_RECTANGLE_EXTENSION_NAME "VK_NV_fill_rectangle"
+
+
+#define VK_EXT_post_depth_coverage 1
+#define VK_EXT_POST_DEPTH_COVERAGE_SPEC_VERSION 1
+#define VK_EXT_POST_DEPTH_COVERAGE_EXTENSION_NAME "VK_EXT_post_depth_coverage"
+
 void load_vulkan_fct_ptrs(VkInstance instance);
 
 %{
@@ -7253,7 +8185,7 @@ void load_vulkan_fct_ptrs(VkInstance instance);
              "Vulkan error: VK_ERROR_VALIDATION_FAILED_EXT",
              "Vulkan error: VK_ERROR_INVALID_SHADER_NV",
              "Vulkan error: VK_ERROR_OUT_OF_POOL_MEMORY_KHR",
-             "Vulkan error: VK_ERROR_INVALID_EXTERNAL_HANDLE_KHX",
+             "Vulkan error: VK_ERROR_INVALID_EXTERNAL_HANDLE_KHR",
          };
          switch (retval) {
              case VK_SUCCESS : return vk_err_messages[0];
@@ -7282,382 +8214,424 @@ void load_vulkan_fct_ptrs(VkInstance instance);
              case VK_ERROR_VALIDATION_FAILED_EXT : return vk_err_messages[23];
              case VK_ERROR_INVALID_SHADER_NV : return vk_err_messages[24];
              case VK_ERROR_OUT_OF_POOL_MEMORY_KHR : return vk_err_messages[25];
-             case VK_ERROR_INVALID_EXTERNAL_HANDLE_KHX : return vk_err_messages[26];
+             case VK_ERROR_INVALID_EXTERNAL_HANDLE_KHR : return vk_err_messages[26];
          }
          return nullptr;
      }
 
-#ifdef VK_NV_external_memory_win32
-    PFN_vkGetMemoryWin32HandleNV pfvkGetMemoryWin32HandleNV;
-    #endif //VK_NV_external_memory_win32
-    #ifdef VK_NVX_device_generated_commands
-    PFN_vkUnregisterObjectsNVX pfvkUnregisterObjectsNVX;
-    #endif //VK_NVX_device_generated_commands
-    #ifdef VK_EXT_debug_marker
-    PFN_vkCmdDebugMarkerBeginEXT pfvkCmdDebugMarkerBeginEXT;
-    #endif //VK_EXT_debug_marker
-    #ifdef VK_EXT_acquire_xlib_display
-    PFN_vkGetRandROutputDisplayEXT pfvkGetRandROutputDisplayEXT;
-    #endif //VK_EXT_acquire_xlib_display
-    #ifdef VK_KHR_get_physical_device_properties2
-    PFN_vkGetPhysicalDeviceQueueFamilyProperties2KHR pfvkGetPhysicalDeviceQueueFamilyProperties2KHR;
-    #endif //VK_KHR_get_physical_device_properties2
-    #ifdef VK_EXT_debug_report
-    PFN_vkDebugReportMessageEXT pfvkDebugReportMessageEXT;
-    #endif //VK_EXT_debug_report
-    #ifdef VK_KHR_descriptor_update_template
-    PFN_vkCreateDescriptorUpdateTemplateKHR pfvkCreateDescriptorUpdateTemplateKHR;
-    #endif //VK_KHR_descriptor_update_template
-    #ifdef VK_EXT_direct_mode_display
-    PFN_vkReleaseDisplayEXT pfvkReleaseDisplayEXT;
-    #endif //VK_EXT_direct_mode_display
-    #ifdef VK_KHX_external_memory_capabilities
-    PFN_vkGetPhysicalDeviceExternalBufferPropertiesKHX pfvkGetPhysicalDeviceExternalBufferPropertiesKHX;
-    #endif //VK_KHX_external_memory_capabilities
-    #ifdef VK_NVX_device_generated_commands
-    PFN_vkDestroyIndirectCommandsLayoutNVX pfvkDestroyIndirectCommandsLayoutNVX;
-    #endif //VK_NVX_device_generated_commands
-    #ifdef VK_KHX_external_memory_fd
-    PFN_vkGetMemoryFdPropertiesKHX pfvkGetMemoryFdPropertiesKHX;
-    #endif //VK_KHX_external_memory_fd
-    #ifdef VK_NV_external_memory_capabilities
-    PFN_vkGetPhysicalDeviceExternalImageFormatPropertiesNV pfvkGetPhysicalDeviceExternalImageFormatPropertiesNV;
-    #endif //VK_NV_external_memory_capabilities
-    #ifdef VK_EXT_display_control
-    PFN_vkGetSwapchainCounterEXT pfvkGetSwapchainCounterEXT;
-    #endif //VK_EXT_display_control
-    #ifdef VK_EXT_debug_report
-    PFN_vkDestroyDebugReportCallbackEXT pfvkDestroyDebugReportCallbackEXT;
-    #endif //VK_EXT_debug_report
-    #ifdef VK_MVK_macos_surface
-    PFN_vkCreateMacOSSurfaceMVK pfvkCreateMacOSSurfaceMVK;
-    #endif //VK_MVK_macos_surface
-    #ifdef VK_KHX_external_memory_win32
-    PFN_vkGetMemoryWin32HandleKHX pfvkGetMemoryWin32HandleKHX;
-    #endif //VK_KHX_external_memory_win32
-    #ifdef VK_KHX_external_semaphore_fd
-    PFN_vkImportSemaphoreFdKHX pfvkImportSemaphoreFdKHX;
-    #endif //VK_KHX_external_semaphore_fd
-    #ifdef VK_KHR_get_physical_device_properties2
-    PFN_vkGetPhysicalDeviceImageFormatProperties2KHR pfvkGetPhysicalDeviceImageFormatProperties2KHR;
-    #endif //VK_KHR_get_physical_device_properties2
-    #ifdef VK_NVX_device_generated_commands
-    PFN_vkCreateIndirectCommandsLayoutNVX pfvkCreateIndirectCommandsLayoutNVX;
-    #endif //VK_NVX_device_generated_commands
-    #ifdef VK_KHR_display
-    PFN_vkGetDisplayModePropertiesKHR pfvkGetDisplayModePropertiesKHR;
-    #endif //VK_KHR_display
-    #ifdef VK_EXT_display_control
-    PFN_vkDisplayPowerControlEXT pfvkDisplayPowerControlEXT;
-    #endif //VK_EXT_display_control
-    #ifdef VK_KHR_get_physical_device_properties2
-    PFN_vkGetPhysicalDeviceFormatProperties2KHR pfvkGetPhysicalDeviceFormatProperties2KHR;
-    #endif //VK_KHR_get_physical_device_properties2
-    #ifdef VK_KHR_display_swapchain
-    PFN_vkCreateSharedSwapchainsKHR pfvkCreateSharedSwapchainsKHR;
-    #endif //VK_KHR_display_swapchain
-    #ifdef VK_KHX_device_group
-    PFN_vkGetPhysicalDevicePresentRectanglesKHX pfvkGetPhysicalDevicePresentRectanglesKHX;
-    #endif //VK_KHX_device_group
-    #ifdef VK_KHR_display
-    PFN_vkCreateDisplayModeKHR pfvkCreateDisplayModeKHR;
+#ifdef VK_KHR_display
+    PFN_vkGetPhysicalDeviceDisplayPropertiesKHR pfvkGetPhysicalDeviceDisplayPropertiesKHR;
     #endif //VK_KHR_display
     #ifdef VK_KHR_display
     PFN_vkGetPhysicalDeviceDisplayPlanePropertiesKHR pfvkGetPhysicalDeviceDisplayPlanePropertiesKHR;
     #endif //VK_KHR_display
     #ifdef VK_KHR_display
-    PFN_vkGetPhysicalDeviceDisplayPropertiesKHR pfvkGetPhysicalDeviceDisplayPropertiesKHR;
+    PFN_vkGetDisplayPlaneSupportedDisplaysKHR pfvkGetDisplayPlaneSupportedDisplaysKHR;
     #endif //VK_KHR_display
-    #ifdef VK_AMD_draw_indirect_count
-    PFN_vkCmdDrawIndirectCountAMD pfvkCmdDrawIndirectCountAMD;
-    #endif //VK_AMD_draw_indirect_count
-    #ifdef VK_KHX_device_group
-    PFN_vkGetDeviceGroupSurfacePresentModesKHX pfvkGetDeviceGroupSurfacePresentModesKHX;
-    #endif //VK_KHX_device_group
-    #ifdef VK_AMD_draw_indirect_count
-    PFN_vkCmdDrawIndexedIndirectCountAMD pfvkCmdDrawIndexedIndirectCountAMD;
-    #endif //VK_AMD_draw_indirect_count
-    #ifdef VK_NVX_device_generated_commands
-    PFN_vkDestroyObjectTableNVX pfvkDestroyObjectTableNVX;
-    #endif //VK_NVX_device_generated_commands
-    #ifdef VK_EXT_debug_marker
-    PFN_vkCmdDebugMarkerEndEXT pfvkCmdDebugMarkerEndEXT;
-    #endif //VK_EXT_debug_marker
+    #ifdef VK_KHR_display
+    PFN_vkGetDisplayModePropertiesKHR pfvkGetDisplayModePropertiesKHR;
+    #endif //VK_KHR_display
+    #ifdef VK_KHR_display
+    PFN_vkCreateDisplayModeKHR pfvkCreateDisplayModeKHR;
+    #endif //VK_KHR_display
+    #ifdef VK_KHR_display
+    PFN_vkGetDisplayPlaneCapabilitiesKHR pfvkGetDisplayPlaneCapabilitiesKHR;
+    #endif //VK_KHR_display
+    #ifdef VK_KHR_display
+    PFN_vkCreateDisplayPlaneSurfaceKHR pfvkCreateDisplayPlaneSurfaceKHR;
+    #endif //VK_KHR_display
+    #ifdef VK_KHR_display
+    PFN_vkDestroySurfaceKHR pfvkDestroySurfaceKHR;
+    #endif //VK_KHR_display
+    #ifdef VK_KHR_display_swapchain
+    PFN_vkCreateSharedSwapchainsKHR pfvkCreateSharedSwapchainsKHR;
+    #endif //VK_KHR_display_swapchain
+    #ifdef VK_KHR_get_physical_device_properties2
+    PFN_vkGetPhysicalDeviceFeatures2KHR pfvkGetPhysicalDeviceFeatures2KHR;
+    #endif //VK_KHR_get_physical_device_properties2
+    #ifdef VK_KHR_get_physical_device_properties2
+    PFN_vkGetPhysicalDeviceProperties2KHR pfvkGetPhysicalDeviceProperties2KHR;
+    #endif //VK_KHR_get_physical_device_properties2
+    #ifdef VK_KHR_get_physical_device_properties2
+    PFN_vkGetPhysicalDeviceFormatProperties2KHR pfvkGetPhysicalDeviceFormatProperties2KHR;
+    #endif //VK_KHR_get_physical_device_properties2
+    #ifdef VK_KHR_get_physical_device_properties2
+    PFN_vkGetPhysicalDeviceImageFormatProperties2KHR pfvkGetPhysicalDeviceImageFormatProperties2KHR;
+    #endif //VK_KHR_get_physical_device_properties2
+    #ifdef VK_KHR_get_physical_device_properties2
+    PFN_vkGetPhysicalDeviceQueueFamilyProperties2KHR pfvkGetPhysicalDeviceQueueFamilyProperties2KHR;
+    #endif //VK_KHR_get_physical_device_properties2
+    #ifdef VK_KHR_get_physical_device_properties2
+    PFN_vkGetPhysicalDeviceMemoryProperties2KHR pfvkGetPhysicalDeviceMemoryProperties2KHR;
+    #endif //VK_KHR_get_physical_device_properties2
+    #ifdef VK_KHR_get_physical_device_properties2
+    PFN_vkGetPhysicalDeviceSparseImageFormatProperties2KHR pfvkGetPhysicalDeviceSparseImageFormatProperties2KHR;
+    #endif //VK_KHR_get_physical_device_properties2
+    #ifdef VK_KHR_maintenance1
+    PFN_vkTrimCommandPoolKHR pfvkTrimCommandPoolKHR;
+    #endif //VK_KHR_maintenance1
+    #ifdef VK_KHR_external_memory_capabilities
+    PFN_vkGetPhysicalDeviceExternalBufferPropertiesKHR pfvkGetPhysicalDeviceExternalBufferPropertiesKHR;
+    #endif //VK_KHR_external_memory_capabilities
+    #ifdef VK_KHR_external_memory_win32
+    PFN_vkGetMemoryWin32HandleKHR pfvkGetMemoryWin32HandleKHR;
+    #endif //VK_KHR_external_memory_win32
+    #ifdef VK_KHR_external_memory_win32
+    PFN_vkGetMemoryWin32HandlePropertiesKHR pfvkGetMemoryWin32HandlePropertiesKHR;
+    #endif //VK_KHR_external_memory_win32
+    #ifdef VK_KHR_external_memory_fd
+    PFN_vkGetMemoryFdKHR pfvkGetMemoryFdKHR;
+    #endif //VK_KHR_external_memory_fd
+    #ifdef VK_KHR_external_memory_fd
+    PFN_vkGetMemoryFdPropertiesKHR pfvkGetMemoryFdPropertiesKHR;
+    #endif //VK_KHR_external_memory_fd
+    #ifdef VK_KHR_external_semaphore_capabilities
+    PFN_vkGetPhysicalDeviceExternalSemaphorePropertiesKHR pfvkGetPhysicalDeviceExternalSemaphorePropertiesKHR;
+    #endif //VK_KHR_external_semaphore_capabilities
+    #ifdef VK_KHR_external_semaphore_win32
+    PFN_vkImportSemaphoreWin32HandleKHR pfvkImportSemaphoreWin32HandleKHR;
+    #endif //VK_KHR_external_semaphore_win32
+    #ifdef VK_KHR_external_semaphore_win32
+    PFN_vkGetSemaphoreWin32HandleKHR pfvkGetSemaphoreWin32HandleKHR;
+    #endif //VK_KHR_external_semaphore_win32
+    #ifdef VK_KHR_external_semaphore_fd
+    PFN_vkImportSemaphoreFdKHR pfvkImportSemaphoreFdKHR;
+    #endif //VK_KHR_external_semaphore_fd
+    #ifdef VK_KHR_external_semaphore_fd
+    PFN_vkGetSemaphoreFdKHR pfvkGetSemaphoreFdKHR;
+    #endif //VK_KHR_external_semaphore_fd
+    #ifdef VK_KHR_push_descriptor
+    PFN_vkCmdPushDescriptorSetKHR pfvkCmdPushDescriptorSetKHR;
+    #endif //VK_KHR_push_descriptor
     #ifdef VK_KHR_descriptor_update_template
-    PFN_vkCmdPushDescriptorSetWithTemplateKHR pfvkCmdPushDescriptorSetWithTemplateKHR;
+    PFN_vkCreateDescriptorUpdateTemplateKHR pfvkCreateDescriptorUpdateTemplateKHR;
     #endif //VK_KHR_descriptor_update_template
-    #ifdef VK_KHX_device_group
-    PFN_vkGetDeviceGroupPresentCapabilitiesKHX pfvkGetDeviceGroupPresentCapabilitiesKHX;
-    #endif //VK_KHX_device_group
-    #ifdef VK_KHX_device_group
-    PFN_vkCmdDispatchBaseKHX pfvkCmdDispatchBaseKHX;
-    #endif //VK_KHX_device_group
-    #ifdef VK_KHX_external_semaphore_win32
-    PFN_vkGetSemaphoreWin32HandleKHX pfvkGetSemaphoreWin32HandleKHX;
-    #endif //VK_KHX_external_semaphore_win32
-    #ifdef VK_NN_vi_surface
-    PFN_vkCreateViSurfaceNN pfvkCreateViSurfaceNN;
-    #endif //VK_NN_vi_surface
-    #ifdef VK_KHX_device_group_creation
-    PFN_vkEnumeratePhysicalDeviceGroupsKHX pfvkEnumeratePhysicalDeviceGroupsKHX;
-    #endif //VK_KHX_device_group_creation
-    #ifdef VK_KHX_external_memory_capabilities
-    PFN_vkGetPhysicalDeviceImageFormatProperties2KHX pfvkGetPhysicalDeviceImageFormatProperties2KHX;
-    #endif //VK_KHX_external_memory_capabilities
-    #ifdef VK_KHX_device_group
-    PFN_vkCmdSetDeviceMaskKHX pfvkCmdSetDeviceMaskKHX;
-    #endif //VK_KHX_device_group
-    #ifdef VK_KHX_external_semaphore_win32
-    PFN_vkImportSemaphoreWin32HandleKHX pfvkImportSemaphoreWin32HandleKHX;
-    #endif //VK_KHX_external_semaphore_win32
     #ifdef VK_KHR_descriptor_update_template
     PFN_vkDestroyDescriptorUpdateTemplateKHR pfvkDestroyDescriptorUpdateTemplateKHR;
     #endif //VK_KHR_descriptor_update_template
-    #ifdef VK_EXT_discard_rectangles
-    PFN_vkCmdSetDiscardRectangleEXT pfvkCmdSetDiscardRectangleEXT;
-    #endif //VK_EXT_discard_rectangles
-    #ifdef VK_EXT_display_control
-    PFN_vkDestroyFence pfvkDestroyFence;
-    #endif //VK_EXT_display_control
+    #ifdef VK_KHR_descriptor_update_template
+    PFN_vkUpdateDescriptorSetWithTemplateKHR pfvkUpdateDescriptorSetWithTemplateKHR;
+    #endif //VK_KHR_descriptor_update_template
+    #ifdef VK_KHR_descriptor_update_template
+    PFN_vkCmdPushDescriptorSetWithTemplateKHR pfvkCmdPushDescriptorSetWithTemplateKHR;
+    #endif //VK_KHR_descriptor_update_template
+    #ifdef VK_KHR_shared_presentable_image
+    PFN_vkGetSwapchainStatusKHR pfvkGetSwapchainStatusKHR;
+    #endif //VK_KHR_shared_presentable_image
+    #ifdef VK_KHR_external_fence_capabilities
+    PFN_vkGetPhysicalDeviceExternalFencePropertiesKHR pfvkGetPhysicalDeviceExternalFencePropertiesKHR;
+    #endif //VK_KHR_external_fence_capabilities
+    #ifdef VK_KHR_external_fence_win32
+    PFN_vkImportFenceWin32HandleKHR pfvkImportFenceWin32HandleKHR;
+    #endif //VK_KHR_external_fence_win32
+    #ifdef VK_KHR_external_fence_win32
+    PFN_vkGetFenceWin32HandleKHR pfvkGetFenceWin32HandleKHR;
+    #endif //VK_KHR_external_fence_win32
+    #ifdef VK_KHR_external_fence_fd
+    PFN_vkImportFenceFdKHR pfvkImportFenceFdKHR;
+    #endif //VK_KHR_external_fence_fd
+    #ifdef VK_KHR_external_fence_fd
+    PFN_vkGetFenceFdKHR pfvkGetFenceFdKHR;
+    #endif //VK_KHR_external_fence_fd
+    #ifdef VK_KHR_get_surface_capabilities2
+    PFN_vkGetPhysicalDeviceSurfaceCapabilities2KHR pfvkGetPhysicalDeviceSurfaceCapabilities2KHR;
+    #endif //VK_KHR_get_surface_capabilities2
+    #ifdef VK_KHR_get_surface_capabilities2
+    PFN_vkGetPhysicalDeviceSurfaceFormats2KHR pfvkGetPhysicalDeviceSurfaceFormats2KHR;
+    #endif //VK_KHR_get_surface_capabilities2
+    #ifdef VK_KHR_get_memory_requirements2
+    PFN_vkGetImageMemoryRequirements2KHR pfvkGetImageMemoryRequirements2KHR;
+    #endif //VK_KHR_get_memory_requirements2
+    #ifdef VK_KHR_get_memory_requirements2
+    PFN_vkGetBufferMemoryRequirements2KHR pfvkGetBufferMemoryRequirements2KHR;
+    #endif //VK_KHR_get_memory_requirements2
+    #ifdef VK_KHR_get_memory_requirements2
+    PFN_vkGetImageSparseMemoryRequirements2KHR pfvkGetImageSparseMemoryRequirements2KHR;
+    #endif //VK_KHR_get_memory_requirements2
+    #ifdef VK_EXT_debug_report
+    PFN_vkCreateDebugReportCallbackEXT pfvkCreateDebugReportCallbackEXT;
+    #endif //VK_EXT_debug_report
+    #ifdef VK_EXT_debug_report
+    PFN_vkDestroyDebugReportCallbackEXT pfvkDestroyDebugReportCallbackEXT;
+    #endif //VK_EXT_debug_report
+    #ifdef VK_EXT_debug_report
+    PFN_vkDebugReportMessageEXT pfvkDebugReportMessageEXT;
+    #endif //VK_EXT_debug_report
     #ifdef VK_EXT_debug_marker
     PFN_vkDebugMarkerSetObjectTagEXT pfvkDebugMarkerSetObjectTagEXT;
     #endif //VK_EXT_debug_marker
     #ifdef VK_EXT_debug_marker
     PFN_vkDebugMarkerSetObjectNameEXT pfvkDebugMarkerSetObjectNameEXT;
     #endif //VK_EXT_debug_marker
-    #ifdef VK_KHR_display
-    PFN_vkGetDisplayPlaneCapabilitiesKHR pfvkGetDisplayPlaneCapabilitiesKHR;
-    #endif //VK_KHR_display
-    #ifdef VK_NVX_device_generated_commands
-    PFN_vkGetPhysicalDeviceGeneratedCommandsPropertiesNVX pfvkGetPhysicalDeviceGeneratedCommandsPropertiesNVX;
-    #endif //VK_NVX_device_generated_commands
-    #ifdef VK_EXT_display_control
-    PFN_vkRegisterDisplayEventEXT pfvkRegisterDisplayEventEXT;
-    #endif //VK_EXT_display_control
-    #ifdef VK_NVX_device_generated_commands
-    PFN_vkRegisterObjectsNVX pfvkRegisterObjectsNVX;
-    #endif //VK_NVX_device_generated_commands
-    #ifdef VK_KHR_push_descriptor
-    PFN_vkCmdPushDescriptorSetKHR pfvkCmdPushDescriptorSetKHR;
-    #endif //VK_KHR_push_descriptor
-    #ifdef VK_KHR_descriptor_update_template
-    PFN_vkUpdateDescriptorSetWithTemplateKHR pfvkUpdateDescriptorSetWithTemplateKHR;
-    #endif //VK_KHR_descriptor_update_template
-    #ifdef VK_KHR_maintenance1
-    PFN_vkTrimCommandPoolKHR pfvkTrimCommandPoolKHR;
-    #endif //VK_KHR_maintenance1
-    #ifdef VK_KHR_get_physical_device_properties2
-    PFN_vkGetPhysicalDeviceSparseImageFormatProperties2KHR pfvkGetPhysicalDeviceSparseImageFormatProperties2KHR;
-    #endif //VK_KHR_get_physical_device_properties2
-    #ifdef VK_KHX_external_semaphore_capabilities
-    PFN_vkGetPhysicalDeviceExternalSemaphorePropertiesKHX pfvkGetPhysicalDeviceExternalSemaphorePropertiesKHX;
-    #endif //VK_KHX_external_semaphore_capabilities
-    #ifdef VK_EXT_debug_report
-    PFN_vkCreateDebugReportCallbackEXT pfvkCreateDebugReportCallbackEXT;
-    #endif //VK_EXT_debug_report
-    #ifdef VK_KHX_external_memory_fd
-    PFN_vkGetMemoryFdKHX pfvkGetMemoryFdKHX;
-    #endif //VK_KHX_external_memory_fd
-    #ifdef VK_NVX_device_generated_commands
-    PFN_vkCmdReserveSpaceForCommandsNVX pfvkCmdReserveSpaceForCommandsNVX;
-    #endif //VK_NVX_device_generated_commands
-    #ifdef VK_KHR_display
-    PFN_vkCreateDisplayPlaneSurfaceKHR pfvkCreateDisplayPlaneSurfaceKHR;
-    #endif //VK_KHR_display
-    #ifdef VK_KHR_get_physical_device_properties2
-    PFN_vkGetPhysicalDeviceMemoryProperties2KHR pfvkGetPhysicalDeviceMemoryProperties2KHR;
-    #endif //VK_KHR_get_physical_device_properties2
-    #ifdef VK_MVK_ios_surface
-    PFN_vkCreateIOSSurfaceMVK pfvkCreateIOSSurfaceMVK;
-    #endif //VK_MVK_ios_surface
-    #ifdef VK_KHX_device_group
-    PFN_vkGetDeviceGroupPeerMemoryFeaturesKHX pfvkGetDeviceGroupPeerMemoryFeaturesKHX;
-    #endif //VK_KHX_device_group
-    #ifdef VK_KHX_external_semaphore_fd
-    PFN_vkGetSemaphoreFdKHX pfvkGetSemaphoreFdKHX;
-    #endif //VK_KHX_external_semaphore_fd
-    #ifdef VK_KHR_get_physical_device_properties2
-    PFN_vkGetPhysicalDeviceProperties2KHR pfvkGetPhysicalDeviceProperties2KHR;
-    #endif //VK_KHR_get_physical_device_properties2
-    #ifdef VK_KHR_get_physical_device_properties2
-    PFN_vkGetPhysicalDeviceFeatures2KHR pfvkGetPhysicalDeviceFeatures2KHR;
-    #endif //VK_KHR_get_physical_device_properties2
-    #ifdef VK_EXT_display_surface_counter
-    PFN_vkGetPhysicalDeviceSurfaceCapabilities2EXT pfvkGetPhysicalDeviceSurfaceCapabilities2EXT;
-    #endif //VK_EXT_display_surface_counter
-    #ifdef VK_KHX_device_group
-    PFN_vkBindImageMemory2KHX pfvkBindImageMemory2KHX;
-    #endif //VK_KHX_device_group
-    #ifdef VK_NVX_device_generated_commands
-    PFN_vkCmdProcessCommandsNVX pfvkCmdProcessCommandsNVX;
-    #endif //VK_NVX_device_generated_commands
-    #ifdef VK_KHR_display
-    PFN_vkDestroySurfaceKHR pfvkDestroySurfaceKHR;
-    #endif //VK_KHR_display
-    #ifdef VK_NVX_device_generated_commands
-    PFN_vkCreateObjectTableNVX pfvkCreateObjectTableNVX;
-    #endif //VK_NVX_device_generated_commands
-    #ifdef VK_KHX_external_memory_win32
-    PFN_vkGetMemoryWin32HandlePropertiesKHX pfvkGetMemoryWin32HandlePropertiesKHX;
-    #endif //VK_KHX_external_memory_win32
-    #ifdef VK_EXT_acquire_xlib_display
-    PFN_vkAcquireXlibDisplayEXT pfvkAcquireXlibDisplayEXT;
-    #endif //VK_EXT_acquire_xlib_display
-    #ifdef VK_KHX_device_group
-    PFN_vkAcquireNextImage2KHX pfvkAcquireNextImage2KHX;
-    #endif //VK_KHX_device_group
-    #ifdef VK_KHR_display
-    PFN_vkGetDisplayPlaneSupportedDisplaysKHR pfvkGetDisplayPlaneSupportedDisplaysKHR;
-    #endif //VK_KHR_display
-    #ifdef VK_KHX_external_memory_capabilities
-    PFN_vkGetPhysicalDeviceProperties2KHX pfvkGetPhysicalDeviceProperties2KHX;
-    #endif //VK_KHX_external_memory_capabilities
-    #ifdef VK_EXT_display_control
-    PFN_vkRegisterDeviceEventEXT pfvkRegisterDeviceEventEXT;
-    #endif //VK_EXT_display_control
-    #ifdef VK_NV_clip_space_w_scaling
-    PFN_vkCmdSetViewportWScalingNV pfvkCmdSetViewportWScalingNV;
-    #endif //VK_NV_clip_space_w_scaling
-    #ifdef VK_KHX_device_group
-    PFN_vkBindBufferMemory2KHX pfvkBindBufferMemory2KHX;
-    #endif //VK_KHX_device_group
+    #ifdef VK_EXT_debug_marker
+    PFN_vkCmdDebugMarkerBeginEXT pfvkCmdDebugMarkerBeginEXT;
+    #endif //VK_EXT_debug_marker
+    #ifdef VK_EXT_debug_marker
+    PFN_vkCmdDebugMarkerEndEXT pfvkCmdDebugMarkerEndEXT;
+    #endif //VK_EXT_debug_marker
     #ifdef VK_EXT_debug_marker
     PFN_vkCmdDebugMarkerInsertEXT pfvkCmdDebugMarkerInsertEXT;
     #endif //VK_EXT_debug_marker
+    #ifdef VK_AMD_draw_indirect_count
+    PFN_vkCmdDrawIndirectCountAMD pfvkCmdDrawIndirectCountAMD;
+    #endif //VK_AMD_draw_indirect_count
+    #ifdef VK_AMD_draw_indirect_count
+    PFN_vkCmdDrawIndexedIndirectCountAMD pfvkCmdDrawIndexedIndirectCountAMD;
+    #endif //VK_AMD_draw_indirect_count
+    #ifdef VK_NV_external_memory_capabilities
+    PFN_vkGetPhysicalDeviceExternalImageFormatPropertiesNV pfvkGetPhysicalDeviceExternalImageFormatPropertiesNV;
+    #endif //VK_NV_external_memory_capabilities
+    #ifdef VK_NV_external_memory_win32
+    PFN_vkGetMemoryWin32HandleNV pfvkGetMemoryWin32HandleNV;
+    #endif //VK_NV_external_memory_win32
+    #ifdef VK_KHX_device_group
+    PFN_vkGetDeviceGroupPeerMemoryFeaturesKHX pfvkGetDeviceGroupPeerMemoryFeaturesKHX;
+    #endif //VK_KHX_device_group
+    #ifdef VK_KHX_device_group
+    PFN_vkBindBufferMemory2KHX pfvkBindBufferMemory2KHX;
+    #endif //VK_KHX_device_group
+    #ifdef VK_KHX_device_group
+    PFN_vkBindImageMemory2KHX pfvkBindImageMemory2KHX;
+    #endif //VK_KHX_device_group
+    #ifdef VK_KHX_device_group
+    PFN_vkCmdSetDeviceMaskKHX pfvkCmdSetDeviceMaskKHX;
+    #endif //VK_KHX_device_group
+    #ifdef VK_KHX_device_group
+    PFN_vkGetDeviceGroupPresentCapabilitiesKHX pfvkGetDeviceGroupPresentCapabilitiesKHX;
+    #endif //VK_KHX_device_group
+    #ifdef VK_KHX_device_group
+    PFN_vkGetDeviceGroupSurfacePresentModesKHX pfvkGetDeviceGroupSurfacePresentModesKHX;
+    #endif //VK_KHX_device_group
+    #ifdef VK_KHX_device_group
+    PFN_vkAcquireNextImage2KHX pfvkAcquireNextImage2KHX;
+    #endif //VK_KHX_device_group
+    #ifdef VK_KHX_device_group
+    PFN_vkCmdDispatchBaseKHX pfvkCmdDispatchBaseKHX;
+    #endif //VK_KHX_device_group
+    #ifdef VK_KHX_device_group
+    PFN_vkGetPhysicalDevicePresentRectanglesKHX pfvkGetPhysicalDevicePresentRectanglesKHX;
+    #endif //VK_KHX_device_group
+    #ifdef VK_NN_vi_surface
+    PFN_vkCreateViSurfaceNN pfvkCreateViSurfaceNN;
+    #endif //VK_NN_vi_surface
+    #ifdef VK_KHX_device_group_creation
+    PFN_vkEnumeratePhysicalDeviceGroupsKHX pfvkEnumeratePhysicalDeviceGroupsKHX;
+    #endif //VK_KHX_device_group_creation
+    #ifdef VK_NVX_device_generated_commands
+    PFN_vkCmdProcessCommandsNVX pfvkCmdProcessCommandsNVX;
+    #endif //VK_NVX_device_generated_commands
+    #ifdef VK_NVX_device_generated_commands
+    PFN_vkCmdReserveSpaceForCommandsNVX pfvkCmdReserveSpaceForCommandsNVX;
+    #endif //VK_NVX_device_generated_commands
+    #ifdef VK_NVX_device_generated_commands
+    PFN_vkCreateIndirectCommandsLayoutNVX pfvkCreateIndirectCommandsLayoutNVX;
+    #endif //VK_NVX_device_generated_commands
+    #ifdef VK_NVX_device_generated_commands
+    PFN_vkDestroyIndirectCommandsLayoutNVX pfvkDestroyIndirectCommandsLayoutNVX;
+    #endif //VK_NVX_device_generated_commands
+    #ifdef VK_NVX_device_generated_commands
+    PFN_vkCreateObjectTableNVX pfvkCreateObjectTableNVX;
+    #endif //VK_NVX_device_generated_commands
+    #ifdef VK_NVX_device_generated_commands
+    PFN_vkDestroyObjectTableNVX pfvkDestroyObjectTableNVX;
+    #endif //VK_NVX_device_generated_commands
+    #ifdef VK_NVX_device_generated_commands
+    PFN_vkRegisterObjectsNVX pfvkRegisterObjectsNVX;
+    #endif //VK_NVX_device_generated_commands
+    #ifdef VK_NVX_device_generated_commands
+    PFN_vkUnregisterObjectsNVX pfvkUnregisterObjectsNVX;
+    #endif //VK_NVX_device_generated_commands
+    #ifdef VK_NVX_device_generated_commands
+    PFN_vkGetPhysicalDeviceGeneratedCommandsPropertiesNVX pfvkGetPhysicalDeviceGeneratedCommandsPropertiesNVX;
+    #endif //VK_NVX_device_generated_commands
+    #ifdef VK_NV_clip_space_w_scaling
+    PFN_vkCmdSetViewportWScalingNV pfvkCmdSetViewportWScalingNV;
+    #endif //VK_NV_clip_space_w_scaling
+    #ifdef VK_EXT_direct_mode_display
+    PFN_vkReleaseDisplayEXT pfvkReleaseDisplayEXT;
+    #endif //VK_EXT_direct_mode_display
+    #ifdef VK_EXT_acquire_xlib_display
+    PFN_vkAcquireXlibDisplayEXT pfvkAcquireXlibDisplayEXT;
+    #endif //VK_EXT_acquire_xlib_display
+    #ifdef VK_EXT_acquire_xlib_display
+    PFN_vkGetRandROutputDisplayEXT pfvkGetRandROutputDisplayEXT;
+    #endif //VK_EXT_acquire_xlib_display
+    #ifdef VK_EXT_display_surface_counter
+    PFN_vkGetPhysicalDeviceSurfaceCapabilities2EXT pfvkGetPhysicalDeviceSurfaceCapabilities2EXT;
+    #endif //VK_EXT_display_surface_counter
+    #ifdef VK_EXT_display_control
+    PFN_vkDisplayPowerControlEXT pfvkDisplayPowerControlEXT;
+    #endif //VK_EXT_display_control
+    #ifdef VK_EXT_display_control
+    PFN_vkRegisterDeviceEventEXT pfvkRegisterDeviceEventEXT;
+    #endif //VK_EXT_display_control
+    #ifdef VK_EXT_display_control
+    PFN_vkDestroyFence pfvkDestroyFence;
+    #endif //VK_EXT_display_control
+    #ifdef VK_EXT_display_control
+    PFN_vkRegisterDisplayEventEXT pfvkRegisterDisplayEventEXT;
+    #endif //VK_EXT_display_control
+    #ifdef VK_EXT_display_control
+    PFN_vkGetSwapchainCounterEXT pfvkGetSwapchainCounterEXT;
+    #endif //VK_EXT_display_control
+    #ifdef VK_GOOGLE_display_timing
+    PFN_vkGetRefreshCycleDurationGOOGLE pfvkGetRefreshCycleDurationGOOGLE;
+    #endif //VK_GOOGLE_display_timing
+    #ifdef VK_GOOGLE_display_timing
+    PFN_vkGetPastPresentationTimingGOOGLE pfvkGetPastPresentationTimingGOOGLE;
+    #endif //VK_GOOGLE_display_timing
+    #ifdef VK_EXT_discard_rectangles
+    PFN_vkCmdSetDiscardRectangleEXT pfvkCmdSetDiscardRectangleEXT;
+    #endif //VK_EXT_discard_rectangles
+    #ifdef VK_EXT_hdr_metadata
+    PFN_vkSetHdrMetadataEXT pfvkSetHdrMetadataEXT;
+    #endif //VK_EXT_hdr_metadata
+    #ifdef VK_MVK_ios_surface
+    PFN_vkCreateIOSSurfaceMVK pfvkCreateIOSSurfaceMVK;
+    #endif //VK_MVK_ios_surface
+    #ifdef VK_MVK_macos_surface
+    PFN_vkCreateMacOSSurfaceMVK pfvkCreateMacOSSurfaceMVK;
+    #endif //VK_MVK_macos_surface
 
     void load_vulkan_fct_ptrs(VkInstance instance)
     {
-#ifdef VK_NV_external_memory_win32
-	    pfvkGetMemoryWin32HandleNV = reinterpret_cast<PFN_vkGetMemoryWin32HandleNV>(vkGetInstanceProcAddr(instance, "vkGetMemoryWin32HandleNV"));
-#endif
-#ifdef VK_NVX_device_generated_commands
-	    pfvkUnregisterObjectsNVX = reinterpret_cast<PFN_vkUnregisterObjectsNVX>(vkGetInstanceProcAddr(instance, "vkUnregisterObjectsNVX"));
-#endif
-#ifdef VK_EXT_debug_marker
-	    pfvkCmdDebugMarkerBeginEXT = reinterpret_cast<PFN_vkCmdDebugMarkerBeginEXT>(vkGetInstanceProcAddr(instance, "vkCmdDebugMarkerBeginEXT"));
-#endif
-#ifdef VK_EXT_acquire_xlib_display
-	    pfvkGetRandROutputDisplayEXT = reinterpret_cast<PFN_vkGetRandROutputDisplayEXT>(vkGetInstanceProcAddr(instance, "vkGetRandROutputDisplayEXT"));
-#endif
-#ifdef VK_KHR_get_physical_device_properties2
-	    pfvkGetPhysicalDeviceQueueFamilyProperties2KHR = reinterpret_cast<PFN_vkGetPhysicalDeviceQueueFamilyProperties2KHR>(vkGetInstanceProcAddr(instance, "vkGetPhysicalDeviceQueueFamilyProperties2KHR"));
-#endif
-#ifdef VK_EXT_debug_report
-	    pfvkDebugReportMessageEXT = reinterpret_cast<PFN_vkDebugReportMessageEXT>(vkGetInstanceProcAddr(instance, "vkDebugReportMessageEXT"));
-#endif
-#ifdef VK_KHR_descriptor_update_template
-	    pfvkCreateDescriptorUpdateTemplateKHR = reinterpret_cast<PFN_vkCreateDescriptorUpdateTemplateKHR>(vkGetInstanceProcAddr(instance, "vkCreateDescriptorUpdateTemplateKHR"));
-#endif
-#ifdef VK_EXT_direct_mode_display
-	    pfvkReleaseDisplayEXT = reinterpret_cast<PFN_vkReleaseDisplayEXT>(vkGetInstanceProcAddr(instance, "vkReleaseDisplayEXT"));
-#endif
-#ifdef VK_KHX_external_memory_capabilities
-	    pfvkGetPhysicalDeviceExternalBufferPropertiesKHX = reinterpret_cast<PFN_vkGetPhysicalDeviceExternalBufferPropertiesKHX>(vkGetInstanceProcAddr(instance, "vkGetPhysicalDeviceExternalBufferPropertiesKHX"));
-#endif
-#ifdef VK_NVX_device_generated_commands
-	    pfvkDestroyIndirectCommandsLayoutNVX = reinterpret_cast<PFN_vkDestroyIndirectCommandsLayoutNVX>(vkGetInstanceProcAddr(instance, "vkDestroyIndirectCommandsLayoutNVX"));
-#endif
-#ifdef VK_KHX_external_memory_fd
-	    pfvkGetMemoryFdPropertiesKHX = reinterpret_cast<PFN_vkGetMemoryFdPropertiesKHX>(vkGetInstanceProcAddr(instance, "vkGetMemoryFdPropertiesKHX"));
-#endif
-#ifdef VK_NV_external_memory_capabilities
-	    pfvkGetPhysicalDeviceExternalImageFormatPropertiesNV = reinterpret_cast<PFN_vkGetPhysicalDeviceExternalImageFormatPropertiesNV>(vkGetInstanceProcAddr(instance, "vkGetPhysicalDeviceExternalImageFormatPropertiesNV"));
-#endif
-#ifdef VK_EXT_display_control
-	    pfvkGetSwapchainCounterEXT = reinterpret_cast<PFN_vkGetSwapchainCounterEXT>(vkGetInstanceProcAddr(instance, "vkGetSwapchainCounterEXT"));
-#endif
-#ifdef VK_EXT_debug_report
-	    pfvkDestroyDebugReportCallbackEXT = reinterpret_cast<PFN_vkDestroyDebugReportCallbackEXT>(vkGetInstanceProcAddr(instance, "vkDestroyDebugReportCallbackEXT"));
-#endif
-#ifdef VK_MVK_macos_surface
-	    pfvkCreateMacOSSurfaceMVK = reinterpret_cast<PFN_vkCreateMacOSSurfaceMVK>(vkGetInstanceProcAddr(instance, "vkCreateMacOSSurfaceMVK"));
-#endif
-#ifdef VK_KHX_external_memory_win32
-	    pfvkGetMemoryWin32HandleKHX = reinterpret_cast<PFN_vkGetMemoryWin32HandleKHX>(vkGetInstanceProcAddr(instance, "vkGetMemoryWin32HandleKHX"));
-#endif
-#ifdef VK_KHX_external_semaphore_fd
-	    pfvkImportSemaphoreFdKHX = reinterpret_cast<PFN_vkImportSemaphoreFdKHX>(vkGetInstanceProcAddr(instance, "vkImportSemaphoreFdKHX"));
-#endif
-#ifdef VK_KHR_get_physical_device_properties2
-	    pfvkGetPhysicalDeviceImageFormatProperties2KHR = reinterpret_cast<PFN_vkGetPhysicalDeviceImageFormatProperties2KHR>(vkGetInstanceProcAddr(instance, "vkGetPhysicalDeviceImageFormatProperties2KHR"));
-#endif
-#ifdef VK_NVX_device_generated_commands
-	    pfvkCreateIndirectCommandsLayoutNVX = reinterpret_cast<PFN_vkCreateIndirectCommandsLayoutNVX>(vkGetInstanceProcAddr(instance, "vkCreateIndirectCommandsLayoutNVX"));
-#endif
 #ifdef VK_KHR_display
-	    pfvkGetDisplayModePropertiesKHR = reinterpret_cast<PFN_vkGetDisplayModePropertiesKHR>(vkGetInstanceProcAddr(instance, "vkGetDisplayModePropertiesKHR"));
-#endif
-#ifdef VK_EXT_display_control
-	    pfvkDisplayPowerControlEXT = reinterpret_cast<PFN_vkDisplayPowerControlEXT>(vkGetInstanceProcAddr(instance, "vkDisplayPowerControlEXT"));
-#endif
-#ifdef VK_KHR_get_physical_device_properties2
-	    pfvkGetPhysicalDeviceFormatProperties2KHR = reinterpret_cast<PFN_vkGetPhysicalDeviceFormatProperties2KHR>(vkGetInstanceProcAddr(instance, "vkGetPhysicalDeviceFormatProperties2KHR"));
-#endif
-#ifdef VK_KHR_display_swapchain
-	    pfvkCreateSharedSwapchainsKHR = reinterpret_cast<PFN_vkCreateSharedSwapchainsKHR>(vkGetInstanceProcAddr(instance, "vkCreateSharedSwapchainsKHR"));
-#endif
-#ifdef VK_KHX_device_group
-	    pfvkGetPhysicalDevicePresentRectanglesKHX = reinterpret_cast<PFN_vkGetPhysicalDevicePresentRectanglesKHX>(vkGetInstanceProcAddr(instance, "vkGetPhysicalDevicePresentRectanglesKHX"));
-#endif
-#ifdef VK_KHR_display
-	    pfvkCreateDisplayModeKHR = reinterpret_cast<PFN_vkCreateDisplayModeKHR>(vkGetInstanceProcAddr(instance, "vkCreateDisplayModeKHR"));
+	    pfvkGetPhysicalDeviceDisplayPropertiesKHR = reinterpret_cast<PFN_vkGetPhysicalDeviceDisplayPropertiesKHR>(vkGetInstanceProcAddr(instance, "vkGetPhysicalDeviceDisplayPropertiesKHR"));
 #endif
 #ifdef VK_KHR_display
 	    pfvkGetPhysicalDeviceDisplayPlanePropertiesKHR = reinterpret_cast<PFN_vkGetPhysicalDeviceDisplayPlanePropertiesKHR>(vkGetInstanceProcAddr(instance, "vkGetPhysicalDeviceDisplayPlanePropertiesKHR"));
 #endif
 #ifdef VK_KHR_display
-	    pfvkGetPhysicalDeviceDisplayPropertiesKHR = reinterpret_cast<PFN_vkGetPhysicalDeviceDisplayPropertiesKHR>(vkGetInstanceProcAddr(instance, "vkGetPhysicalDeviceDisplayPropertiesKHR"));
+	    pfvkGetDisplayPlaneSupportedDisplaysKHR = reinterpret_cast<PFN_vkGetDisplayPlaneSupportedDisplaysKHR>(vkGetInstanceProcAddr(instance, "vkGetDisplayPlaneSupportedDisplaysKHR"));
 #endif
-#ifdef VK_AMD_draw_indirect_count
-	    pfvkCmdDrawIndirectCountAMD = reinterpret_cast<PFN_vkCmdDrawIndirectCountAMD>(vkGetInstanceProcAddr(instance, "vkCmdDrawIndirectCountAMD"));
+#ifdef VK_KHR_display
+	    pfvkGetDisplayModePropertiesKHR = reinterpret_cast<PFN_vkGetDisplayModePropertiesKHR>(vkGetInstanceProcAddr(instance, "vkGetDisplayModePropertiesKHR"));
 #endif
-#ifdef VK_KHX_device_group
-	    pfvkGetDeviceGroupSurfacePresentModesKHX = reinterpret_cast<PFN_vkGetDeviceGroupSurfacePresentModesKHX>(vkGetInstanceProcAddr(instance, "vkGetDeviceGroupSurfacePresentModesKHX"));
+#ifdef VK_KHR_display
+	    pfvkCreateDisplayModeKHR = reinterpret_cast<PFN_vkCreateDisplayModeKHR>(vkGetInstanceProcAddr(instance, "vkCreateDisplayModeKHR"));
 #endif
-#ifdef VK_AMD_draw_indirect_count
-	    pfvkCmdDrawIndexedIndirectCountAMD = reinterpret_cast<PFN_vkCmdDrawIndexedIndirectCountAMD>(vkGetInstanceProcAddr(instance, "vkCmdDrawIndexedIndirectCountAMD"));
+#ifdef VK_KHR_display
+	    pfvkGetDisplayPlaneCapabilitiesKHR = reinterpret_cast<PFN_vkGetDisplayPlaneCapabilitiesKHR>(vkGetInstanceProcAddr(instance, "vkGetDisplayPlaneCapabilitiesKHR"));
 #endif
-#ifdef VK_NVX_device_generated_commands
-	    pfvkDestroyObjectTableNVX = reinterpret_cast<PFN_vkDestroyObjectTableNVX>(vkGetInstanceProcAddr(instance, "vkDestroyObjectTableNVX"));
+#ifdef VK_KHR_display
+	    pfvkCreateDisplayPlaneSurfaceKHR = reinterpret_cast<PFN_vkCreateDisplayPlaneSurfaceKHR>(vkGetInstanceProcAddr(instance, "vkCreateDisplayPlaneSurfaceKHR"));
 #endif
-#ifdef VK_EXT_debug_marker
-	    pfvkCmdDebugMarkerEndEXT = reinterpret_cast<PFN_vkCmdDebugMarkerEndEXT>(vkGetInstanceProcAddr(instance, "vkCmdDebugMarkerEndEXT"));
+#ifdef VK_KHR_display
+	    pfvkDestroySurfaceKHR = reinterpret_cast<PFN_vkDestroySurfaceKHR>(vkGetInstanceProcAddr(instance, "vkDestroySurfaceKHR"));
+#endif
+#ifdef VK_KHR_display_swapchain
+	    pfvkCreateSharedSwapchainsKHR = reinterpret_cast<PFN_vkCreateSharedSwapchainsKHR>(vkGetInstanceProcAddr(instance, "vkCreateSharedSwapchainsKHR"));
+#endif
+#ifdef VK_KHR_get_physical_device_properties2
+	    pfvkGetPhysicalDeviceFeatures2KHR = reinterpret_cast<PFN_vkGetPhysicalDeviceFeatures2KHR>(vkGetInstanceProcAddr(instance, "vkGetPhysicalDeviceFeatures2KHR"));
+#endif
+#ifdef VK_KHR_get_physical_device_properties2
+	    pfvkGetPhysicalDeviceProperties2KHR = reinterpret_cast<PFN_vkGetPhysicalDeviceProperties2KHR>(vkGetInstanceProcAddr(instance, "vkGetPhysicalDeviceProperties2KHR"));
+#endif
+#ifdef VK_KHR_get_physical_device_properties2
+	    pfvkGetPhysicalDeviceFormatProperties2KHR = reinterpret_cast<PFN_vkGetPhysicalDeviceFormatProperties2KHR>(vkGetInstanceProcAddr(instance, "vkGetPhysicalDeviceFormatProperties2KHR"));
+#endif
+#ifdef VK_KHR_get_physical_device_properties2
+	    pfvkGetPhysicalDeviceImageFormatProperties2KHR = reinterpret_cast<PFN_vkGetPhysicalDeviceImageFormatProperties2KHR>(vkGetInstanceProcAddr(instance, "vkGetPhysicalDeviceImageFormatProperties2KHR"));
+#endif
+#ifdef VK_KHR_get_physical_device_properties2
+	    pfvkGetPhysicalDeviceQueueFamilyProperties2KHR = reinterpret_cast<PFN_vkGetPhysicalDeviceQueueFamilyProperties2KHR>(vkGetInstanceProcAddr(instance, "vkGetPhysicalDeviceQueueFamilyProperties2KHR"));
+#endif
+#ifdef VK_KHR_get_physical_device_properties2
+	    pfvkGetPhysicalDeviceMemoryProperties2KHR = reinterpret_cast<PFN_vkGetPhysicalDeviceMemoryProperties2KHR>(vkGetInstanceProcAddr(instance, "vkGetPhysicalDeviceMemoryProperties2KHR"));
+#endif
+#ifdef VK_KHR_get_physical_device_properties2
+	    pfvkGetPhysicalDeviceSparseImageFormatProperties2KHR = reinterpret_cast<PFN_vkGetPhysicalDeviceSparseImageFormatProperties2KHR>(vkGetInstanceProcAddr(instance, "vkGetPhysicalDeviceSparseImageFormatProperties2KHR"));
+#endif
+#ifdef VK_KHR_maintenance1
+	    pfvkTrimCommandPoolKHR = reinterpret_cast<PFN_vkTrimCommandPoolKHR>(vkGetInstanceProcAddr(instance, "vkTrimCommandPoolKHR"));
+#endif
+#ifdef VK_KHR_external_memory_capabilities
+	    pfvkGetPhysicalDeviceExternalBufferPropertiesKHR = reinterpret_cast<PFN_vkGetPhysicalDeviceExternalBufferPropertiesKHR>(vkGetInstanceProcAddr(instance, "vkGetPhysicalDeviceExternalBufferPropertiesKHR"));
+#endif
+#ifdef VK_KHR_external_memory_win32
+	    pfvkGetMemoryWin32HandleKHR = reinterpret_cast<PFN_vkGetMemoryWin32HandleKHR>(vkGetInstanceProcAddr(instance, "vkGetMemoryWin32HandleKHR"));
+#endif
+#ifdef VK_KHR_external_memory_win32
+	    pfvkGetMemoryWin32HandlePropertiesKHR = reinterpret_cast<PFN_vkGetMemoryWin32HandlePropertiesKHR>(vkGetInstanceProcAddr(instance, "vkGetMemoryWin32HandlePropertiesKHR"));
+#endif
+#ifdef VK_KHR_external_memory_fd
+	    pfvkGetMemoryFdKHR = reinterpret_cast<PFN_vkGetMemoryFdKHR>(vkGetInstanceProcAddr(instance, "vkGetMemoryFdKHR"));
+#endif
+#ifdef VK_KHR_external_memory_fd
+	    pfvkGetMemoryFdPropertiesKHR = reinterpret_cast<PFN_vkGetMemoryFdPropertiesKHR>(vkGetInstanceProcAddr(instance, "vkGetMemoryFdPropertiesKHR"));
+#endif
+#ifdef VK_KHR_external_semaphore_capabilities
+	    pfvkGetPhysicalDeviceExternalSemaphorePropertiesKHR = reinterpret_cast<PFN_vkGetPhysicalDeviceExternalSemaphorePropertiesKHR>(vkGetInstanceProcAddr(instance, "vkGetPhysicalDeviceExternalSemaphorePropertiesKHR"));
+#endif
+#ifdef VK_KHR_external_semaphore_win32
+	    pfvkImportSemaphoreWin32HandleKHR = reinterpret_cast<PFN_vkImportSemaphoreWin32HandleKHR>(vkGetInstanceProcAddr(instance, "vkImportSemaphoreWin32HandleKHR"));
+#endif
+#ifdef VK_KHR_external_semaphore_win32
+	    pfvkGetSemaphoreWin32HandleKHR = reinterpret_cast<PFN_vkGetSemaphoreWin32HandleKHR>(vkGetInstanceProcAddr(instance, "vkGetSemaphoreWin32HandleKHR"));
+#endif
+#ifdef VK_KHR_external_semaphore_fd
+	    pfvkImportSemaphoreFdKHR = reinterpret_cast<PFN_vkImportSemaphoreFdKHR>(vkGetInstanceProcAddr(instance, "vkImportSemaphoreFdKHR"));
+#endif
+#ifdef VK_KHR_external_semaphore_fd
+	    pfvkGetSemaphoreFdKHR = reinterpret_cast<PFN_vkGetSemaphoreFdKHR>(vkGetInstanceProcAddr(instance, "vkGetSemaphoreFdKHR"));
+#endif
+#ifdef VK_KHR_push_descriptor
+	    pfvkCmdPushDescriptorSetKHR = reinterpret_cast<PFN_vkCmdPushDescriptorSetKHR>(vkGetInstanceProcAddr(instance, "vkCmdPushDescriptorSetKHR"));
 #endif
 #ifdef VK_KHR_descriptor_update_template
-	    pfvkCmdPushDescriptorSetWithTemplateKHR = reinterpret_cast<PFN_vkCmdPushDescriptorSetWithTemplateKHR>(vkGetInstanceProcAddr(instance, "vkCmdPushDescriptorSetWithTemplateKHR"));
-#endif
-#ifdef VK_KHX_device_group
-	    pfvkGetDeviceGroupPresentCapabilitiesKHX = reinterpret_cast<PFN_vkGetDeviceGroupPresentCapabilitiesKHX>(vkGetInstanceProcAddr(instance, "vkGetDeviceGroupPresentCapabilitiesKHX"));
-#endif
-#ifdef VK_KHX_device_group
-	    pfvkCmdDispatchBaseKHX = reinterpret_cast<PFN_vkCmdDispatchBaseKHX>(vkGetInstanceProcAddr(instance, "vkCmdDispatchBaseKHX"));
-#endif
-#ifdef VK_KHX_external_semaphore_win32
-	    pfvkGetSemaphoreWin32HandleKHX = reinterpret_cast<PFN_vkGetSemaphoreWin32HandleKHX>(vkGetInstanceProcAddr(instance, "vkGetSemaphoreWin32HandleKHX"));
-#endif
-#ifdef VK_NN_vi_surface
-	    pfvkCreateViSurfaceNN = reinterpret_cast<PFN_vkCreateViSurfaceNN>(vkGetInstanceProcAddr(instance, "vkCreateViSurfaceNN"));
-#endif
-#ifdef VK_KHX_device_group_creation
-	    pfvkEnumeratePhysicalDeviceGroupsKHX = reinterpret_cast<PFN_vkEnumeratePhysicalDeviceGroupsKHX>(vkGetInstanceProcAddr(instance, "vkEnumeratePhysicalDeviceGroupsKHX"));
-#endif
-#ifdef VK_KHX_external_memory_capabilities
-	    pfvkGetPhysicalDeviceImageFormatProperties2KHX = reinterpret_cast<PFN_vkGetPhysicalDeviceImageFormatProperties2KHX>(vkGetInstanceProcAddr(instance, "vkGetPhysicalDeviceImageFormatProperties2KHX"));
-#endif
-#ifdef VK_KHX_device_group
-	    pfvkCmdSetDeviceMaskKHX = reinterpret_cast<PFN_vkCmdSetDeviceMaskKHX>(vkGetInstanceProcAddr(instance, "vkCmdSetDeviceMaskKHX"));
-#endif
-#ifdef VK_KHX_external_semaphore_win32
-	    pfvkImportSemaphoreWin32HandleKHX = reinterpret_cast<PFN_vkImportSemaphoreWin32HandleKHX>(vkGetInstanceProcAddr(instance, "vkImportSemaphoreWin32HandleKHX"));
+	    pfvkCreateDescriptorUpdateTemplateKHR = reinterpret_cast<PFN_vkCreateDescriptorUpdateTemplateKHR>(vkGetInstanceProcAddr(instance, "vkCreateDescriptorUpdateTemplateKHR"));
 #endif
 #ifdef VK_KHR_descriptor_update_template
 	    pfvkDestroyDescriptorUpdateTemplateKHR = reinterpret_cast<PFN_vkDestroyDescriptorUpdateTemplateKHR>(vkGetInstanceProcAddr(instance, "vkDestroyDescriptorUpdateTemplateKHR"));
 #endif
-#ifdef VK_EXT_discard_rectangles
-	    pfvkCmdSetDiscardRectangleEXT = reinterpret_cast<PFN_vkCmdSetDiscardRectangleEXT>(vkGetInstanceProcAddr(instance, "vkCmdSetDiscardRectangleEXT"));
+#ifdef VK_KHR_descriptor_update_template
+	    pfvkUpdateDescriptorSetWithTemplateKHR = reinterpret_cast<PFN_vkUpdateDescriptorSetWithTemplateKHR>(vkGetInstanceProcAddr(instance, "vkUpdateDescriptorSetWithTemplateKHR"));
 #endif
-#ifdef VK_EXT_display_control
-	    pfvkDestroyFence = reinterpret_cast<PFN_vkDestroyFence>(vkGetInstanceProcAddr(instance, "vkDestroyFence"));
+#ifdef VK_KHR_descriptor_update_template
+	    pfvkCmdPushDescriptorSetWithTemplateKHR = reinterpret_cast<PFN_vkCmdPushDescriptorSetWithTemplateKHR>(vkGetInstanceProcAddr(instance, "vkCmdPushDescriptorSetWithTemplateKHR"));
+#endif
+#ifdef VK_KHR_shared_presentable_image
+	    pfvkGetSwapchainStatusKHR = reinterpret_cast<PFN_vkGetSwapchainStatusKHR>(vkGetInstanceProcAddr(instance, "vkGetSwapchainStatusKHR"));
+#endif
+#ifdef VK_KHR_external_fence_capabilities
+	    pfvkGetPhysicalDeviceExternalFencePropertiesKHR = reinterpret_cast<PFN_vkGetPhysicalDeviceExternalFencePropertiesKHR>(vkGetInstanceProcAddr(instance, "vkGetPhysicalDeviceExternalFencePropertiesKHR"));
+#endif
+#ifdef VK_KHR_external_fence_win32
+	    pfvkImportFenceWin32HandleKHR = reinterpret_cast<PFN_vkImportFenceWin32HandleKHR>(vkGetInstanceProcAddr(instance, "vkImportFenceWin32HandleKHR"));
+#endif
+#ifdef VK_KHR_external_fence_win32
+	    pfvkGetFenceWin32HandleKHR = reinterpret_cast<PFN_vkGetFenceWin32HandleKHR>(vkGetInstanceProcAddr(instance, "vkGetFenceWin32HandleKHR"));
+#endif
+#ifdef VK_KHR_external_fence_fd
+	    pfvkImportFenceFdKHR = reinterpret_cast<PFN_vkImportFenceFdKHR>(vkGetInstanceProcAddr(instance, "vkImportFenceFdKHR"));
+#endif
+#ifdef VK_KHR_external_fence_fd
+	    pfvkGetFenceFdKHR = reinterpret_cast<PFN_vkGetFenceFdKHR>(vkGetInstanceProcAddr(instance, "vkGetFenceFdKHR"));
+#endif
+#ifdef VK_KHR_get_surface_capabilities2
+	    pfvkGetPhysicalDeviceSurfaceCapabilities2KHR = reinterpret_cast<PFN_vkGetPhysicalDeviceSurfaceCapabilities2KHR>(vkGetInstanceProcAddr(instance, "vkGetPhysicalDeviceSurfaceCapabilities2KHR"));
+#endif
+#ifdef VK_KHR_get_surface_capabilities2
+	    pfvkGetPhysicalDeviceSurfaceFormats2KHR = reinterpret_cast<PFN_vkGetPhysicalDeviceSurfaceFormats2KHR>(vkGetInstanceProcAddr(instance, "vkGetPhysicalDeviceSurfaceFormats2KHR"));
+#endif
+#ifdef VK_KHR_get_memory_requirements2
+	    pfvkGetImageMemoryRequirements2KHR = reinterpret_cast<PFN_vkGetImageMemoryRequirements2KHR>(vkGetInstanceProcAddr(instance, "vkGetImageMemoryRequirements2KHR"));
+#endif
+#ifdef VK_KHR_get_memory_requirements2
+	    pfvkGetBufferMemoryRequirements2KHR = reinterpret_cast<PFN_vkGetBufferMemoryRequirements2KHR>(vkGetInstanceProcAddr(instance, "vkGetBufferMemoryRequirements2KHR"));
+#endif
+#ifdef VK_KHR_get_memory_requirements2
+	    pfvkGetImageSparseMemoryRequirements2KHR = reinterpret_cast<PFN_vkGetImageSparseMemoryRequirements2KHR>(vkGetInstanceProcAddr(instance, "vkGetImageSparseMemoryRequirements2KHR"));
+#endif
+#ifdef VK_EXT_debug_report
+	    pfvkCreateDebugReportCallbackEXT = reinterpret_cast<PFN_vkCreateDebugReportCallbackEXT>(vkGetInstanceProcAddr(instance, "vkCreateDebugReportCallbackEXT"));
+#endif
+#ifdef VK_EXT_debug_report
+	    pfvkDestroyDebugReportCallbackEXT = reinterpret_cast<PFN_vkDestroyDebugReportCallbackEXT>(vkGetInstanceProcAddr(instance, "vkDestroyDebugReportCallbackEXT"));
+#endif
+#ifdef VK_EXT_debug_report
+	    pfvkDebugReportMessageEXT = reinterpret_cast<PFN_vkDebugReportMessageEXT>(vkGetInstanceProcAddr(instance, "vkDebugReportMessageEXT"));
 #endif
 #ifdef VK_EXT_debug_marker
 	    pfvkDebugMarkerSetObjectTagEXT = reinterpret_cast<PFN_vkDebugMarkerSetObjectTagEXT>(vkGetInstanceProcAddr(instance, "vkDebugMarkerSetObjectTagEXT"));
@@ -7665,104 +8639,134 @@ void load_vulkan_fct_ptrs(VkInstance instance);
 #ifdef VK_EXT_debug_marker
 	    pfvkDebugMarkerSetObjectNameEXT = reinterpret_cast<PFN_vkDebugMarkerSetObjectNameEXT>(vkGetInstanceProcAddr(instance, "vkDebugMarkerSetObjectNameEXT"));
 #endif
-#ifdef VK_KHR_display
-	    pfvkGetDisplayPlaneCapabilitiesKHR = reinterpret_cast<PFN_vkGetDisplayPlaneCapabilitiesKHR>(vkGetInstanceProcAddr(instance, "vkGetDisplayPlaneCapabilitiesKHR"));
+#ifdef VK_EXT_debug_marker
+	    pfvkCmdDebugMarkerBeginEXT = reinterpret_cast<PFN_vkCmdDebugMarkerBeginEXT>(vkGetInstanceProcAddr(instance, "vkCmdDebugMarkerBeginEXT"));
 #endif
-#ifdef VK_NVX_device_generated_commands
-	    pfvkGetPhysicalDeviceGeneratedCommandsPropertiesNVX = reinterpret_cast<PFN_vkGetPhysicalDeviceGeneratedCommandsPropertiesNVX>(vkGetInstanceProcAddr(instance, "vkGetPhysicalDeviceGeneratedCommandsPropertiesNVX"));
+#ifdef VK_EXT_debug_marker
+	    pfvkCmdDebugMarkerEndEXT = reinterpret_cast<PFN_vkCmdDebugMarkerEndEXT>(vkGetInstanceProcAddr(instance, "vkCmdDebugMarkerEndEXT"));
 #endif
-#ifdef VK_EXT_display_control
-	    pfvkRegisterDisplayEventEXT = reinterpret_cast<PFN_vkRegisterDisplayEventEXT>(vkGetInstanceProcAddr(instance, "vkRegisterDisplayEventEXT"));
+#ifdef VK_EXT_debug_marker
+	    pfvkCmdDebugMarkerInsertEXT = reinterpret_cast<PFN_vkCmdDebugMarkerInsertEXT>(vkGetInstanceProcAddr(instance, "vkCmdDebugMarkerInsertEXT"));
 #endif
-#ifdef VK_NVX_device_generated_commands
-	    pfvkRegisterObjectsNVX = reinterpret_cast<PFN_vkRegisterObjectsNVX>(vkGetInstanceProcAddr(instance, "vkRegisterObjectsNVX"));
+#ifdef VK_AMD_draw_indirect_count
+	    pfvkCmdDrawIndirectCountAMD = reinterpret_cast<PFN_vkCmdDrawIndirectCountAMD>(vkGetInstanceProcAddr(instance, "vkCmdDrawIndirectCountAMD"));
 #endif
-#ifdef VK_KHR_push_descriptor
-	    pfvkCmdPushDescriptorSetKHR = reinterpret_cast<PFN_vkCmdPushDescriptorSetKHR>(vkGetInstanceProcAddr(instance, "vkCmdPushDescriptorSetKHR"));
+#ifdef VK_AMD_draw_indirect_count
+	    pfvkCmdDrawIndexedIndirectCountAMD = reinterpret_cast<PFN_vkCmdDrawIndexedIndirectCountAMD>(vkGetInstanceProcAddr(instance, "vkCmdDrawIndexedIndirectCountAMD"));
 #endif
-#ifdef VK_KHR_descriptor_update_template
-	    pfvkUpdateDescriptorSetWithTemplateKHR = reinterpret_cast<PFN_vkUpdateDescriptorSetWithTemplateKHR>(vkGetInstanceProcAddr(instance, "vkUpdateDescriptorSetWithTemplateKHR"));
+#ifdef VK_NV_external_memory_capabilities
+	    pfvkGetPhysicalDeviceExternalImageFormatPropertiesNV = reinterpret_cast<PFN_vkGetPhysicalDeviceExternalImageFormatPropertiesNV>(vkGetInstanceProcAddr(instance, "vkGetPhysicalDeviceExternalImageFormatPropertiesNV"));
 #endif
-#ifdef VK_KHR_maintenance1
-	    pfvkTrimCommandPoolKHR = reinterpret_cast<PFN_vkTrimCommandPoolKHR>(vkGetInstanceProcAddr(instance, "vkTrimCommandPoolKHR"));
-#endif
-#ifdef VK_KHR_get_physical_device_properties2
-	    pfvkGetPhysicalDeviceSparseImageFormatProperties2KHR = reinterpret_cast<PFN_vkGetPhysicalDeviceSparseImageFormatProperties2KHR>(vkGetInstanceProcAddr(instance, "vkGetPhysicalDeviceSparseImageFormatProperties2KHR"));
-#endif
-#ifdef VK_KHX_external_semaphore_capabilities
-	    pfvkGetPhysicalDeviceExternalSemaphorePropertiesKHX = reinterpret_cast<PFN_vkGetPhysicalDeviceExternalSemaphorePropertiesKHX>(vkGetInstanceProcAddr(instance, "vkGetPhysicalDeviceExternalSemaphorePropertiesKHX"));
-#endif
-#ifdef VK_EXT_debug_report
-	    pfvkCreateDebugReportCallbackEXT = reinterpret_cast<PFN_vkCreateDebugReportCallbackEXT>(vkGetInstanceProcAddr(instance, "vkCreateDebugReportCallbackEXT"));
-#endif
-#ifdef VK_KHX_external_memory_fd
-	    pfvkGetMemoryFdKHX = reinterpret_cast<PFN_vkGetMemoryFdKHX>(vkGetInstanceProcAddr(instance, "vkGetMemoryFdKHX"));
-#endif
-#ifdef VK_NVX_device_generated_commands
-	    pfvkCmdReserveSpaceForCommandsNVX = reinterpret_cast<PFN_vkCmdReserveSpaceForCommandsNVX>(vkGetInstanceProcAddr(instance, "vkCmdReserveSpaceForCommandsNVX"));
-#endif
-#ifdef VK_KHR_display
-	    pfvkCreateDisplayPlaneSurfaceKHR = reinterpret_cast<PFN_vkCreateDisplayPlaneSurfaceKHR>(vkGetInstanceProcAddr(instance, "vkCreateDisplayPlaneSurfaceKHR"));
-#endif
-#ifdef VK_KHR_get_physical_device_properties2
-	    pfvkGetPhysicalDeviceMemoryProperties2KHR = reinterpret_cast<PFN_vkGetPhysicalDeviceMemoryProperties2KHR>(vkGetInstanceProcAddr(instance, "vkGetPhysicalDeviceMemoryProperties2KHR"));
-#endif
-#ifdef VK_MVK_ios_surface
-	    pfvkCreateIOSSurfaceMVK = reinterpret_cast<PFN_vkCreateIOSSurfaceMVK>(vkGetInstanceProcAddr(instance, "vkCreateIOSSurfaceMVK"));
+#ifdef VK_NV_external_memory_win32
+	    pfvkGetMemoryWin32HandleNV = reinterpret_cast<PFN_vkGetMemoryWin32HandleNV>(vkGetInstanceProcAddr(instance, "vkGetMemoryWin32HandleNV"));
 #endif
 #ifdef VK_KHX_device_group
 	    pfvkGetDeviceGroupPeerMemoryFeaturesKHX = reinterpret_cast<PFN_vkGetDeviceGroupPeerMemoryFeaturesKHX>(vkGetInstanceProcAddr(instance, "vkGetDeviceGroupPeerMemoryFeaturesKHX"));
 #endif
-#ifdef VK_KHX_external_semaphore_fd
-	    pfvkGetSemaphoreFdKHX = reinterpret_cast<PFN_vkGetSemaphoreFdKHX>(vkGetInstanceProcAddr(instance, "vkGetSemaphoreFdKHX"));
-#endif
-#ifdef VK_KHR_get_physical_device_properties2
-	    pfvkGetPhysicalDeviceProperties2KHR = reinterpret_cast<PFN_vkGetPhysicalDeviceProperties2KHR>(vkGetInstanceProcAddr(instance, "vkGetPhysicalDeviceProperties2KHR"));
-#endif
-#ifdef VK_KHR_get_physical_device_properties2
-	    pfvkGetPhysicalDeviceFeatures2KHR = reinterpret_cast<PFN_vkGetPhysicalDeviceFeatures2KHR>(vkGetInstanceProcAddr(instance, "vkGetPhysicalDeviceFeatures2KHR"));
-#endif
-#ifdef VK_EXT_display_surface_counter
-	    pfvkGetPhysicalDeviceSurfaceCapabilities2EXT = reinterpret_cast<PFN_vkGetPhysicalDeviceSurfaceCapabilities2EXT>(vkGetInstanceProcAddr(instance, "vkGetPhysicalDeviceSurfaceCapabilities2EXT"));
+#ifdef VK_KHX_device_group
+	    pfvkBindBufferMemory2KHX = reinterpret_cast<PFN_vkBindBufferMemory2KHX>(vkGetInstanceProcAddr(instance, "vkBindBufferMemory2KHX"));
 #endif
 #ifdef VK_KHX_device_group
 	    pfvkBindImageMemory2KHX = reinterpret_cast<PFN_vkBindImageMemory2KHX>(vkGetInstanceProcAddr(instance, "vkBindImageMemory2KHX"));
 #endif
-#ifdef VK_NVX_device_generated_commands
-	    pfvkCmdProcessCommandsNVX = reinterpret_cast<PFN_vkCmdProcessCommandsNVX>(vkGetInstanceProcAddr(instance, "vkCmdProcessCommandsNVX"));
+#ifdef VK_KHX_device_group
+	    pfvkCmdSetDeviceMaskKHX = reinterpret_cast<PFN_vkCmdSetDeviceMaskKHX>(vkGetInstanceProcAddr(instance, "vkCmdSetDeviceMaskKHX"));
 #endif
-#ifdef VK_KHR_display
-	    pfvkDestroySurfaceKHR = reinterpret_cast<PFN_vkDestroySurfaceKHR>(vkGetInstanceProcAddr(instance, "vkDestroySurfaceKHR"));
+#ifdef VK_KHX_device_group
+	    pfvkGetDeviceGroupPresentCapabilitiesKHX = reinterpret_cast<PFN_vkGetDeviceGroupPresentCapabilitiesKHX>(vkGetInstanceProcAddr(instance, "vkGetDeviceGroupPresentCapabilitiesKHX"));
 #endif
-#ifdef VK_NVX_device_generated_commands
-	    pfvkCreateObjectTableNVX = reinterpret_cast<PFN_vkCreateObjectTableNVX>(vkGetInstanceProcAddr(instance, "vkCreateObjectTableNVX"));
-#endif
-#ifdef VK_KHX_external_memory_win32
-	    pfvkGetMemoryWin32HandlePropertiesKHX = reinterpret_cast<PFN_vkGetMemoryWin32HandlePropertiesKHX>(vkGetInstanceProcAddr(instance, "vkGetMemoryWin32HandlePropertiesKHX"));
-#endif
-#ifdef VK_EXT_acquire_xlib_display
-	    pfvkAcquireXlibDisplayEXT = reinterpret_cast<PFN_vkAcquireXlibDisplayEXT>(vkGetInstanceProcAddr(instance, "vkAcquireXlibDisplayEXT"));
+#ifdef VK_KHX_device_group
+	    pfvkGetDeviceGroupSurfacePresentModesKHX = reinterpret_cast<PFN_vkGetDeviceGroupSurfacePresentModesKHX>(vkGetInstanceProcAddr(instance, "vkGetDeviceGroupSurfacePresentModesKHX"));
 #endif
 #ifdef VK_KHX_device_group
 	    pfvkAcquireNextImage2KHX = reinterpret_cast<PFN_vkAcquireNextImage2KHX>(vkGetInstanceProcAddr(instance, "vkAcquireNextImage2KHX"));
 #endif
-#ifdef VK_KHR_display
-	    pfvkGetDisplayPlaneSupportedDisplaysKHR = reinterpret_cast<PFN_vkGetDisplayPlaneSupportedDisplaysKHR>(vkGetInstanceProcAddr(instance, "vkGetDisplayPlaneSupportedDisplaysKHR"));
+#ifdef VK_KHX_device_group
+	    pfvkCmdDispatchBaseKHX = reinterpret_cast<PFN_vkCmdDispatchBaseKHX>(vkGetInstanceProcAddr(instance, "vkCmdDispatchBaseKHX"));
 #endif
-#ifdef VK_KHX_external_memory_capabilities
-	    pfvkGetPhysicalDeviceProperties2KHX = reinterpret_cast<PFN_vkGetPhysicalDeviceProperties2KHX>(vkGetInstanceProcAddr(instance, "vkGetPhysicalDeviceProperties2KHX"));
+#ifdef VK_KHX_device_group
+	    pfvkGetPhysicalDevicePresentRectanglesKHX = reinterpret_cast<PFN_vkGetPhysicalDevicePresentRectanglesKHX>(vkGetInstanceProcAddr(instance, "vkGetPhysicalDevicePresentRectanglesKHX"));
 #endif
-#ifdef VK_EXT_display_control
-	    pfvkRegisterDeviceEventEXT = reinterpret_cast<PFN_vkRegisterDeviceEventEXT>(vkGetInstanceProcAddr(instance, "vkRegisterDeviceEventEXT"));
+#ifdef VK_NN_vi_surface
+	    pfvkCreateViSurfaceNN = reinterpret_cast<PFN_vkCreateViSurfaceNN>(vkGetInstanceProcAddr(instance, "vkCreateViSurfaceNN"));
+#endif
+#ifdef VK_KHX_device_group_creation
+	    pfvkEnumeratePhysicalDeviceGroupsKHX = reinterpret_cast<PFN_vkEnumeratePhysicalDeviceGroupsKHX>(vkGetInstanceProcAddr(instance, "vkEnumeratePhysicalDeviceGroupsKHX"));
+#endif
+#ifdef VK_NVX_device_generated_commands
+	    pfvkCmdProcessCommandsNVX = reinterpret_cast<PFN_vkCmdProcessCommandsNVX>(vkGetInstanceProcAddr(instance, "vkCmdProcessCommandsNVX"));
+#endif
+#ifdef VK_NVX_device_generated_commands
+	    pfvkCmdReserveSpaceForCommandsNVX = reinterpret_cast<PFN_vkCmdReserveSpaceForCommandsNVX>(vkGetInstanceProcAddr(instance, "vkCmdReserveSpaceForCommandsNVX"));
+#endif
+#ifdef VK_NVX_device_generated_commands
+	    pfvkCreateIndirectCommandsLayoutNVX = reinterpret_cast<PFN_vkCreateIndirectCommandsLayoutNVX>(vkGetInstanceProcAddr(instance, "vkCreateIndirectCommandsLayoutNVX"));
+#endif
+#ifdef VK_NVX_device_generated_commands
+	    pfvkDestroyIndirectCommandsLayoutNVX = reinterpret_cast<PFN_vkDestroyIndirectCommandsLayoutNVX>(vkGetInstanceProcAddr(instance, "vkDestroyIndirectCommandsLayoutNVX"));
+#endif
+#ifdef VK_NVX_device_generated_commands
+	    pfvkCreateObjectTableNVX = reinterpret_cast<PFN_vkCreateObjectTableNVX>(vkGetInstanceProcAddr(instance, "vkCreateObjectTableNVX"));
+#endif
+#ifdef VK_NVX_device_generated_commands
+	    pfvkDestroyObjectTableNVX = reinterpret_cast<PFN_vkDestroyObjectTableNVX>(vkGetInstanceProcAddr(instance, "vkDestroyObjectTableNVX"));
+#endif
+#ifdef VK_NVX_device_generated_commands
+	    pfvkRegisterObjectsNVX = reinterpret_cast<PFN_vkRegisterObjectsNVX>(vkGetInstanceProcAddr(instance, "vkRegisterObjectsNVX"));
+#endif
+#ifdef VK_NVX_device_generated_commands
+	    pfvkUnregisterObjectsNVX = reinterpret_cast<PFN_vkUnregisterObjectsNVX>(vkGetInstanceProcAddr(instance, "vkUnregisterObjectsNVX"));
+#endif
+#ifdef VK_NVX_device_generated_commands
+	    pfvkGetPhysicalDeviceGeneratedCommandsPropertiesNVX = reinterpret_cast<PFN_vkGetPhysicalDeviceGeneratedCommandsPropertiesNVX>(vkGetInstanceProcAddr(instance, "vkGetPhysicalDeviceGeneratedCommandsPropertiesNVX"));
 #endif
 #ifdef VK_NV_clip_space_w_scaling
 	    pfvkCmdSetViewportWScalingNV = reinterpret_cast<PFN_vkCmdSetViewportWScalingNV>(vkGetInstanceProcAddr(instance, "vkCmdSetViewportWScalingNV"));
 #endif
-#ifdef VK_KHX_device_group
-	    pfvkBindBufferMemory2KHX = reinterpret_cast<PFN_vkBindBufferMemory2KHX>(vkGetInstanceProcAddr(instance, "vkBindBufferMemory2KHX"));
+#ifdef VK_EXT_direct_mode_display
+	    pfvkReleaseDisplayEXT = reinterpret_cast<PFN_vkReleaseDisplayEXT>(vkGetInstanceProcAddr(instance, "vkReleaseDisplayEXT"));
 #endif
-#ifdef VK_EXT_debug_marker
-	    pfvkCmdDebugMarkerInsertEXT = reinterpret_cast<PFN_vkCmdDebugMarkerInsertEXT>(vkGetInstanceProcAddr(instance, "vkCmdDebugMarkerInsertEXT"));
+#ifdef VK_EXT_acquire_xlib_display
+	    pfvkAcquireXlibDisplayEXT = reinterpret_cast<PFN_vkAcquireXlibDisplayEXT>(vkGetInstanceProcAddr(instance, "vkAcquireXlibDisplayEXT"));
+#endif
+#ifdef VK_EXT_acquire_xlib_display
+	    pfvkGetRandROutputDisplayEXT = reinterpret_cast<PFN_vkGetRandROutputDisplayEXT>(vkGetInstanceProcAddr(instance, "vkGetRandROutputDisplayEXT"));
+#endif
+#ifdef VK_EXT_display_surface_counter
+	    pfvkGetPhysicalDeviceSurfaceCapabilities2EXT = reinterpret_cast<PFN_vkGetPhysicalDeviceSurfaceCapabilities2EXT>(vkGetInstanceProcAddr(instance, "vkGetPhysicalDeviceSurfaceCapabilities2EXT"));
+#endif
+#ifdef VK_EXT_display_control
+	    pfvkDisplayPowerControlEXT = reinterpret_cast<PFN_vkDisplayPowerControlEXT>(vkGetInstanceProcAddr(instance, "vkDisplayPowerControlEXT"));
+#endif
+#ifdef VK_EXT_display_control
+	    pfvkRegisterDeviceEventEXT = reinterpret_cast<PFN_vkRegisterDeviceEventEXT>(vkGetInstanceProcAddr(instance, "vkRegisterDeviceEventEXT"));
+#endif
+#ifdef VK_EXT_display_control
+	    pfvkDestroyFence = reinterpret_cast<PFN_vkDestroyFence>(vkGetInstanceProcAddr(instance, "vkDestroyFence"));
+#endif
+#ifdef VK_EXT_display_control
+	    pfvkRegisterDisplayEventEXT = reinterpret_cast<PFN_vkRegisterDisplayEventEXT>(vkGetInstanceProcAddr(instance, "vkRegisterDisplayEventEXT"));
+#endif
+#ifdef VK_EXT_display_control
+	    pfvkGetSwapchainCounterEXT = reinterpret_cast<PFN_vkGetSwapchainCounterEXT>(vkGetInstanceProcAddr(instance, "vkGetSwapchainCounterEXT"));
+#endif
+#ifdef VK_GOOGLE_display_timing
+	    pfvkGetRefreshCycleDurationGOOGLE = reinterpret_cast<PFN_vkGetRefreshCycleDurationGOOGLE>(vkGetInstanceProcAddr(instance, "vkGetRefreshCycleDurationGOOGLE"));
+#endif
+#ifdef VK_GOOGLE_display_timing
+	    pfvkGetPastPresentationTimingGOOGLE = reinterpret_cast<PFN_vkGetPastPresentationTimingGOOGLE>(vkGetInstanceProcAddr(instance, "vkGetPastPresentationTimingGOOGLE"));
+#endif
+#ifdef VK_EXT_discard_rectangles
+	    pfvkCmdSetDiscardRectangleEXT = reinterpret_cast<PFN_vkCmdSetDiscardRectangleEXT>(vkGetInstanceProcAddr(instance, "vkCmdSetDiscardRectangleEXT"));
+#endif
+#ifdef VK_EXT_hdr_metadata
+	    pfvkSetHdrMetadataEXT = reinterpret_cast<PFN_vkSetHdrMetadataEXT>(vkGetInstanceProcAddr(instance, "vkSetHdrMetadataEXT"));
+#endif
+#ifdef VK_MVK_ios_surface
+	    pfvkCreateIOSSurfaceMVK = reinterpret_cast<PFN_vkCreateIOSSurfaceMVK>(vkGetInstanceProcAddr(instance, "vkCreateIOSSurfaceMVK"));
+#endif
+#ifdef VK_MVK_macos_surface
+	    pfvkCreateMacOSSurfaceMVK = reinterpret_cast<PFN_vkCreateMacOSSurfaceMVK>(vkGetInstanceProcAddr(instance, "vkCreateMacOSSurfaceMVK"));
 #endif
   }
 %}
@@ -12984,6 +13988,601 @@ void  trimCommandPoolKHR(
           flags  );
    }
 
+VkExternalMemoryPropertiesKHR ExternalMemoryPropertiesKHR(
+    VkExternalMemoryFeatureFlagsKHR             externalMemoryFeatures,
+    VkExternalMemoryHandleTypeFlagsKHR          exportFromImportedHandleTypes,
+    VkExternalMemoryHandleTypeFlagsKHR          compatibleHandleTypes)
+   {
+      VkExternalMemoryPropertiesKHR obj;
+      obj.externalMemoryFeatures = externalMemoryFeatures;
+      obj.exportFromImportedHandleTypes = exportFromImportedHandleTypes;
+      obj.compatibleHandleTypes = compatibleHandleTypes;
+      return obj;
+   }
+
+VkPhysicalDeviceExternalImageFormatInfoKHR PhysicalDeviceExternalImageFormatInfoKHR(
+    VkExternalMemoryHandleTypeFlagBitsKHR       handleType)
+   {
+      VkPhysicalDeviceExternalImageFormatInfoKHR obj;
+      obj.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTERNAL_IMAGE_FORMAT_INFO_KHR;
+      obj.pNext = nullptr;
+      obj.handleType = handleType;
+      return obj;
+   }
+
+VkExternalImageFormatPropertiesKHR ExternalImageFormatPropertiesKHR(
+    VkExternalMemoryPropertiesKHR               externalMemoryProperties)
+   {
+      VkExternalImageFormatPropertiesKHR obj;
+      obj.sType = VK_STRUCTURE_TYPE_EXTERNAL_IMAGE_FORMAT_PROPERTIES_KHR;
+      obj.pNext = nullptr;
+      obj.externalMemoryProperties = externalMemoryProperties;
+      return obj;
+   }
+
+VkPhysicalDeviceExternalBufferInfoKHR PhysicalDeviceExternalBufferInfoKHR(
+    VkBufferCreateFlags                         flags,
+    VkBufferUsageFlags                          usage,
+    VkExternalMemoryHandleTypeFlagBitsKHR       handleType)
+   {
+      VkPhysicalDeviceExternalBufferInfoKHR obj;
+      obj.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTERNAL_BUFFER_INFO_KHR;
+      obj.pNext = nullptr;
+      obj.flags = flags;
+      obj.usage = usage;
+      obj.handleType = handleType;
+      return obj;
+   }
+
+VkExternalBufferPropertiesKHR ExternalBufferPropertiesKHR(
+    VkExternalMemoryPropertiesKHR               externalMemoryProperties)
+   {
+      VkExternalBufferPropertiesKHR obj;
+      obj.sType = VK_STRUCTURE_TYPE_EXTERNAL_BUFFER_PROPERTIES_KHR;
+      obj.pNext = nullptr;
+      obj.externalMemoryProperties = externalMemoryProperties;
+      return obj;
+   }
+
+VkPhysicalDeviceIDPropertiesKHR PhysicalDeviceIDPropertiesKHR(
+    uint8_t                                     deviceUUID[VK_UUID_SIZE],
+    uint8_t                                     driverUUID[VK_UUID_SIZE],
+    uint8_t                                     deviceLUID[VK_LUID_SIZE_KHR],
+    uint32_t                                    deviceNodeMask,
+    VkBool32                                    deviceLUIDValid)
+   {
+      VkPhysicalDeviceIDPropertiesKHR obj;
+      obj.sType = VK_STRUCTURE_TYPE_MAX_ENUM;
+      obj.pNext = nullptr;
+      std::copy(deviceUUID, deviceUUID + VK_UUID_SIZE, obj.deviceUUID);
+      std::copy(driverUUID, driverUUID + VK_UUID_SIZE, obj.driverUUID);
+      std::copy(deviceLUID, deviceLUID + VK_LUID_SIZE_KHR, obj.deviceLUID);
+      obj.deviceNodeMask = deviceNodeMask;
+      obj.deviceLUIDValid = deviceLUIDValid;
+      return obj;
+   }
+
+VkExternalBufferPropertiesKHR getPhysicalDeviceExternalBufferPropertiesKHR(
+        VkPhysicalDevice physicalDevice,
+        const VkPhysicalDeviceExternalBufferInfoKHR & pExternalBufferInfo)
+   {
+      if ( nullptr == pfvkGetPhysicalDeviceExternalBufferPropertiesKHR )
+          throw std::runtime_error("Trying to use an unavailable function\n"
+                                   "Review you instance create info\n"
+                                   "and call load_vulkan_fct_ptrs() with the new instance");
+
+      VkExternalBufferPropertiesKHR pExternalBufferProperties; 
+      pfvkGetPhysicalDeviceExternalBufferPropertiesKHR(
+          physicalDevice,
+          &pExternalBufferInfo,
+          &pExternalBufferProperties  );
+      return pExternalBufferProperties; 
+   }
+
+VkExternalMemoryImageCreateInfoKHR ExternalMemoryImageCreateInfoKHR(
+    VkExternalMemoryHandleTypeFlagsKHR          handleTypes)
+   {
+      VkExternalMemoryImageCreateInfoKHR obj;
+      obj.sType = VK_STRUCTURE_TYPE_EXTERNAL_MEMORY_IMAGE_CREATE_INFO_KHR;
+      obj.pNext = nullptr;
+      obj.handleTypes = handleTypes;
+      return obj;
+   }
+
+VkExternalMemoryBufferCreateInfoKHR ExternalMemoryBufferCreateInfoKHR(
+    VkExternalMemoryHandleTypeFlagsKHR          handleTypes)
+   {
+      VkExternalMemoryBufferCreateInfoKHR obj;
+      obj.sType = VK_STRUCTURE_TYPE_EXTERNAL_MEMORY_BUFFER_CREATE_INFO_KHR;
+      obj.pNext = nullptr;
+      obj.handleTypes = handleTypes;
+      return obj;
+   }
+
+VkExportMemoryAllocateInfoKHR ExportMemoryAllocateInfoKHR(
+    VkExternalMemoryHandleTypeFlagsKHR          handleTypes)
+   {
+      VkExportMemoryAllocateInfoKHR obj;
+      obj.sType = VK_STRUCTURE_TYPE_EXPORT_MEMORY_ALLOCATE_INFO_KHR;
+      obj.pNext = nullptr;
+      obj.handleTypes = handleTypes;
+      return obj;
+   }
+
+#ifdef VK_USE_PLATFORM_WIN32_KHR
+VkImportMemoryWin32HandleInfoKHR ImportMemoryWin32HandleInfoKHR(
+    VkExternalMemoryHandleTypeFlagBitsKHR       handleType,
+    HANDLE                                      handle,
+    LPCWSTR                                     name)
+   {
+      VkImportMemoryWin32HandleInfoKHR obj;
+      obj.sType = VK_STRUCTURE_TYPE_IMPORT_MEMORY_WIN32_HANDLE_INFO_KHR;
+      obj.pNext = nullptr;
+      obj.handleType = handleType;
+      obj.handle = handle;
+      obj.name = name;
+      return obj;
+   }
+
+struct VkExportMemoryWin32HandleInfoKHRRAII {
+   VkExportMemoryWin32HandleInfoKHR nonRaiiObj;
+    std::shared_ptr<SECURITY_ATTRIBUTES>        pAttributes;
+};
+
+std::shared_ptr<VkExportMemoryWin32HandleInfoKHRRAII> ExportMemoryWin32HandleInfoKHR(
+    const SECURITY_ATTRIBUTES *                 pAttributes,
+    DWORD                                       dwAccess,
+    LPCWSTR                                     name)
+   {
+      std::shared_ptr<VkExportMemoryWin32HandleInfoKHRRAII> raii_obj(new VkExportMemoryWin32HandleInfoKHRRAII);
+      raii_obj->nonRaiiObj.sType = VK_STRUCTURE_TYPE_EXPORT_MEMORY_WIN32_HANDLE_INFO_KHR;
+      raii_obj->nonRaiiObj.pNext = nullptr;
+      raii_obj->nonRaiiObj.pAttributes = nullptr;
+      if ( pAttributes ) 
+      { 
+          raii_obj->pAttributes.reset( new SECURITY_ATTRIBUTES );
+          *raii_obj->pAttributes = *pAttributes;
+          raii_obj->nonRaiiObj.pAttributes = raii_obj->pAttributes.get();
+      } 
+      raii_obj->nonRaiiObj.dwAccess = dwAccess;
+      raii_obj->nonRaiiObj.name = name;
+      return raii_obj;
+   }
+
+VkMemoryWin32HandlePropertiesKHR MemoryWin32HandlePropertiesKHR(
+    uint32_t                                    memoryTypeBits)
+   {
+      VkMemoryWin32HandlePropertiesKHR obj;
+      obj.sType = VK_STRUCTURE_TYPE_MEMORY_WIN32_HANDLE_PROPERTIES_KHR;
+      obj.pNext = nullptr;
+      obj.memoryTypeBits = memoryTypeBits;
+      return obj;
+   }
+
+VkMemoryGetWin32HandleInfoKHR MemoryGetWin32HandleInfoKHR(
+    VkDeviceMemory                              memory,
+    VkExternalMemoryHandleTypeFlagBitsKHR       handleType)
+   {
+      VkMemoryGetWin32HandleInfoKHR obj;
+      obj.sType = VK_STRUCTURE_TYPE_MEMORY_GET_WIN32_HANDLE_INFO_KHR;
+      obj.pNext = nullptr;
+      obj.memory = memory;
+      obj.handleType = handleType;
+      return obj;
+   }
+
+HANDLE getMemoryWin32HandleKHR(
+        VkDevice device,
+        const VkMemoryGetWin32HandleInfoKHR & pGetWin32HandleInfo)
+   {
+      if ( nullptr == pfvkGetMemoryWin32HandleKHR )
+          throw std::runtime_error("Trying to use an unavailable function\n"
+                                   "Review you instance create info\n"
+                                   "and call load_vulkan_fct_ptrs() with the new instance");
+
+      HANDLE pHandle; 
+      V( pfvkGetMemoryWin32HandleKHR(
+          device,
+          &pGetWin32HandleInfo,
+          &pHandle  ));
+      return pHandle; 
+   }
+
+VkMemoryWin32HandlePropertiesKHR getMemoryWin32HandlePropertiesKHR(
+        VkDevice device,
+        VkExternalMemoryHandleTypeFlagBitsKHR handleType,
+        HANDLE handle)
+   {
+      if ( nullptr == pfvkGetMemoryWin32HandlePropertiesKHR )
+          throw std::runtime_error("Trying to use an unavailable function\n"
+                                   "Review you instance create info\n"
+                                   "and call load_vulkan_fct_ptrs() with the new instance");
+
+      VkMemoryWin32HandlePropertiesKHR pMemoryWin32HandleProperties; 
+      V( pfvkGetMemoryWin32HandlePropertiesKHR(
+          device,
+          handleType,
+          handle,
+          &pMemoryWin32HandleProperties  ));
+      return pMemoryWin32HandleProperties; 
+   }
+
+#endif /* VK_USE_PLATFORM_WIN32_KHR*/
+VkImportMemoryFdInfoKHR ImportMemoryFdInfoKHR(
+    VkExternalMemoryHandleTypeFlagBitsKHR       handleType,
+    int                                         fd)
+   {
+      VkImportMemoryFdInfoKHR obj;
+      obj.sType = VK_STRUCTURE_TYPE_IMPORT_MEMORY_FD_INFO_KHR;
+      obj.pNext = nullptr;
+      obj.handleType = handleType;
+      obj.fd = fd;
+      return obj;
+   }
+
+VkMemoryFdPropertiesKHR MemoryFdPropertiesKHR(
+    uint32_t                                    memoryTypeBits)
+   {
+      VkMemoryFdPropertiesKHR obj;
+      obj.sType = VK_STRUCTURE_TYPE_MEMORY_FD_PROPERTIES_KHR;
+      obj.pNext = nullptr;
+      obj.memoryTypeBits = memoryTypeBits;
+      return obj;
+   }
+
+VkMemoryGetFdInfoKHR MemoryGetFdInfoKHR(
+    VkDeviceMemory                              memory,
+    VkExternalMemoryHandleTypeFlagBitsKHR       handleType)
+   {
+      VkMemoryGetFdInfoKHR obj;
+      obj.sType = VK_STRUCTURE_TYPE_MEMORY_GET_FD_INFO_KHR;
+      obj.pNext = nullptr;
+      obj.memory = memory;
+      obj.handleType = handleType;
+      return obj;
+   }
+
+int getMemoryFdKHR(
+        VkDevice device,
+        const VkMemoryGetFdInfoKHR & pGetFdInfo)
+   {
+      if ( nullptr == pfvkGetMemoryFdKHR )
+          throw std::runtime_error("Trying to use an unavailable function\n"
+                                   "Review you instance create info\n"
+                                   "and call load_vulkan_fct_ptrs() with the new instance");
+
+      int pFd; 
+      V( pfvkGetMemoryFdKHR(
+          device,
+          &pGetFdInfo,
+          &pFd  ));
+      return pFd; 
+   }
+
+VkMemoryFdPropertiesKHR getMemoryFdPropertiesKHR(
+        VkDevice device,
+        VkExternalMemoryHandleTypeFlagBitsKHR handleType,
+        int fd)
+   {
+      if ( nullptr == pfvkGetMemoryFdPropertiesKHR )
+          throw std::runtime_error("Trying to use an unavailable function\n"
+                                   "Review you instance create info\n"
+                                   "and call load_vulkan_fct_ptrs() with the new instance");
+
+      VkMemoryFdPropertiesKHR pMemoryFdProperties; 
+      V( pfvkGetMemoryFdPropertiesKHR(
+          device,
+          handleType,
+          fd,
+          &pMemoryFdProperties  ));
+      return pMemoryFdProperties; 
+   }
+
+#ifdef VK_USE_PLATFORM_WIN32_KHR
+struct VkWin32KeyedMutexAcquireReleaseInfoKHRRAII {
+   VkWin32KeyedMutexAcquireReleaseInfoKHR nonRaiiObj;
+    std::vector<VkDeviceMemory>                 vecAcquireSyncs;
+    std::vector<uint64_t>                       vecAcquireKeys;
+    std::vector<uint32_t>                       vecAcquireTimeouts;
+    std::vector<VkDeviceMemory>                 vecReleaseSyncs;
+    std::vector<uint64_t>                       vecReleaseKeys;
+};
+
+std::shared_ptr<VkWin32KeyedMutexAcquireReleaseInfoKHRRAII> Win32KeyedMutexAcquireReleaseInfoKHR(
+    const std::vector<VkDeviceMemory> &         vecAcquireSyncs,
+    const std::vector<uint64_t> &               vecAcquireKeys,
+    unsigned int* pAcquireTimeouts_in_array1, int pAcquireTimeouts_dim1,
+    const std::vector<VkDeviceMemory> &         vecReleaseSyncs,
+    const std::vector<uint64_t> &               vecReleaseKeys)
+   {
+      std::shared_ptr<VkWin32KeyedMutexAcquireReleaseInfoKHRRAII> raii_obj(new VkWin32KeyedMutexAcquireReleaseInfoKHRRAII);
+      raii_obj->nonRaiiObj.sType = VK_STRUCTURE_TYPE_WIN32_KEYED_MUTEX_ACQUIRE_RELEASE_INFO_KHR;
+      raii_obj->nonRaiiObj.pNext = nullptr;
+      raii_obj->nonRaiiObj.acquireCount = static_cast<uint32_t>(vecAcquireSyncs.size());
+      raii_obj->vecAcquireSyncs = vecAcquireSyncs;
+      if ( raii_obj->vecAcquireSyncs.size() > 0)
+      {
+          raii_obj->nonRaiiObj.pAcquireSyncs = &raii_obj->vecAcquireSyncs[0];
+      }
+      else
+      {
+          raii_obj->nonRaiiObj.pAcquireSyncs = nullptr;
+      }
+      raii_obj->vecAcquireKeys = vecAcquireKeys;
+      if ( raii_obj->vecAcquireKeys.size() > 0)
+      {
+          raii_obj->nonRaiiObj.pAcquireKeys = &raii_obj->vecAcquireKeys[0];
+      }
+      else
+      {
+          raii_obj->nonRaiiObj.pAcquireKeys = nullptr;
+      }
+      raii_obj->vecAcquireTimeouts.assign(pAcquireTimeouts_in_array1, pAcquireTimeouts_in_array1 + pAcquireTimeouts_dim1);
+      if ( raii_obj->vecAcquireTimeouts.size() > 0)
+      {
+          raii_obj->nonRaiiObj.pAcquireTimeouts = &raii_obj->vecAcquireTimeouts[0];
+      }
+      else
+      {
+          raii_obj->nonRaiiObj.pAcquireTimeouts = nullptr;
+      }
+      raii_obj->nonRaiiObj.releaseCount = static_cast<uint32_t>(vecReleaseSyncs.size());
+      raii_obj->vecReleaseSyncs = vecReleaseSyncs;
+      if ( raii_obj->vecReleaseSyncs.size() > 0)
+      {
+          raii_obj->nonRaiiObj.pReleaseSyncs = &raii_obj->vecReleaseSyncs[0];
+      }
+      else
+      {
+          raii_obj->nonRaiiObj.pReleaseSyncs = nullptr;
+      }
+      raii_obj->vecReleaseKeys = vecReleaseKeys;
+      if ( raii_obj->vecReleaseKeys.size() > 0)
+      {
+          raii_obj->nonRaiiObj.pReleaseKeys = &raii_obj->vecReleaseKeys[0];
+      }
+      else
+      {
+          raii_obj->nonRaiiObj.pReleaseKeys = nullptr;
+      }
+      return raii_obj;
+   }
+
+#endif /* VK_USE_PLATFORM_WIN32_KHR*/
+VkPhysicalDeviceExternalSemaphoreInfoKHR PhysicalDeviceExternalSemaphoreInfoKHR(
+    VkExternalSemaphoreHandleTypeFlagBitsKHR    handleType)
+   {
+      VkPhysicalDeviceExternalSemaphoreInfoKHR obj;
+      obj.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTERNAL_SEMAPHORE_INFO_KHR;
+      obj.pNext = nullptr;
+      obj.handleType = handleType;
+      return obj;
+   }
+
+VkExternalSemaphorePropertiesKHR ExternalSemaphorePropertiesKHR(
+    VkExternalSemaphoreHandleTypeFlagsKHR       exportFromImportedHandleTypes,
+    VkExternalSemaphoreHandleTypeFlagsKHR       compatibleHandleTypes,
+    VkExternalSemaphoreFeatureFlagsKHR          externalSemaphoreFeatures)
+   {
+      VkExternalSemaphorePropertiesKHR obj;
+      obj.sType = VK_STRUCTURE_TYPE_EXTERNAL_SEMAPHORE_PROPERTIES_KHR;
+      obj.pNext = nullptr;
+      obj.exportFromImportedHandleTypes = exportFromImportedHandleTypes;
+      obj.compatibleHandleTypes = compatibleHandleTypes;
+      obj.externalSemaphoreFeatures = externalSemaphoreFeatures;
+      return obj;
+   }
+
+VkExternalSemaphorePropertiesKHR getPhysicalDeviceExternalSemaphorePropertiesKHR(
+        VkPhysicalDevice physicalDevice,
+        const VkPhysicalDeviceExternalSemaphoreInfoKHR & pExternalSemaphoreInfo)
+   {
+      if ( nullptr == pfvkGetPhysicalDeviceExternalSemaphorePropertiesKHR )
+          throw std::runtime_error("Trying to use an unavailable function\n"
+                                   "Review you instance create info\n"
+                                   "and call load_vulkan_fct_ptrs() with the new instance");
+
+      VkExternalSemaphorePropertiesKHR pExternalSemaphoreProperties; 
+      pfvkGetPhysicalDeviceExternalSemaphorePropertiesKHR(
+          physicalDevice,
+          &pExternalSemaphoreInfo,
+          &pExternalSemaphoreProperties  );
+      return pExternalSemaphoreProperties; 
+   }
+
+VkExportSemaphoreCreateInfoKHR ExportSemaphoreCreateInfoKHR(
+    VkExternalSemaphoreHandleTypeFlagsKHR       handleTypes)
+   {
+      VkExportSemaphoreCreateInfoKHR obj;
+      obj.sType = VK_STRUCTURE_TYPE_EXPORT_SEMAPHORE_CREATE_INFO_KHR;
+      obj.pNext = nullptr;
+      obj.handleTypes = handleTypes;
+      return obj;
+   }
+
+#ifdef VK_USE_PLATFORM_WIN32_KHR
+VkImportSemaphoreWin32HandleInfoKHR ImportSemaphoreWin32HandleInfoKHR(
+    VkSemaphore                                 semaphore,
+    VkSemaphoreImportFlagsKHR                   flags,
+    VkExternalSemaphoreHandleTypeFlagBitsKHR    handleType,
+    HANDLE                                      handle,
+    LPCWSTR                                     name)
+   {
+      VkImportSemaphoreWin32HandleInfoKHR obj;
+      obj.sType = VK_STRUCTURE_TYPE_IMPORT_SEMAPHORE_WIN32_HANDLE_INFO_KHR;
+      obj.pNext = nullptr;
+      obj.semaphore = semaphore;
+      obj.flags = flags;
+      obj.handleType = handleType;
+      obj.handle = handle;
+      obj.name = name;
+      return obj;
+   }
+
+struct VkExportSemaphoreWin32HandleInfoKHRRAII {
+   VkExportSemaphoreWin32HandleInfoKHR nonRaiiObj;
+    std::shared_ptr<SECURITY_ATTRIBUTES>        pAttributes;
+};
+
+std::shared_ptr<VkExportSemaphoreWin32HandleInfoKHRRAII> ExportSemaphoreWin32HandleInfoKHR(
+    const SECURITY_ATTRIBUTES *                 pAttributes,
+    DWORD                                       dwAccess,
+    LPCWSTR                                     name)
+   {
+      std::shared_ptr<VkExportSemaphoreWin32HandleInfoKHRRAII> raii_obj(new VkExportSemaphoreWin32HandleInfoKHRRAII);
+      raii_obj->nonRaiiObj.sType = VK_STRUCTURE_TYPE_EXPORT_SEMAPHORE_WIN32_HANDLE_INFO_KHR;
+      raii_obj->nonRaiiObj.pNext = nullptr;
+      raii_obj->nonRaiiObj.pAttributes = nullptr;
+      if ( pAttributes ) 
+      { 
+          raii_obj->pAttributes.reset( new SECURITY_ATTRIBUTES );
+          *raii_obj->pAttributes = *pAttributes;
+          raii_obj->nonRaiiObj.pAttributes = raii_obj->pAttributes.get();
+      } 
+      raii_obj->nonRaiiObj.dwAccess = dwAccess;
+      raii_obj->nonRaiiObj.name = name;
+      return raii_obj;
+   }
+
+struct VkD3D12FenceSubmitInfoKHRRAII {
+   VkD3D12FenceSubmitInfoKHR nonRaiiObj;
+    std::vector<uint64_t>                       vecWaitSemaphoreValues;
+    std::vector<uint64_t>                       vecSignalSemaphoreValues;
+};
+
+std::shared_ptr<VkD3D12FenceSubmitInfoKHRRAII> D3D12FenceSubmitInfoKHR(
+    const std::vector<uint64_t> &               vecWaitSemaphoreValues,
+    const std::vector<uint64_t> &               vecSignalSemaphoreValues)
+   {
+      std::shared_ptr<VkD3D12FenceSubmitInfoKHRRAII> raii_obj(new VkD3D12FenceSubmitInfoKHRRAII);
+      raii_obj->nonRaiiObj.sType = VK_STRUCTURE_TYPE_MAX_ENUM;
+      raii_obj->nonRaiiObj.pNext = nullptr;
+      raii_obj->nonRaiiObj.waitSemaphoreValuesCount = static_cast<uint32_t>(vecWaitSemaphoreValues.size());
+      raii_obj->vecWaitSemaphoreValues = vecWaitSemaphoreValues;
+      if ( raii_obj->vecWaitSemaphoreValues.size() > 0)
+      {
+          raii_obj->nonRaiiObj.pWaitSemaphoreValues = &raii_obj->vecWaitSemaphoreValues[0];
+      }
+      else
+      {
+          raii_obj->nonRaiiObj.pWaitSemaphoreValues = nullptr;
+      }
+      raii_obj->nonRaiiObj.signalSemaphoreValuesCount = static_cast<uint32_t>(vecSignalSemaphoreValues.size());
+      raii_obj->vecSignalSemaphoreValues = vecSignalSemaphoreValues;
+      if ( raii_obj->vecSignalSemaphoreValues.size() > 0)
+      {
+          raii_obj->nonRaiiObj.pSignalSemaphoreValues = &raii_obj->vecSignalSemaphoreValues[0];
+      }
+      else
+      {
+          raii_obj->nonRaiiObj.pSignalSemaphoreValues = nullptr;
+      }
+      return raii_obj;
+   }
+
+VkSemaphoreGetWin32HandleInfoKHR SemaphoreGetWin32HandleInfoKHR(
+    VkSemaphore                                 semaphore,
+    VkExternalSemaphoreHandleTypeFlagBitsKHR    handleType)
+   {
+      VkSemaphoreGetWin32HandleInfoKHR obj;
+      obj.sType = VK_STRUCTURE_TYPE_SEMAPHORE_GET_WIN32_HANDLE_INFO_KHR;
+      obj.pNext = nullptr;
+      obj.semaphore = semaphore;
+      obj.handleType = handleType;
+      return obj;
+   }
+
+void  importSemaphoreWin32HandleKHR(
+        VkDevice device,
+        const VkImportSemaphoreWin32HandleInfoKHR & pImportSemaphoreWin32HandleInfo)
+   {
+      if ( nullptr == pfvkImportSemaphoreWin32HandleKHR )
+          throw std::runtime_error("Trying to use an unavailable function\n"
+                                   "Review you instance create info\n"
+                                   "and call load_vulkan_fct_ptrs() with the new instance");
+
+      V( pfvkImportSemaphoreWin32HandleKHR(
+          device,
+          &pImportSemaphoreWin32HandleInfo  ));
+   }
+
+HANDLE getSemaphoreWin32HandleKHR(
+        VkDevice device,
+        const VkSemaphoreGetWin32HandleInfoKHR & pGetWin32HandleInfo)
+   {
+      if ( nullptr == pfvkGetSemaphoreWin32HandleKHR )
+          throw std::runtime_error("Trying to use an unavailable function\n"
+                                   "Review you instance create info\n"
+                                   "and call load_vulkan_fct_ptrs() with the new instance");
+
+      HANDLE pHandle; 
+      V( pfvkGetSemaphoreWin32HandleKHR(
+          device,
+          &pGetWin32HandleInfo,
+          &pHandle  ));
+      return pHandle; 
+   }
+
+#endif /* VK_USE_PLATFORM_WIN32_KHR*/
+VkImportSemaphoreFdInfoKHR ImportSemaphoreFdInfoKHR(
+    VkSemaphore                                 semaphore,
+    VkSemaphoreImportFlagsKHR                   flags,
+    VkExternalSemaphoreHandleTypeFlagBitsKHR    handleType,
+    int                                         fd)
+   {
+      VkImportSemaphoreFdInfoKHR obj;
+      obj.sType = VK_STRUCTURE_TYPE_IMPORT_SEMAPHORE_FD_INFO_KHR;
+      obj.pNext = nullptr;
+      obj.semaphore = semaphore;
+      obj.flags = flags;
+      obj.handleType = handleType;
+      obj.fd = fd;
+      return obj;
+   }
+
+VkSemaphoreGetFdInfoKHR SemaphoreGetFdInfoKHR(
+    VkSemaphore                                 semaphore,
+    VkExternalSemaphoreHandleTypeFlagBitsKHR    handleType)
+   {
+      VkSemaphoreGetFdInfoKHR obj;
+      obj.sType = VK_STRUCTURE_TYPE_SEMAPHORE_GET_FD_INFO_KHR;
+      obj.pNext = nullptr;
+      obj.semaphore = semaphore;
+      obj.handleType = handleType;
+      return obj;
+   }
+
+void  importSemaphoreFdKHR(
+        VkDevice device,
+        const VkImportSemaphoreFdInfoKHR & pImportSemaphoreFdInfo)
+   {
+      if ( nullptr == pfvkImportSemaphoreFdKHR )
+          throw std::runtime_error("Trying to use an unavailable function\n"
+                                   "Review you instance create info\n"
+                                   "and call load_vulkan_fct_ptrs() with the new instance");
+
+      V( pfvkImportSemaphoreFdKHR(
+          device,
+          &pImportSemaphoreFdInfo  ));
+   }
+
+int getSemaphoreFdKHR(
+        VkDevice device,
+        const VkSemaphoreGetFdInfoKHR & pGetFdInfo)
+   {
+      if ( nullptr == pfvkGetSemaphoreFdKHR )
+          throw std::runtime_error("Trying to use an unavailable function\n"
+                                   "Review you instance create info\n"
+                                   "and call load_vulkan_fct_ptrs() with the new instance");
+
+      int pFd; 
+      V( pfvkGetSemaphoreFdKHR(
+          device,
+          &pGetFdInfo,
+          &pFd  ));
+      return pFd; 
+   }
+
 VkPhysicalDevicePushDescriptorPropertiesKHR PhysicalDevicePushDescriptorPropertiesKHR(
     uint32_t                                    maxPushDescriptors)
    {
@@ -13013,6 +14612,80 @@ void  cmdPushDescriptorSetKHR(
           set,
           static_cast<uint32_t>(pDescriptorWrites.size()),
           &pDescriptorWrites[0]  );
+   }
+
+VkPhysicalDevice16BitStorageFeaturesKHR PhysicalDevice16BitStorageFeaturesKHR(
+    VkBool32                                    storageBuffer16BitAccess,
+    VkBool32                                    uniformAndStorageBuffer16BitAccess,
+    VkBool32                                    storagePushConstant16,
+    VkBool32                                    storageInputOutput16)
+   {
+      VkPhysicalDevice16BitStorageFeaturesKHR obj;
+      obj.sType = VK_STRUCTURE_TYPE_MAX_ENUM;
+      obj.pNext = nullptr;
+      obj.storageBuffer16BitAccess = storageBuffer16BitAccess;
+      obj.uniformAndStorageBuffer16BitAccess = uniformAndStorageBuffer16BitAccess;
+      obj.storagePushConstant16 = storagePushConstant16;
+      obj.storageInputOutput16 = storageInputOutput16;
+      return obj;
+   }
+
+VkRectLayerKHR RectLayerKHR(
+    VkOffset2D                                  offset,
+    VkExtent2D                                  extent,
+    uint32_t                                    layer)
+   {
+      VkRectLayerKHR obj;
+      obj.offset = offset;
+      obj.extent = extent;
+      obj.layer = layer;
+      return obj;
+   }
+
+struct VkPresentRegionKHRRAII {
+   VkPresentRegionKHR nonRaiiObj;
+    std::vector<VkRectLayerKHR>                 vecRectangles;
+};
+
+std::shared_ptr<VkPresentRegionKHRRAII> PresentRegionKHR(
+    const std::vector<VkRectLayerKHR> &         vecRectangles)
+   {
+      std::shared_ptr<VkPresentRegionKHRRAII> raii_obj(new VkPresentRegionKHRRAII);
+      raii_obj->nonRaiiObj.rectangleCount = static_cast<uint32_t>(vecRectangles.size());
+      raii_obj->vecRectangles = vecRectangles;
+      if ( raii_obj->vecRectangles.size() > 0)
+      {
+          raii_obj->nonRaiiObj.pRectangles = &raii_obj->vecRectangles[0];
+      }
+      else
+      {
+          raii_obj->nonRaiiObj.pRectangles = nullptr;
+      }
+      return raii_obj;
+   }
+
+struct VkPresentRegionsKHRRAII {
+   VkPresentRegionsKHR nonRaiiObj;
+    std::vector<VkPresentRegionKHR>             vecRegions;
+};
+
+std::shared_ptr<VkPresentRegionsKHRRAII> PresentRegionsKHR(
+    const std::vector<VkPresentRegionKHR> &     vecRegions)
+   {
+      std::shared_ptr<VkPresentRegionsKHRRAII> raii_obj(new VkPresentRegionsKHRRAII);
+      raii_obj->nonRaiiObj.sType = VK_STRUCTURE_TYPE_PRESENT_REGIONS_KHR;
+      raii_obj->nonRaiiObj.pNext = nullptr;
+      raii_obj->nonRaiiObj.swapchainCount = static_cast<uint32_t>(vecRegions.size());
+      raii_obj->vecRegions = vecRegions;
+      if ( raii_obj->vecRegions.size() > 0)
+      {
+          raii_obj->nonRaiiObj.pRegions = &raii_obj->vecRegions[0];
+      }
+      else
+      {
+          raii_obj->nonRaiiObj.pRegions = nullptr;
+      }
+      return raii_obj;
    }
 
 VkDescriptorUpdateTemplateEntryKHR DescriptorUpdateTemplateEntryKHR(
@@ -13086,6 +14759,449 @@ std::shared_ptr<VkDescriptorUpdateTemplateKHR_T> createDescriptorUpdateTemplateK
           &hDescriptorUpdateTemplate  ));
       return std::shared_ptr<VkDescriptorUpdateTemplateKHR_T>(hDescriptorUpdateTemplate, 
               [=](VkDescriptorUpdateTemplateKHR to_free) {pfvkDestroyDescriptorUpdateTemplateKHR(device, to_free, nullptr);});
+   }
+
+VkSharedPresentSurfaceCapabilitiesKHR SharedPresentSurfaceCapabilitiesKHR(
+    VkImageUsageFlags                           sharedPresentSupportedUsageFlags)
+   {
+      VkSharedPresentSurfaceCapabilitiesKHR obj;
+      obj.sType = VK_STRUCTURE_TYPE_SHARED_PRESENT_SURFACE_CAPABILITIES_KHR;
+      obj.pNext = nullptr;
+      obj.sharedPresentSupportedUsageFlags = sharedPresentSupportedUsageFlags;
+      return obj;
+   }
+
+void  getSwapchainStatusKHR(
+        VkDevice device,
+        VkSwapchainKHR swapchain)
+   {
+      if ( nullptr == pfvkGetSwapchainStatusKHR )
+          throw std::runtime_error("Trying to use an unavailable function\n"
+                                   "Review you instance create info\n"
+                                   "and call load_vulkan_fct_ptrs() with the new instance");
+
+      V( pfvkGetSwapchainStatusKHR(
+          device,
+          swapchain  ));
+   }
+
+VkPhysicalDeviceExternalFenceInfoKHR PhysicalDeviceExternalFenceInfoKHR(
+    VkExternalFenceHandleTypeFlagBitsKHR        handleType)
+   {
+      VkPhysicalDeviceExternalFenceInfoKHR obj;
+      obj.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTERNAL_FENCE_INFO_KHR;
+      obj.pNext = nullptr;
+      obj.handleType = handleType;
+      return obj;
+   }
+
+VkExternalFencePropertiesKHR ExternalFencePropertiesKHR(
+    VkExternalFenceHandleTypeFlagsKHR           exportFromImportedHandleTypes,
+    VkExternalFenceHandleTypeFlagsKHR           compatibleHandleTypes,
+    VkExternalFenceFeatureFlagsKHR              externalFenceFeatures)
+   {
+      VkExternalFencePropertiesKHR obj;
+      obj.sType = VK_STRUCTURE_TYPE_EXTERNAL_FENCE_PROPERTIES_KHR;
+      obj.pNext = nullptr;
+      obj.exportFromImportedHandleTypes = exportFromImportedHandleTypes;
+      obj.compatibleHandleTypes = compatibleHandleTypes;
+      obj.externalFenceFeatures = externalFenceFeatures;
+      return obj;
+   }
+
+VkExternalFencePropertiesKHR getPhysicalDeviceExternalFencePropertiesKHR(
+        VkPhysicalDevice physicalDevice,
+        const VkPhysicalDeviceExternalFenceInfoKHR & pExternalFenceInfo)
+   {
+      if ( nullptr == pfvkGetPhysicalDeviceExternalFencePropertiesKHR )
+          throw std::runtime_error("Trying to use an unavailable function\n"
+                                   "Review you instance create info\n"
+                                   "and call load_vulkan_fct_ptrs() with the new instance");
+
+      VkExternalFencePropertiesKHR pExternalFenceProperties; 
+      pfvkGetPhysicalDeviceExternalFencePropertiesKHR(
+          physicalDevice,
+          &pExternalFenceInfo,
+          &pExternalFenceProperties  );
+      return pExternalFenceProperties; 
+   }
+
+VkExportFenceCreateInfoKHR ExportFenceCreateInfoKHR(
+    VkExternalFenceHandleTypeFlagsKHR           handleTypes)
+   {
+      VkExportFenceCreateInfoKHR obj;
+      obj.sType = VK_STRUCTURE_TYPE_EXPORT_FENCE_CREATE_INFO_KHR;
+      obj.pNext = nullptr;
+      obj.handleTypes = handleTypes;
+      return obj;
+   }
+
+#ifdef VK_USE_PLATFORM_WIN32_KHR
+VkImportFenceWin32HandleInfoKHR ImportFenceWin32HandleInfoKHR(
+    VkFence                                     fence,
+    VkFenceImportFlagsKHR                       flags,
+    VkExternalFenceHandleTypeFlagBitsKHR        handleType,
+    HANDLE                                      handle,
+    LPCWSTR                                     name)
+   {
+      VkImportFenceWin32HandleInfoKHR obj;
+      obj.sType = VK_STRUCTURE_TYPE_IMPORT_FENCE_WIN32_HANDLE_INFO_KHR;
+      obj.pNext = nullptr;
+      obj.fence = fence;
+      obj.flags = flags;
+      obj.handleType = handleType;
+      obj.handle = handle;
+      obj.name = name;
+      return obj;
+   }
+
+struct VkExportFenceWin32HandleInfoKHRRAII {
+   VkExportFenceWin32HandleInfoKHR nonRaiiObj;
+    std::shared_ptr<SECURITY_ATTRIBUTES>        pAttributes;
+};
+
+std::shared_ptr<VkExportFenceWin32HandleInfoKHRRAII> ExportFenceWin32HandleInfoKHR(
+    const SECURITY_ATTRIBUTES *                 pAttributes,
+    DWORD                                       dwAccess,
+    LPCWSTR                                     name)
+   {
+      std::shared_ptr<VkExportFenceWin32HandleInfoKHRRAII> raii_obj(new VkExportFenceWin32HandleInfoKHRRAII);
+      raii_obj->nonRaiiObj.sType = VK_STRUCTURE_TYPE_EXPORT_FENCE_WIN32_HANDLE_INFO_KHR;
+      raii_obj->nonRaiiObj.pNext = nullptr;
+      raii_obj->nonRaiiObj.pAttributes = nullptr;
+      if ( pAttributes ) 
+      { 
+          raii_obj->pAttributes.reset( new SECURITY_ATTRIBUTES );
+          *raii_obj->pAttributes = *pAttributes;
+          raii_obj->nonRaiiObj.pAttributes = raii_obj->pAttributes.get();
+      } 
+      raii_obj->nonRaiiObj.dwAccess = dwAccess;
+      raii_obj->nonRaiiObj.name = name;
+      return raii_obj;
+   }
+
+VkFenceGetWin32HandleInfoKHR FenceGetWin32HandleInfoKHR(
+    VkFence                                     fence,
+    VkExternalFenceHandleTypeFlagBitsKHR        handleType)
+   {
+      VkFenceGetWin32HandleInfoKHR obj;
+      obj.sType = VK_STRUCTURE_TYPE_FENCE_GET_WIN32_HANDLE_INFO_KHR;
+      obj.pNext = nullptr;
+      obj.fence = fence;
+      obj.handleType = handleType;
+      return obj;
+   }
+
+void  importFenceWin32HandleKHR(
+        VkDevice device,
+        const VkImportFenceWin32HandleInfoKHR & pImportFenceWin32HandleInfo)
+   {
+      if ( nullptr == pfvkImportFenceWin32HandleKHR )
+          throw std::runtime_error("Trying to use an unavailable function\n"
+                                   "Review you instance create info\n"
+                                   "and call load_vulkan_fct_ptrs() with the new instance");
+
+      V( pfvkImportFenceWin32HandleKHR(
+          device,
+          &pImportFenceWin32HandleInfo  ));
+   }
+
+HANDLE getFenceWin32HandleKHR(
+        VkDevice device,
+        const VkFenceGetWin32HandleInfoKHR & pGetWin32HandleInfo)
+   {
+      if ( nullptr == pfvkGetFenceWin32HandleKHR )
+          throw std::runtime_error("Trying to use an unavailable function\n"
+                                   "Review you instance create info\n"
+                                   "and call load_vulkan_fct_ptrs() with the new instance");
+
+      HANDLE pHandle; 
+      V( pfvkGetFenceWin32HandleKHR(
+          device,
+          &pGetWin32HandleInfo,
+          &pHandle  ));
+      return pHandle; 
+   }
+
+#endif /* VK_USE_PLATFORM_WIN32_KHR*/
+VkImportFenceFdInfoKHR ImportFenceFdInfoKHR(
+    VkFence                                     fence,
+    VkFenceImportFlagsKHR                       flags,
+    VkExternalFenceHandleTypeFlagBitsKHR        handleType,
+    int                                         fd)
+   {
+      VkImportFenceFdInfoKHR obj;
+      obj.sType = VK_STRUCTURE_TYPE_IMPORT_FENCE_FD_INFO_KHR;
+      obj.pNext = nullptr;
+      obj.fence = fence;
+      obj.flags = flags;
+      obj.handleType = handleType;
+      obj.fd = fd;
+      return obj;
+   }
+
+VkFenceGetFdInfoKHR FenceGetFdInfoKHR(
+    VkFence                                     fence,
+    VkExternalFenceHandleTypeFlagBitsKHR        handleType)
+   {
+      VkFenceGetFdInfoKHR obj;
+      obj.sType = VK_STRUCTURE_TYPE_FENCE_GET_FD_INFO_KHR;
+      obj.pNext = nullptr;
+      obj.fence = fence;
+      obj.handleType = handleType;
+      return obj;
+   }
+
+void  importFenceFdKHR(
+        VkDevice device,
+        const VkImportFenceFdInfoKHR & pImportFenceFdInfo)
+   {
+      if ( nullptr == pfvkImportFenceFdKHR )
+          throw std::runtime_error("Trying to use an unavailable function\n"
+                                   "Review you instance create info\n"
+                                   "and call load_vulkan_fct_ptrs() with the new instance");
+
+      V( pfvkImportFenceFdKHR(
+          device,
+          &pImportFenceFdInfo  ));
+   }
+
+int getFenceFdKHR(
+        VkDevice device,
+        const VkFenceGetFdInfoKHR & pGetFdInfo)
+   {
+      if ( nullptr == pfvkGetFenceFdKHR )
+          throw std::runtime_error("Trying to use an unavailable function\n"
+                                   "Review you instance create info\n"
+                                   "and call load_vulkan_fct_ptrs() with the new instance");
+
+      int pFd; 
+      V( pfvkGetFenceFdKHR(
+          device,
+          &pGetFdInfo,
+          &pFd  ));
+      return pFd; 
+   }
+
+VkPhysicalDeviceSurfaceInfo2KHR PhysicalDeviceSurfaceInfo2KHR(
+    VkSurfaceKHR                                surface)
+   {
+      VkPhysicalDeviceSurfaceInfo2KHR obj;
+      obj.sType = VK_STRUCTURE_TYPE_MAX_ENUM;
+      obj.pNext = nullptr;
+      obj.surface = surface;
+      return obj;
+   }
+
+VkSurfaceCapabilities2KHR SurfaceCapabilities2KHR(
+    VkSurfaceCapabilitiesKHR                    surfaceCapabilities)
+   {
+      VkSurfaceCapabilities2KHR obj;
+      obj.sType = VK_STRUCTURE_TYPE_MAX_ENUM;
+      obj.pNext = nullptr;
+      obj.surfaceCapabilities = surfaceCapabilities;
+      return obj;
+   }
+
+VkSurfaceFormat2KHR SurfaceFormat2KHR(
+    VkSurfaceFormatKHR                          surfaceFormat)
+   {
+      VkSurfaceFormat2KHR obj;
+      obj.sType = VK_STRUCTURE_TYPE_MAX_ENUM;
+      obj.pNext = nullptr;
+      obj.surfaceFormat = surfaceFormat;
+      return obj;
+   }
+
+VkSurfaceCapabilities2KHR getPhysicalDeviceSurfaceCapabilities2KHR(
+        VkPhysicalDevice physicalDevice,
+        const VkPhysicalDeviceSurfaceInfo2KHR & pSurfaceInfo)
+   {
+      if ( nullptr == pfvkGetPhysicalDeviceSurfaceCapabilities2KHR )
+          throw std::runtime_error("Trying to use an unavailable function\n"
+                                   "Review you instance create info\n"
+                                   "and call load_vulkan_fct_ptrs() with the new instance");
+
+      VkSurfaceCapabilities2KHR pSurfaceCapabilities; 
+      V( pfvkGetPhysicalDeviceSurfaceCapabilities2KHR(
+          physicalDevice,
+          &pSurfaceInfo,
+          &pSurfaceCapabilities  ));
+      return pSurfaceCapabilities; 
+   }
+
+std::vector< VkSurfaceFormat2KHR > getPhysicalDeviceSurfaceFormats2KHR(
+        VkPhysicalDevice physicalDevice,
+        const VkPhysicalDeviceSurfaceInfo2KHR & pSurfaceInfo)
+   {
+      if ( nullptr == pfvkGetPhysicalDeviceSurfaceFormats2KHR )
+          throw std::runtime_error("Trying to use an unavailable function\n"
+                                   "Review you instance create info\n"
+                                   "and call load_vulkan_fct_ptrs() with the new instance");
+
+      std::vector<VkSurfaceFormat2KHR> vecpSurfaceFormats; 
+      uint32_t pSurfaceFormatsCount; 
+      V( pfvkGetPhysicalDeviceSurfaceFormats2KHR(
+          physicalDevice,
+          &pSurfaceInfo,
+          &pSurfaceFormatsCount,
+          nullptr  ));
+
+      vecpSurfaceFormats.resize(pSurfaceFormatsCount); 
+
+      V( pfvkGetPhysicalDeviceSurfaceFormats2KHR(
+          physicalDevice,
+          &pSurfaceInfo,
+          &pSurfaceFormatsCount,
+          &vecpSurfaceFormats[0]  ));
+      return vecpSurfaceFormats; 
+   }
+
+VkPhysicalDeviceVariablePointerFeaturesKHR PhysicalDeviceVariablePointerFeaturesKHR(
+    VkBool32                                    variablePointersStorageBuffer,
+    VkBool32                                    variablePointers)
+   {
+      VkPhysicalDeviceVariablePointerFeaturesKHR obj;
+      obj.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VARIABLE_POINTER_FEATURES_KHR;
+      obj.pNext = nullptr;
+      obj.variablePointersStorageBuffer = variablePointersStorageBuffer;
+      obj.variablePointers = variablePointers;
+      return obj;
+   }
+
+VkMemoryDedicatedRequirementsKHR MemoryDedicatedRequirementsKHR(
+    VkBool32                                    prefersDedicatedAllocation,
+    VkBool32                                    requiresDedicatedAllocation)
+   {
+      VkMemoryDedicatedRequirementsKHR obj;
+      obj.sType = VK_STRUCTURE_TYPE_MEMORY_DEDICATED_REQUIREMENTS_KHR;
+      obj.pNext = nullptr;
+      obj.prefersDedicatedAllocation = prefersDedicatedAllocation;
+      obj.requiresDedicatedAllocation = requiresDedicatedAllocation;
+      return obj;
+   }
+
+VkMemoryDedicatedAllocateInfoKHR MemoryDedicatedAllocateInfoKHR(
+    VkImage                                     image,
+    VkBuffer                                    buffer)
+   {
+      VkMemoryDedicatedAllocateInfoKHR obj;
+      obj.sType = VK_STRUCTURE_TYPE_MEMORY_DEDICATED_ALLOCATE_INFO_KHR;
+      obj.pNext = nullptr;
+      obj.image = image;
+      obj.buffer = buffer;
+      return obj;
+   }
+
+VkBufferMemoryRequirementsInfo2KHR BufferMemoryRequirementsInfo2KHR(
+    VkBuffer                                    buffer)
+   {
+      VkBufferMemoryRequirementsInfo2KHR obj;
+      obj.sType = VK_STRUCTURE_TYPE_MAX_ENUM;
+      obj.pNext = nullptr;
+      obj.buffer = buffer;
+      return obj;
+   }
+
+VkImageMemoryRequirementsInfo2KHR ImageMemoryRequirementsInfo2KHR(
+    VkImage                                     image)
+   {
+      VkImageMemoryRequirementsInfo2KHR obj;
+      obj.sType = VK_STRUCTURE_TYPE_MAX_ENUM;
+      obj.pNext = nullptr;
+      obj.image = image;
+      return obj;
+   }
+
+VkImageSparseMemoryRequirementsInfo2KHR ImageSparseMemoryRequirementsInfo2KHR(
+    VkImage                                     image)
+   {
+      VkImageSparseMemoryRequirementsInfo2KHR obj;
+      obj.sType = VK_STRUCTURE_TYPE_MAX_ENUM;
+      obj.pNext = nullptr;
+      obj.image = image;
+      return obj;
+   }
+
+VkMemoryRequirements2KHR MemoryRequirements2KHR(
+    VkMemoryRequirements                        memoryRequirements)
+   {
+      VkMemoryRequirements2KHR obj;
+      obj.sType = VK_STRUCTURE_TYPE_MAX_ENUM;
+      obj.pNext = nullptr;
+      obj.memoryRequirements = memoryRequirements;
+      return obj;
+   }
+
+VkSparseImageMemoryRequirements2KHR SparseImageMemoryRequirements2KHR(
+    VkSparseImageMemoryRequirements             memoryRequirements)
+   {
+      VkSparseImageMemoryRequirements2KHR obj;
+      obj.sType = VK_STRUCTURE_TYPE_MAX_ENUM;
+      obj.pNext = nullptr;
+      obj.memoryRequirements = memoryRequirements;
+      return obj;
+   }
+
+VkMemoryRequirements2KHR getImageMemoryRequirements2KHR(
+        VkDevice device,
+        const VkImageMemoryRequirementsInfo2KHR & pInfo)
+   {
+      if ( nullptr == pfvkGetImageMemoryRequirements2KHR )
+          throw std::runtime_error("Trying to use an unavailable function\n"
+                                   "Review you instance create info\n"
+                                   "and call load_vulkan_fct_ptrs() with the new instance");
+
+      VkMemoryRequirements2KHR pMemoryRequirements; 
+      pfvkGetImageMemoryRequirements2KHR(
+          device,
+          &pInfo,
+          &pMemoryRequirements  );
+      return pMemoryRequirements; 
+   }
+
+VkMemoryRequirements2KHR getBufferMemoryRequirements2KHR(
+        VkDevice device,
+        const VkBufferMemoryRequirementsInfo2KHR & pInfo)
+   {
+      if ( nullptr == pfvkGetBufferMemoryRequirements2KHR )
+          throw std::runtime_error("Trying to use an unavailable function\n"
+                                   "Review you instance create info\n"
+                                   "and call load_vulkan_fct_ptrs() with the new instance");
+
+      VkMemoryRequirements2KHR pMemoryRequirements; 
+      pfvkGetBufferMemoryRequirements2KHR(
+          device,
+          &pInfo,
+          &pMemoryRequirements  );
+      return pMemoryRequirements; 
+   }
+
+std::vector< VkSparseImageMemoryRequirements2KHR > getImageSparseMemoryRequirements2KHR(
+        VkDevice device,
+        const VkImageSparseMemoryRequirementsInfo2KHR & pInfo)
+   {
+      if ( nullptr == pfvkGetImageSparseMemoryRequirements2KHR )
+          throw std::runtime_error("Trying to use an unavailable function\n"
+                                   "Review you instance create info\n"
+                                   "and call load_vulkan_fct_ptrs() with the new instance");
+
+      std::vector<VkSparseImageMemoryRequirements2KHR> vecpSparseMemoryRequirements; 
+      uint32_t pSparseMemoryRequirementsCount; 
+      pfvkGetImageSparseMemoryRequirements2KHR(
+          device,
+          &pInfo,
+          &pSparseMemoryRequirementsCount,
+          nullptr  );
+
+      vecpSparseMemoryRequirements.resize(pSparseMemoryRequirementsCount); 
+
+      pfvkGetImageSparseMemoryRequirements2KHR(
+          device,
+          &pInfo,
+          &pSparseMemoryRequirementsCount,
+          &vecpSparseMemoryRequirements[0]  );
+      return vecpSparseMemoryRequirements; 
    }
 
 VkDebugReportCallbackCreateInfoEXT DebugReportCallbackCreateInfoEXT(
@@ -13224,49 +15340,46 @@ std::shared_ptr<VkDebugMarkerMarkerInfoEXTRAII> DebugMarkerMarkerInfoEXT(
       return raii_obj;
    }
 
-std::shared_ptr< VkDebugMarkerObjectTagInfoEXT > debugMarkerSetObjectTagEXT(
-        VkDevice device)
+void  debugMarkerSetObjectTagEXT(
+        VkDevice device,
+        const VkDebugMarkerObjectTagInfoEXT & pTagInfo)
    {
       if ( nullptr == pfvkDebugMarkerSetObjectTagEXT )
           throw std::runtime_error("Trying to use an unavailable function\n"
                                    "Review you instance create info\n"
                                    "and call load_vulkan_fct_ptrs() with the new instance");
 
-      std::shared_ptr<VkDebugMarkerObjectTagInfoEXT> ptrpTagInfo(new VkDebugMarkerObjectTagInfoEXT); 
       V( pfvkDebugMarkerSetObjectTagEXT(
           device,
-          ptrpTagInfo.get()  ));
-      return ptrpTagInfo; 
+          &pTagInfo  ));
    }
 
-std::shared_ptr< VkDebugMarkerObjectNameInfoEXT > debugMarkerSetObjectNameEXT(
-        VkDevice device)
+void  debugMarkerSetObjectNameEXT(
+        VkDevice device,
+        const VkDebugMarkerObjectNameInfoEXT & pNameInfo)
    {
       if ( nullptr == pfvkDebugMarkerSetObjectNameEXT )
           throw std::runtime_error("Trying to use an unavailable function\n"
                                    "Review you instance create info\n"
                                    "and call load_vulkan_fct_ptrs() with the new instance");
 
-      std::shared_ptr<VkDebugMarkerObjectNameInfoEXT> ptrpNameInfo(new VkDebugMarkerObjectNameInfoEXT); 
       V( pfvkDebugMarkerSetObjectNameEXT(
           device,
-          ptrpNameInfo.get()  ));
-      return ptrpNameInfo; 
+          &pNameInfo  ));
    }
 
-std::shared_ptr< VkDebugMarkerMarkerInfoEXT > cmdDebugMarkerBeginEXT(
-        VkCommandBuffer commandBuffer)
+void  cmdDebugMarkerBeginEXT(
+        VkCommandBuffer commandBuffer,
+        const VkDebugMarkerMarkerInfoEXT & pMarkerInfo)
    {
       if ( nullptr == pfvkCmdDebugMarkerBeginEXT )
           throw std::runtime_error("Trying to use an unavailable function\n"
                                    "Review you instance create info\n"
                                    "and call load_vulkan_fct_ptrs() with the new instance");
 
-      std::shared_ptr<VkDebugMarkerMarkerInfoEXT> ptrpMarkerInfo(new VkDebugMarkerMarkerInfoEXT); 
       pfvkCmdDebugMarkerBeginEXT(
           commandBuffer,
-          ptrpMarkerInfo.get()  );
-      return ptrpMarkerInfo; 
+          &pMarkerInfo  );
    }
 
 void  cmdDebugMarkerEndEXT(
@@ -13281,19 +15394,18 @@ void  cmdDebugMarkerEndEXT(
           commandBuffer  );
    }
 
-std::shared_ptr< VkDebugMarkerMarkerInfoEXT > cmdDebugMarkerInsertEXT(
-        VkCommandBuffer commandBuffer)
+void  cmdDebugMarkerInsertEXT(
+        VkCommandBuffer commandBuffer,
+        const VkDebugMarkerMarkerInfoEXT & pMarkerInfo)
    {
       if ( nullptr == pfvkCmdDebugMarkerInsertEXT )
           throw std::runtime_error("Trying to use an unavailable function\n"
                                    "Review you instance create info\n"
                                    "and call load_vulkan_fct_ptrs() with the new instance");
 
-      std::shared_ptr<VkDebugMarkerMarkerInfoEXT> ptrpMarkerInfo(new VkDebugMarkerMarkerInfoEXT); 
       pfvkCmdDebugMarkerInsertEXT(
           commandBuffer,
-          ptrpMarkerInfo.get()  );
-      return ptrpMarkerInfo; 
+          &pMarkerInfo  );
    }
 
 VkDedicatedAllocationImageCreateInfoNV DedicatedAllocationImageCreateInfoNV(
@@ -13374,6 +15486,16 @@ void  cmdDrawIndexedIndirectCountAMD(
           countBufferOffset,
           maxDrawCount,
           stride  );
+   }
+
+VkTextureLODGatherFormatPropertiesAMD TextureLODGatherFormatPropertiesAMD(
+    VkBool32                                    supportsTextureGatherLODBiasAMD)
+   {
+      VkTextureLODGatherFormatPropertiesAMD obj;
+      obj.sType = VK_STRUCTURE_TYPE_MAX_ENUM;
+      obj.pNext = nullptr;
+      obj.supportsTextureGatherLODBiasAMD = supportsTextureGatherLODBiasAMD;
+      return obj;
    }
 
 struct VkRenderPassMultiviewCreateInfoKHXRAII {
@@ -14189,621 +16311,6 @@ std::vector< VkPhysicalDeviceGroupPropertiesKHX > enumeratePhysicalDeviceGroupsK
       return vecpPhysicalDeviceGroupProperties; 
    }
 
-VkExternalMemoryPropertiesKHX ExternalMemoryPropertiesKHX(
-    VkExternalMemoryFeatureFlagsKHX             externalMemoryFeatures,
-    VkExternalMemoryHandleTypeFlagsKHX          exportFromImportedHandleTypes,
-    VkExternalMemoryHandleTypeFlagsKHX          compatibleHandleTypes)
-   {
-      VkExternalMemoryPropertiesKHX obj;
-      obj.externalMemoryFeatures = externalMemoryFeatures;
-      obj.exportFromImportedHandleTypes = exportFromImportedHandleTypes;
-      obj.compatibleHandleTypes = compatibleHandleTypes;
-      return obj;
-   }
-
-VkPhysicalDeviceExternalImageFormatInfoKHX PhysicalDeviceExternalImageFormatInfoKHX(
-    VkExternalMemoryHandleTypeFlagBitsKHX       handleType)
-   {
-      VkPhysicalDeviceExternalImageFormatInfoKHX obj;
-      obj.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTERNAL_IMAGE_FORMAT_INFO_KHX;
-      obj.pNext = nullptr;
-      obj.handleType = handleType;
-      return obj;
-   }
-
-VkExternalImageFormatPropertiesKHX ExternalImageFormatPropertiesKHX(
-    VkExternalMemoryPropertiesKHX               externalMemoryProperties)
-   {
-      VkExternalImageFormatPropertiesKHX obj;
-      obj.sType = VK_STRUCTURE_TYPE_EXTERNAL_IMAGE_FORMAT_PROPERTIES_KHX;
-      obj.pNext = nullptr;
-      obj.externalMemoryProperties = externalMemoryProperties;
-      return obj;
-   }
-
-VkPhysicalDeviceExternalBufferInfoKHX PhysicalDeviceExternalBufferInfoKHX(
-    VkBufferCreateFlags                         flags,
-    VkBufferUsageFlags                          usage,
-    VkExternalMemoryHandleTypeFlagBitsKHX       handleType)
-   {
-      VkPhysicalDeviceExternalBufferInfoKHX obj;
-      obj.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTERNAL_BUFFER_INFO_KHX;
-      obj.pNext = nullptr;
-      obj.flags = flags;
-      obj.usage = usage;
-      obj.handleType = handleType;
-      return obj;
-   }
-
-VkExternalBufferPropertiesKHX ExternalBufferPropertiesKHX(
-    VkExternalMemoryPropertiesKHX               externalMemoryProperties)
-   {
-      VkExternalBufferPropertiesKHX obj;
-      obj.sType = VK_STRUCTURE_TYPE_EXTERNAL_BUFFER_PROPERTIES_KHX;
-      obj.pNext = nullptr;
-      obj.externalMemoryProperties = externalMemoryProperties;
-      return obj;
-   }
-
-VkPhysicalDeviceIDPropertiesKHX PhysicalDeviceIDPropertiesKHX(
-    uint8_t                                     deviceUUID[VK_UUID_SIZE],
-    uint8_t                                     driverUUID[VK_UUID_SIZE],
-    uint8_t                                     deviceLUID[VK_LUID_SIZE_KHX],
-    VkBool32                                    deviceLUIDValid)
-   {
-      VkPhysicalDeviceIDPropertiesKHX obj;
-      obj.sType = VK_STRUCTURE_TYPE_MAX_ENUM;
-      obj.pNext = nullptr;
-      std::copy(deviceUUID, deviceUUID + VK_UUID_SIZE, obj.deviceUUID);
-      std::copy(driverUUID, driverUUID + VK_UUID_SIZE, obj.driverUUID);
-      std::copy(deviceLUID, deviceLUID + VK_LUID_SIZE_KHX, obj.deviceLUID);
-      obj.deviceLUIDValid = deviceLUIDValid;
-      return obj;
-   }
-
-VkPhysicalDeviceProperties2KHX PhysicalDeviceProperties2KHX(
-    VkPhysicalDeviceProperties                  properties)
-   {
-      VkPhysicalDeviceProperties2KHX obj;
-      obj.sType = VK_STRUCTURE_TYPE_MAX_ENUM;
-      obj.pNext = nullptr;
-      obj.properties = properties;
-      return obj;
-   }
-
-VkImageFormatProperties2KHX ImageFormatProperties2KHX(
-    VkImageFormatProperties                     imageFormatProperties)
-   {
-      VkImageFormatProperties2KHX obj;
-      obj.sType = VK_STRUCTURE_TYPE_MAX_ENUM;
-      obj.pNext = nullptr;
-      obj.imageFormatProperties = imageFormatProperties;
-      return obj;
-   }
-
-VkPhysicalDeviceImageFormatInfo2KHX PhysicalDeviceImageFormatInfo2KHX(
-    VkFormat                                    format,
-    VkImageType                                 type,
-    VkImageTiling                               tiling,
-    VkImageUsageFlags                           usage,
-    VkImageCreateFlags                          flags)
-   {
-      VkPhysicalDeviceImageFormatInfo2KHX obj;
-      obj.sType = VK_STRUCTURE_TYPE_MAX_ENUM;
-      obj.pNext = nullptr;
-      obj.format = format;
-      obj.type = type;
-      obj.tiling = tiling;
-      obj.usage = usage;
-      obj.flags = flags;
-      return obj;
-   }
-
-VkExternalBufferPropertiesKHX getPhysicalDeviceExternalBufferPropertiesKHX(
-        VkPhysicalDevice physicalDevice,
-        const VkPhysicalDeviceExternalBufferInfoKHX & pExternalBufferInfo)
-   {
-      if ( nullptr == pfvkGetPhysicalDeviceExternalBufferPropertiesKHX )
-          throw std::runtime_error("Trying to use an unavailable function\n"
-                                   "Review you instance create info\n"
-                                   "and call load_vulkan_fct_ptrs() with the new instance");
-
-      VkExternalBufferPropertiesKHX pExternalBufferProperties; 
-      pfvkGetPhysicalDeviceExternalBufferPropertiesKHX(
-          physicalDevice,
-          &pExternalBufferInfo,
-          &pExternalBufferProperties  );
-      return pExternalBufferProperties; 
-   }
-
-VkPhysicalDeviceProperties2KHX getPhysicalDeviceProperties2KHX(
-        VkPhysicalDevice physicalDevice)
-   {
-      if ( nullptr == pfvkGetPhysicalDeviceProperties2KHX )
-          throw std::runtime_error("Trying to use an unavailable function\n"
-                                   "Review you instance create info\n"
-                                   "and call load_vulkan_fct_ptrs() with the new instance");
-
-      VkPhysicalDeviceProperties2KHX pProperties; 
-      pfvkGetPhysicalDeviceProperties2KHX(
-          physicalDevice,
-          &pProperties  );
-      return pProperties; 
-   }
-
-VkImageFormatProperties2KHX getPhysicalDeviceImageFormatProperties2KHX(
-        VkPhysicalDevice physicalDevice,
-        const VkPhysicalDeviceImageFormatInfo2KHX & pImageFormatInfo)
-   {
-      if ( nullptr == pfvkGetPhysicalDeviceImageFormatProperties2KHX )
-          throw std::runtime_error("Trying to use an unavailable function\n"
-                                   "Review you instance create info\n"
-                                   "and call load_vulkan_fct_ptrs() with the new instance");
-
-      VkImageFormatProperties2KHX pImageFormatProperties; 
-      V( pfvkGetPhysicalDeviceImageFormatProperties2KHX(
-          physicalDevice,
-          &pImageFormatInfo,
-          &pImageFormatProperties  ));
-      return pImageFormatProperties; 
-   }
-
-VkExternalMemoryImageCreateInfoKHX ExternalMemoryImageCreateInfoKHX(
-    VkExternalMemoryHandleTypeFlagsKHX          handleTypes)
-   {
-      VkExternalMemoryImageCreateInfoKHX obj;
-      obj.sType = VK_STRUCTURE_TYPE_EXTERNAL_MEMORY_IMAGE_CREATE_INFO_KHX;
-      obj.pNext = nullptr;
-      obj.handleTypes = handleTypes;
-      return obj;
-   }
-
-VkExternalMemoryBufferCreateInfoKHX ExternalMemoryBufferCreateInfoKHX(
-    VkExternalMemoryHandleTypeFlagsKHX          handleTypes)
-   {
-      VkExternalMemoryBufferCreateInfoKHX obj;
-      obj.sType = VK_STRUCTURE_TYPE_EXTERNAL_MEMORY_BUFFER_CREATE_INFO_KHX;
-      obj.pNext = nullptr;
-      obj.handleTypes = handleTypes;
-      return obj;
-   }
-
-VkExportMemoryAllocateInfoKHX ExportMemoryAllocateInfoKHX(
-    VkExternalMemoryHandleTypeFlagsKHX          handleTypes)
-   {
-      VkExportMemoryAllocateInfoKHX obj;
-      obj.sType = VK_STRUCTURE_TYPE_EXPORT_MEMORY_ALLOCATE_INFO_KHX;
-      obj.pNext = nullptr;
-      obj.handleTypes = handleTypes;
-      return obj;
-   }
-
-#ifdef VK_USE_PLATFORM_WIN32_KHR
-VkImportMemoryWin32HandleInfoKHX ImportMemoryWin32HandleInfoKHX(
-    VkExternalMemoryHandleTypeFlagBitsKHX       handleType,
-    HANDLE                                      handle)
-   {
-      VkImportMemoryWin32HandleInfoKHX obj;
-      obj.sType = VK_STRUCTURE_TYPE_IMPORT_MEMORY_WIN32_HANDLE_INFO_KHX;
-      obj.pNext = nullptr;
-      obj.handleType = handleType;
-      obj.handle = handle;
-      return obj;
-   }
-
-struct VkExportMemoryWin32HandleInfoKHXRAII {
-   VkExportMemoryWin32HandleInfoKHX nonRaiiObj;
-    std::shared_ptr<SECURITY_ATTRIBUTES>        pAttributes;
-};
-
-std::shared_ptr<VkExportMemoryWin32HandleInfoKHXRAII> ExportMemoryWin32HandleInfoKHX(
-    const SECURITY_ATTRIBUTES *                 pAttributes,
-    DWORD                                       dwAccess,
-    LPCWSTR                                     name)
-   {
-      std::shared_ptr<VkExportMemoryWin32HandleInfoKHXRAII> raii_obj(new VkExportMemoryWin32HandleInfoKHXRAII);
-      raii_obj->nonRaiiObj.sType = VK_STRUCTURE_TYPE_EXPORT_MEMORY_WIN32_HANDLE_INFO_KHX;
-      raii_obj->nonRaiiObj.pNext = nullptr;
-      raii_obj->nonRaiiObj.pAttributes = nullptr;
-      if ( pAttributes ) 
-      { 
-          raii_obj->pAttributes.reset( new SECURITY_ATTRIBUTES );
-          *raii_obj->pAttributes = *pAttributes;
-          raii_obj->nonRaiiObj.pAttributes = raii_obj->pAttributes.get();
-      } 
-      raii_obj->nonRaiiObj.dwAccess = dwAccess;
-      raii_obj->nonRaiiObj.name = name;
-      return raii_obj;
-   }
-
-VkMemoryWin32HandlePropertiesKHX MemoryWin32HandlePropertiesKHX(
-    uint32_t                                    memoryTypeBits)
-   {
-      VkMemoryWin32HandlePropertiesKHX obj;
-      obj.sType = VK_STRUCTURE_TYPE_MEMORY_WIN32_HANDLE_PROPERTIES_KHX;
-      obj.pNext = nullptr;
-      obj.memoryTypeBits = memoryTypeBits;
-      return obj;
-   }
-
-HANDLE getMemoryWin32HandleKHX(
-        VkDevice device,
-        VkDeviceMemory memory,
-        VkExternalMemoryHandleTypeFlagBitsKHX handleType)
-   {
-      if ( nullptr == pfvkGetMemoryWin32HandleKHX )
-          throw std::runtime_error("Trying to use an unavailable function\n"
-                                   "Review you instance create info\n"
-                                   "and call load_vulkan_fct_ptrs() with the new instance");
-
-      HANDLE pHandle; 
-      V( pfvkGetMemoryWin32HandleKHX(
-          device,
-          memory,
-          handleType,
-          &pHandle  ));
-      return pHandle; 
-   }
-
-VkMemoryWin32HandlePropertiesKHX getMemoryWin32HandlePropertiesKHX(
-        VkDevice device,
-        VkExternalMemoryHandleTypeFlagBitsKHX handleType,
-        HANDLE handle)
-   {
-      if ( nullptr == pfvkGetMemoryWin32HandlePropertiesKHX )
-          throw std::runtime_error("Trying to use an unavailable function\n"
-                                   "Review you instance create info\n"
-                                   "and call load_vulkan_fct_ptrs() with the new instance");
-
-      VkMemoryWin32HandlePropertiesKHX pMemoryWin32HandleProperties; 
-      V( pfvkGetMemoryWin32HandlePropertiesKHX(
-          device,
-          handleType,
-          handle,
-          &pMemoryWin32HandleProperties  ));
-      return pMemoryWin32HandleProperties; 
-   }
-
-#endif /* VK_USE_PLATFORM_WIN32_KHR*/
-VkImportMemoryFdInfoKHX ImportMemoryFdInfoKHX(
-    VkExternalMemoryHandleTypeFlagBitsKHX       handleType,
-    int                                         fd)
-   {
-      VkImportMemoryFdInfoKHX obj;
-      obj.sType = VK_STRUCTURE_TYPE_IMPORT_MEMORY_FD_INFO_KHX;
-      obj.pNext = nullptr;
-      obj.handleType = handleType;
-      obj.fd = fd;
-      return obj;
-   }
-
-VkMemoryFdPropertiesKHX MemoryFdPropertiesKHX(
-    uint32_t                                    memoryTypeBits)
-   {
-      VkMemoryFdPropertiesKHX obj;
-      obj.sType = VK_STRUCTURE_TYPE_MEMORY_FD_PROPERTIES_KHX;
-      obj.pNext = nullptr;
-      obj.memoryTypeBits = memoryTypeBits;
-      return obj;
-   }
-
-int getMemoryFdKHX(
-        VkDevice device,
-        VkDeviceMemory memory,
-        VkExternalMemoryHandleTypeFlagBitsKHX handleType)
-   {
-      if ( nullptr == pfvkGetMemoryFdKHX )
-          throw std::runtime_error("Trying to use an unavailable function\n"
-                                   "Review you instance create info\n"
-                                   "and call load_vulkan_fct_ptrs() with the new instance");
-
-      int pFd; 
-      V( pfvkGetMemoryFdKHX(
-          device,
-          memory,
-          handleType,
-          &pFd  ));
-      return pFd; 
-   }
-
-VkMemoryFdPropertiesKHX getMemoryFdPropertiesKHX(
-        VkDevice device,
-        VkExternalMemoryHandleTypeFlagBitsKHX handleType,
-        int fd)
-   {
-      if ( nullptr == pfvkGetMemoryFdPropertiesKHX )
-          throw std::runtime_error("Trying to use an unavailable function\n"
-                                   "Review you instance create info\n"
-                                   "and call load_vulkan_fct_ptrs() with the new instance");
-
-      VkMemoryFdPropertiesKHX pMemoryFdProperties; 
-      V( pfvkGetMemoryFdPropertiesKHX(
-          device,
-          handleType,
-          fd,
-          &pMemoryFdProperties  ));
-      return pMemoryFdProperties; 
-   }
-
-#ifdef VK_USE_PLATFORM_WIN32_KHR
-struct VkWin32KeyedMutexAcquireReleaseInfoKHXRAII {
-   VkWin32KeyedMutexAcquireReleaseInfoKHX nonRaiiObj;
-    std::vector<VkDeviceMemory>                 vecAcquireSyncs;
-    std::vector<uint64_t>                       vecAcquireKeys;
-    std::vector<uint32_t>                       vecAcquireTimeouts;
-    std::vector<VkDeviceMemory>                 vecReleaseSyncs;
-    std::vector<uint64_t>                       vecReleaseKeys;
-};
-
-std::shared_ptr<VkWin32KeyedMutexAcquireReleaseInfoKHXRAII> Win32KeyedMutexAcquireReleaseInfoKHX(
-    const std::vector<VkDeviceMemory> &         vecAcquireSyncs,
-    const std::vector<uint64_t> &               vecAcquireKeys,
-    unsigned int* pAcquireTimeouts_in_array1, int pAcquireTimeouts_dim1,
-    const std::vector<VkDeviceMemory> &         vecReleaseSyncs,
-    const std::vector<uint64_t> &               vecReleaseKeys)
-   {
-      std::shared_ptr<VkWin32KeyedMutexAcquireReleaseInfoKHXRAII> raii_obj(new VkWin32KeyedMutexAcquireReleaseInfoKHXRAII);
-      raii_obj->nonRaiiObj.sType = VK_STRUCTURE_TYPE_WIN32_KEYED_MUTEX_ACQUIRE_RELEASE_INFO_KHX;
-      raii_obj->nonRaiiObj.pNext = nullptr;
-      raii_obj->nonRaiiObj.acquireCount = static_cast<uint32_t>(vecAcquireSyncs.size());
-      raii_obj->vecAcquireSyncs = vecAcquireSyncs;
-      if ( raii_obj->vecAcquireSyncs.size() > 0)
-      {
-          raii_obj->nonRaiiObj.pAcquireSyncs = &raii_obj->vecAcquireSyncs[0];
-      }
-      else
-      {
-          raii_obj->nonRaiiObj.pAcquireSyncs = nullptr;
-      }
-      raii_obj->vecAcquireKeys = vecAcquireKeys;
-      if ( raii_obj->vecAcquireKeys.size() > 0)
-      {
-          raii_obj->nonRaiiObj.pAcquireKeys = &raii_obj->vecAcquireKeys[0];
-      }
-      else
-      {
-          raii_obj->nonRaiiObj.pAcquireKeys = nullptr;
-      }
-      raii_obj->vecAcquireTimeouts.assign(pAcquireTimeouts_in_array1, pAcquireTimeouts_in_array1 + pAcquireTimeouts_dim1);
-      if ( raii_obj->vecAcquireTimeouts.size() > 0)
-      {
-          raii_obj->nonRaiiObj.pAcquireTimeouts = &raii_obj->vecAcquireTimeouts[0];
-      }
-      else
-      {
-          raii_obj->nonRaiiObj.pAcquireTimeouts = nullptr;
-      }
-      raii_obj->nonRaiiObj.releaseCount = static_cast<uint32_t>(vecReleaseSyncs.size());
-      raii_obj->vecReleaseSyncs = vecReleaseSyncs;
-      if ( raii_obj->vecReleaseSyncs.size() > 0)
-      {
-          raii_obj->nonRaiiObj.pReleaseSyncs = &raii_obj->vecReleaseSyncs[0];
-      }
-      else
-      {
-          raii_obj->nonRaiiObj.pReleaseSyncs = nullptr;
-      }
-      raii_obj->vecReleaseKeys = vecReleaseKeys;
-      if ( raii_obj->vecReleaseKeys.size() > 0)
-      {
-          raii_obj->nonRaiiObj.pReleaseKeys = &raii_obj->vecReleaseKeys[0];
-      }
-      else
-      {
-          raii_obj->nonRaiiObj.pReleaseKeys = nullptr;
-      }
-      return raii_obj;
-   }
-
-#endif /* VK_USE_PLATFORM_WIN32_KHR*/
-VkPhysicalDeviceExternalSemaphoreInfoKHX PhysicalDeviceExternalSemaphoreInfoKHX(
-    VkExternalSemaphoreHandleTypeFlagBitsKHX    handleType)
-   {
-      VkPhysicalDeviceExternalSemaphoreInfoKHX obj;
-      obj.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTERNAL_SEMAPHORE_INFO_KHX;
-      obj.pNext = nullptr;
-      obj.handleType = handleType;
-      return obj;
-   }
-
-VkExternalSemaphorePropertiesKHX ExternalSemaphorePropertiesKHX(
-    VkExternalSemaphoreHandleTypeFlagsKHX       exportFromImportedHandleTypes,
-    VkExternalSemaphoreHandleTypeFlagsKHX       compatibleHandleTypes,
-    VkExternalSemaphoreFeatureFlagsKHX          externalSemaphoreFeatures)
-   {
-      VkExternalSemaphorePropertiesKHX obj;
-      obj.sType = VK_STRUCTURE_TYPE_EXTERNAL_SEMAPHORE_PROPERTIES_KHX;
-      obj.pNext = nullptr;
-      obj.exportFromImportedHandleTypes = exportFromImportedHandleTypes;
-      obj.compatibleHandleTypes = compatibleHandleTypes;
-      obj.externalSemaphoreFeatures = externalSemaphoreFeatures;
-      return obj;
-   }
-
-VkExternalSemaphorePropertiesKHX getPhysicalDeviceExternalSemaphorePropertiesKHX(
-        VkPhysicalDevice physicalDevice,
-        const VkPhysicalDeviceExternalSemaphoreInfoKHX & pExternalSemaphoreInfo)
-   {
-      if ( nullptr == pfvkGetPhysicalDeviceExternalSemaphorePropertiesKHX )
-          throw std::runtime_error("Trying to use an unavailable function\n"
-                                   "Review you instance create info\n"
-                                   "and call load_vulkan_fct_ptrs() with the new instance");
-
-      VkExternalSemaphorePropertiesKHX pExternalSemaphoreProperties; 
-      pfvkGetPhysicalDeviceExternalSemaphorePropertiesKHX(
-          physicalDevice,
-          &pExternalSemaphoreInfo,
-          &pExternalSemaphoreProperties  );
-      return pExternalSemaphoreProperties; 
-   }
-
-VkExportSemaphoreCreateInfoKHX ExportSemaphoreCreateInfoKHX(
-    VkExternalSemaphoreHandleTypeFlagsKHX       handleTypes)
-   {
-      VkExportSemaphoreCreateInfoKHX obj;
-      obj.sType = VK_STRUCTURE_TYPE_EXPORT_SEMAPHORE_CREATE_INFO_KHX;
-      obj.pNext = nullptr;
-      obj.handleTypes = handleTypes;
-      return obj;
-   }
-
-#ifdef VK_USE_PLATFORM_WIN32_KHX
-VkImportSemaphoreWin32HandleInfoKHX ImportSemaphoreWin32HandleInfoKHX(
-    VkSemaphore                                 semaphore,
-    VkExternalSemaphoreHandleTypeFlagsKHX       handleType,
-    HANDLE                                      handle)
-   {
-      VkImportSemaphoreWin32HandleInfoKHX obj;
-      obj.sType = VK_STRUCTURE_TYPE_IMPORT_SEMAPHORE_WIN32_HANDLE_INFO_KHX;
-      obj.pNext = nullptr;
-      obj.semaphore = semaphore;
-      obj.handleType = handleType;
-      obj.handle = handle;
-      return obj;
-   }
-
-struct VkExportSemaphoreWin32HandleInfoKHXRAII {
-   VkExportSemaphoreWin32HandleInfoKHX nonRaiiObj;
-    std::shared_ptr<SECURITY_ATTRIBUTES>        pAttributes;
-};
-
-std::shared_ptr<VkExportSemaphoreWin32HandleInfoKHXRAII> ExportSemaphoreWin32HandleInfoKHX(
-    const SECURITY_ATTRIBUTES *                 pAttributes,
-    DWORD                                       dwAccess,
-    LPCWSTR                                     name)
-   {
-      std::shared_ptr<VkExportSemaphoreWin32HandleInfoKHXRAII> raii_obj(new VkExportSemaphoreWin32HandleInfoKHXRAII);
-      raii_obj->nonRaiiObj.sType = VK_STRUCTURE_TYPE_EXPORT_SEMAPHORE_WIN32_HANDLE_INFO_KHX;
-      raii_obj->nonRaiiObj.pNext = nullptr;
-      raii_obj->nonRaiiObj.pAttributes = nullptr;
-      if ( pAttributes ) 
-      { 
-          raii_obj->pAttributes.reset( new SECURITY_ATTRIBUTES );
-          *raii_obj->pAttributes = *pAttributes;
-          raii_obj->nonRaiiObj.pAttributes = raii_obj->pAttributes.get();
-      } 
-      raii_obj->nonRaiiObj.dwAccess = dwAccess;
-      raii_obj->nonRaiiObj.name = name;
-      return raii_obj;
-   }
-
-struct VkD3D12FenceSubmitInfoKHXRAII {
-   VkD3D12FenceSubmitInfoKHX nonRaiiObj;
-    std::vector<uint64_t>                       vecWaitSemaphoreValues;
-    std::vector<uint64_t>                       vecSignalSemaphoreValues;
-};
-
-std::shared_ptr<VkD3D12FenceSubmitInfoKHXRAII> D3D12FenceSubmitInfoKHX(
-    const std::vector<uint64_t> &               vecWaitSemaphoreValues,
-    const std::vector<uint64_t> &               vecSignalSemaphoreValues)
-   {
-      std::shared_ptr<VkD3D12FenceSubmitInfoKHXRAII> raii_obj(new VkD3D12FenceSubmitInfoKHXRAII);
-      raii_obj->nonRaiiObj.sType = VK_STRUCTURE_TYPE_MAX_ENUM;
-      raii_obj->nonRaiiObj.pNext = nullptr;
-      raii_obj->nonRaiiObj.waitSemaphoreValuesCount = static_cast<uint32_t>(vecWaitSemaphoreValues.size());
-      raii_obj->vecWaitSemaphoreValues = vecWaitSemaphoreValues;
-      if ( raii_obj->vecWaitSemaphoreValues.size() > 0)
-      {
-          raii_obj->nonRaiiObj.pWaitSemaphoreValues = &raii_obj->vecWaitSemaphoreValues[0];
-      }
-      else
-      {
-          raii_obj->nonRaiiObj.pWaitSemaphoreValues = nullptr;
-      }
-      raii_obj->nonRaiiObj.signalSemaphoreValuesCount = static_cast<uint32_t>(vecSignalSemaphoreValues.size());
-      raii_obj->vecSignalSemaphoreValues = vecSignalSemaphoreValues;
-      if ( raii_obj->vecSignalSemaphoreValues.size() > 0)
-      {
-          raii_obj->nonRaiiObj.pSignalSemaphoreValues = &raii_obj->vecSignalSemaphoreValues[0];
-      }
-      else
-      {
-          raii_obj->nonRaiiObj.pSignalSemaphoreValues = nullptr;
-      }
-      return raii_obj;
-   }
-
-void  importSemaphoreWin32HandleKHX(
-        VkDevice device,
-        const VkImportSemaphoreWin32HandleInfoKHX & pImportSemaphoreWin32HandleInfo)
-   {
-      if ( nullptr == pfvkImportSemaphoreWin32HandleKHX )
-          throw std::runtime_error("Trying to use an unavailable function\n"
-                                   "Review you instance create info\n"
-                                   "and call load_vulkan_fct_ptrs() with the new instance");
-
-      V( pfvkImportSemaphoreWin32HandleKHX(
-          device,
-          &pImportSemaphoreWin32HandleInfo  ));
-   }
-
-HANDLE getSemaphoreWin32HandleKHX(
-        VkDevice device,
-        VkSemaphore semaphore,
-        VkExternalSemaphoreHandleTypeFlagBitsKHX handleType)
-   {
-      if ( nullptr == pfvkGetSemaphoreWin32HandleKHX )
-          throw std::runtime_error("Trying to use an unavailable function\n"
-                                   "Review you instance create info\n"
-                                   "and call load_vulkan_fct_ptrs() with the new instance");
-
-      HANDLE pHandle; 
-      V( pfvkGetSemaphoreWin32HandleKHX(
-          device,
-          semaphore,
-          handleType,
-          &pHandle  ));
-      return pHandle; 
-   }
-
-#endif /* VK_USE_PLATFORM_WIN32_KHX*/
-VkImportSemaphoreFdInfoKHX ImportSemaphoreFdInfoKHX(
-    VkSemaphore                                 semaphore,
-    VkExternalSemaphoreHandleTypeFlagBitsKHX    handleType,
-    int                                         fd)
-   {
-      VkImportSemaphoreFdInfoKHX obj;
-      obj.sType = VK_STRUCTURE_TYPE_IMPORT_SEMAPHORE_FD_INFO_KHX;
-      obj.pNext = nullptr;
-      obj.semaphore = semaphore;
-      obj.handleType = handleType;
-      obj.fd = fd;
-      return obj;
-   }
-
-void  importSemaphoreFdKHX(
-        VkDevice device,
-        const VkImportSemaphoreFdInfoKHX & pImportSemaphoreFdInfo)
-   {
-      if ( nullptr == pfvkImportSemaphoreFdKHX )
-          throw std::runtime_error("Trying to use an unavailable function\n"
-                                   "Review you instance create info\n"
-                                   "and call load_vulkan_fct_ptrs() with the new instance");
-
-      V( pfvkImportSemaphoreFdKHX(
-          device,
-          &pImportSemaphoreFdInfo  ));
-   }
-
-int getSemaphoreFdKHX(
-        VkDevice device,
-        VkSemaphore semaphore,
-        VkExternalSemaphoreHandleTypeFlagBitsKHX handleType)
-   {
-      if ( nullptr == pfvkGetSemaphoreFdKHX )
-          throw std::runtime_error("Trying to use an unavailable function\n"
-                                   "Review you instance create info\n"
-                                   "and call load_vulkan_fct_ptrs() with the new instance");
-
-      int pFd; 
-      V( pfvkGetSemaphoreFdKHX(
-          device,
-          semaphore,
-          handleType,
-          &pFd  ));
-      return pFd; 
-   }
-
 VkDeviceGeneratedCommandsFeaturesNVX DeviceGeneratedCommandsFeaturesNVX(
     VkBool32                                    computeBindingPointSupport)
    {
@@ -15441,6 +16948,108 @@ uint64_t getSwapchainCounterEXT(
       return pCounterValue; 
    }
 
+VkRefreshCycleDurationGOOGLE RefreshCycleDurationGOOGLE(
+    uint64_t                                    refreshDuration)
+   {
+      VkRefreshCycleDurationGOOGLE obj;
+      obj.refreshDuration = refreshDuration;
+      return obj;
+   }
+
+VkPastPresentationTimingGOOGLE PastPresentationTimingGOOGLE(
+    uint32_t                                    presentID,
+    uint64_t                                    desiredPresentTime,
+    uint64_t                                    actualPresentTime,
+    uint64_t                                    earliestPresentTime,
+    uint64_t                                    presentMargin)
+   {
+      VkPastPresentationTimingGOOGLE obj;
+      obj.presentID = presentID;
+      obj.desiredPresentTime = desiredPresentTime;
+      obj.actualPresentTime = actualPresentTime;
+      obj.earliestPresentTime = earliestPresentTime;
+      obj.presentMargin = presentMargin;
+      return obj;
+   }
+
+VkPresentTimeGOOGLE PresentTimeGOOGLE(
+    uint32_t                                    presentID,
+    uint64_t                                    desiredPresentTime)
+   {
+      VkPresentTimeGOOGLE obj;
+      obj.presentID = presentID;
+      obj.desiredPresentTime = desiredPresentTime;
+      return obj;
+   }
+
+struct VkPresentTimesInfoGOOGLERAII {
+   VkPresentTimesInfoGOOGLE nonRaiiObj;
+    std::vector<VkPresentTimeGOOGLE>            vecTimes;
+};
+
+std::shared_ptr<VkPresentTimesInfoGOOGLERAII> PresentTimesInfoGOOGLE(
+    const std::vector<VkPresentTimeGOOGLE> &    vecTimes)
+   {
+      std::shared_ptr<VkPresentTimesInfoGOOGLERAII> raii_obj(new VkPresentTimesInfoGOOGLERAII);
+      raii_obj->nonRaiiObj.sType = VK_STRUCTURE_TYPE_PRESENT_TIMES_INFO_GOOGLE;
+      raii_obj->nonRaiiObj.pNext = nullptr;
+      raii_obj->nonRaiiObj.swapchainCount = static_cast<uint32_t>(vecTimes.size());
+      raii_obj->vecTimes = vecTimes;
+      if ( raii_obj->vecTimes.size() > 0)
+      {
+          raii_obj->nonRaiiObj.pTimes = &raii_obj->vecTimes[0];
+      }
+      else
+      {
+          raii_obj->nonRaiiObj.pTimes = nullptr;
+      }
+      return raii_obj;
+   }
+
+VkRefreshCycleDurationGOOGLE getRefreshCycleDurationGOOGLE(
+        VkDevice device,
+        VkSwapchainKHR swapchain)
+   {
+      if ( nullptr == pfvkGetRefreshCycleDurationGOOGLE )
+          throw std::runtime_error("Trying to use an unavailable function\n"
+                                   "Review you instance create info\n"
+                                   "and call load_vulkan_fct_ptrs() with the new instance");
+
+      VkRefreshCycleDurationGOOGLE pDisplayTimingProperties; 
+      V( pfvkGetRefreshCycleDurationGOOGLE(
+          device,
+          swapchain,
+          &pDisplayTimingProperties  ));
+      return pDisplayTimingProperties; 
+   }
+
+std::vector< VkPastPresentationTimingGOOGLE > getPastPresentationTimingGOOGLE(
+        VkDevice device,
+        VkSwapchainKHR swapchain)
+   {
+      if ( nullptr == pfvkGetPastPresentationTimingGOOGLE )
+          throw std::runtime_error("Trying to use an unavailable function\n"
+                                   "Review you instance create info\n"
+                                   "and call load_vulkan_fct_ptrs() with the new instance");
+
+      std::vector<VkPastPresentationTimingGOOGLE> vecpPresentationTimings; 
+      uint32_t pPresentationTimingsCount; 
+      V( pfvkGetPastPresentationTimingGOOGLE(
+          device,
+          swapchain,
+          &pPresentationTimingsCount,
+          nullptr  ));
+
+      vecpPresentationTimings.resize(pPresentationTimingsCount); 
+
+      V( pfvkGetPastPresentationTimingGOOGLE(
+          device,
+          swapchain,
+          &pPresentationTimingsCount,
+          &vecpPresentationTimings[0]  ));
+      return vecpPresentationTimings; 
+   }
+
 VkPhysicalDeviceMultiviewPerViewAttributesPropertiesNVX PhysicalDeviceMultiviewPerViewAttributesPropertiesNVX(
     VkBool32                                    perViewPositionAllComponents)
    {
@@ -15546,6 +17155,57 @@ void  cmdSetDiscardRectangleEXT(
           &pDiscardRectangles[0]  );
    }
 
+VkXYColorEXT XYColorEXT(
+    float                                       x,
+    float                                       y)
+   {
+      VkXYColorEXT obj;
+      obj.x = x;
+      obj.y = y;
+      return obj;
+   }
+
+VkHdrMetadataEXT HdrMetadataEXT(
+    VkXYColorEXT                                displayPrimaryRed,
+    VkXYColorEXT                                displayPrimaryGreen,
+    VkXYColorEXT                                displayPrimaryBlue,
+    VkXYColorEXT                                whitePoint,
+    float                                       maxLuminance,
+    float                                       minLuminance,
+    float                                       maxContentLightLevel,
+    float                                       maxFrameAverageLightLevel)
+   {
+      VkHdrMetadataEXT obj;
+      obj.sType = VK_STRUCTURE_TYPE_HDR_METADATA_EXT;
+      obj.pNext = nullptr;
+      obj.displayPrimaryRed = displayPrimaryRed;
+      obj.displayPrimaryGreen = displayPrimaryGreen;
+      obj.displayPrimaryBlue = displayPrimaryBlue;
+      obj.whitePoint = whitePoint;
+      obj.maxLuminance = maxLuminance;
+      obj.minLuminance = minLuminance;
+      obj.maxContentLightLevel = maxContentLightLevel;
+      obj.maxFrameAverageLightLevel = maxFrameAverageLightLevel;
+      return obj;
+   }
+
+void  setHdrMetadataEXT(
+        VkDevice device,
+        const std::vector<VkSwapchainKHR> & pSwapchains,
+        const std::vector<VkHdrMetadataEXT> & pMetadata)
+   {
+      if ( nullptr == pfvkSetHdrMetadataEXT )
+          throw std::runtime_error("Trying to use an unavailable function\n"
+                                   "Review you instance create info\n"
+                                   "and call load_vulkan_fct_ptrs() with the new instance");
+
+      pfvkSetHdrMetadataEXT(
+          device,
+          static_cast<uint32_t>(pMetadata.size()),
+          &pSwapchains[0],
+          &pMetadata[0]  );
+   }
+
 #ifdef VK_USE_PLATFORM_IOS_MVK
 VkIOSSurfaceCreateInfoMVK IOSSurfaceCreateInfoMVK(
     VkIOSSurfaceCreateFlagsMVK                  flags)
@@ -15609,27 +17269,183 @@ std::shared_ptr<VkSurfaceKHR_T> createMacOSSurfaceMVK(
               [](VkSurfaceKHR) {});
    }
 
-#endif /* VK_USE_PLATFORM_MACOS_MVK*/%}
+#endif /* VK_USE_PLATFORM_MACOS_MVK*/
+VkSamplerReductionModeCreateInfoEXT SamplerReductionModeCreateInfoEXT(
+    VkSamplerReductionModeEXT                   reductionMode)
+   {
+      VkSamplerReductionModeCreateInfoEXT obj;
+      obj.sType = VK_STRUCTURE_TYPE_SAMPLER_REDUCTION_MODE_CREATE_INFO_EXT;
+      obj.pNext = nullptr;
+      obj.reductionMode = reductionMode;
+      return obj;
+   }
+
+VkPhysicalDeviceSamplerFilterMinmaxPropertiesEXT PhysicalDeviceSamplerFilterMinmaxPropertiesEXT(
+    VkBool32                                    filterMinmaxSingleComponentFormats,
+    VkBool32                                    filterMinmaxImageComponentMapping)
+   {
+      VkPhysicalDeviceSamplerFilterMinmaxPropertiesEXT obj;
+      obj.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SAMPLER_FILTER_MINMAX_PROPERTIES_EXT;
+      obj.pNext = nullptr;
+      obj.filterMinmaxSingleComponentFormats = filterMinmaxSingleComponentFormats;
+      obj.filterMinmaxImageComponentMapping = filterMinmaxImageComponentMapping;
+      return obj;
+   }
+
+VkPhysicalDeviceBlendOperationAdvancedFeaturesEXT PhysicalDeviceBlendOperationAdvancedFeaturesEXT(
+    VkBool32                                    advancedBlendCoherentOperations)
+   {
+      VkPhysicalDeviceBlendOperationAdvancedFeaturesEXT obj;
+      obj.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_BLEND_OPERATION_ADVANCED_FEATURES_EXT;
+      obj.pNext = nullptr;
+      obj.advancedBlendCoherentOperations = advancedBlendCoherentOperations;
+      return obj;
+   }
+
+VkPhysicalDeviceBlendOperationAdvancedPropertiesEXT PhysicalDeviceBlendOperationAdvancedPropertiesEXT(
+    uint32_t                                    advancedBlendMaxColorAttachments,
+    VkBool32                                    advancedBlendIndependentBlend,
+    VkBool32                                    advancedBlendNonPremultipliedSrcColor,
+    VkBool32                                    advancedBlendNonPremultipliedDstColor,
+    VkBool32                                    advancedBlendCorrelatedOverlap,
+    VkBool32                                    advancedBlendAllOperations)
+   {
+      VkPhysicalDeviceBlendOperationAdvancedPropertiesEXT obj;
+      obj.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_BLEND_OPERATION_ADVANCED_PROPERTIES_EXT;
+      obj.pNext = nullptr;
+      obj.advancedBlendMaxColorAttachments = advancedBlendMaxColorAttachments;
+      obj.advancedBlendIndependentBlend = advancedBlendIndependentBlend;
+      obj.advancedBlendNonPremultipliedSrcColor = advancedBlendNonPremultipliedSrcColor;
+      obj.advancedBlendNonPremultipliedDstColor = advancedBlendNonPremultipliedDstColor;
+      obj.advancedBlendCorrelatedOverlap = advancedBlendCorrelatedOverlap;
+      obj.advancedBlendAllOperations = advancedBlendAllOperations;
+      return obj;
+   }
+
+VkPipelineColorBlendAdvancedStateCreateInfoEXT PipelineColorBlendAdvancedStateCreateInfoEXT(
+    VkBool32                                    srcPremultiplied,
+    VkBool32                                    dstPremultiplied,
+    VkBlendOverlapEXT                           blendOverlap)
+   {
+      VkPipelineColorBlendAdvancedStateCreateInfoEXT obj;
+      obj.sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_ADVANCED_STATE_CREATE_INFO_EXT;
+      obj.pNext = nullptr;
+      obj.srcPremultiplied = srcPremultiplied;
+      obj.dstPremultiplied = dstPremultiplied;
+      obj.blendOverlap = blendOverlap;
+      return obj;
+   }
+
+VkPipelineCoverageToColorStateCreateInfoNV PipelineCoverageToColorStateCreateInfoNV(
+    VkPipelineCoverageToColorStateCreateFlagsNV flags,
+    VkBool32                                    coverageToColorEnable,
+    uint32_t                                    coverageToColorLocation)
+   {
+      VkPipelineCoverageToColorStateCreateInfoNV obj;
+      obj.sType = VK_STRUCTURE_TYPE_PIPELINE_COVERAGE_TO_COLOR_STATE_CREATE_INFO_NV;
+      obj.pNext = nullptr;
+      obj.flags = flags;
+      obj.coverageToColorEnable = coverageToColorEnable;
+      obj.coverageToColorLocation = coverageToColorLocation;
+      return obj;
+   }
+
+struct VkPipelineCoverageModulationStateCreateInfoNVRAII {
+   VkPipelineCoverageModulationStateCreateInfoNV nonRaiiObj;
+    std::vector<float>                          vecCoverageModulationTable;
+};
+
+std::shared_ptr<VkPipelineCoverageModulationStateCreateInfoNVRAII> PipelineCoverageModulationStateCreateInfoNV(
+    VkPipelineCoverageModulationStateCreateFlagsNV flags,
+    VkCoverageModulationModeNV                  coverageModulationMode,
+    VkBool32                                    coverageModulationTableEnable,
+    float* pCoverageModulationTable_in_array1, int pCoverageModulationTable_dim1)
+   {
+      std::shared_ptr<VkPipelineCoverageModulationStateCreateInfoNVRAII> raii_obj(new VkPipelineCoverageModulationStateCreateInfoNVRAII);
+      raii_obj->nonRaiiObj.sType = VK_STRUCTURE_TYPE_PIPELINE_COVERAGE_MODULATION_STATE_CREATE_INFO_NV;
+      raii_obj->nonRaiiObj.pNext = nullptr;
+      raii_obj->nonRaiiObj.flags = flags;
+      raii_obj->nonRaiiObj.coverageModulationMode = coverageModulationMode;
+      raii_obj->nonRaiiObj.coverageModulationTableEnable = coverageModulationTableEnable;
+      raii_obj->nonRaiiObj.coverageModulationTableCount = static_cast<uint32_t>(pCoverageModulationTable_dim1);
+      raii_obj->vecCoverageModulationTable.assign(pCoverageModulationTable_in_array1, pCoverageModulationTable_in_array1 + pCoverageModulationTable_dim1);
+      if ( raii_obj->vecCoverageModulationTable.size() > 0)
+      {
+          raii_obj->nonRaiiObj.pCoverageModulationTable = &raii_obj->vecCoverageModulationTable[0];
+      }
+      else
+      {
+          raii_obj->nonRaiiObj.pCoverageModulationTable = nullptr;
+      }
+      return raii_obj;
+   }
+%}
+
+%template (VkPipelineDynamicStateCreateInfoPtr) std::shared_ptr<VkPipelineDynamicStateCreateInfoRAII>;
+
+%template (VkPipelineColorBlendStateCreateInfoPtr) std::shared_ptr<VkPipelineColorBlendStateCreateInfoRAII>;
+
+#ifdef VK_EXT_validation_flags
+
+%template (VkValidationFlagsEXTPtr) std::shared_ptr<VkValidationFlagsEXTRAII>;
+
+#endif
+
+%template (VkImageCreateInfoPtr) std::shared_ptr<VkImageCreateInfoRAII>;
+
+%template (VkSparseImageMemoryBindInfoPtr) std::shared_ptr<VkSparseImageMemoryBindInfoRAII>;
+
+%template (VkDescriptorSetAllocateInfoPtr) std::shared_ptr<VkDescriptorSetAllocateInfoRAII>;
+
+%template (VkSubpassDescriptionPtr) std::shared_ptr<VkSubpassDescriptionRAII>;
+
+%template (VkRenderPassCreateInfoPtr) std::shared_ptr<VkRenderPassCreateInfoRAII>;
+
+#ifdef VK_GOOGLE_display_timing
+
+%template (VkPresentTimesInfoGOOGLEPtr) std::shared_ptr<VkPresentTimesInfoGOOGLERAII>;
+
+#endif
+
+%template (VkDescriptorPoolCreateInfoPtr) std::shared_ptr<VkDescriptorPoolCreateInfoRAII>;
+
+%template (VkDeviceCreateInfoPtr) std::shared_ptr<VkDeviceCreateInfoRAII>;
+
+%template (VkDeviceQueueCreateInfoPtr) std::shared_ptr<VkDeviceQueueCreateInfoRAII>;
+
+#ifdef VK_EXT_discard_rectangles
+
+%template (VkPipelineDiscardRectangleStateCreateInfoEXTPtr) std::shared_ptr<VkPipelineDiscardRectangleStateCreateInfoEXTRAII>;
+
+#endif
+
+%template (VkPipelineViewportStateCreateInfoPtr) std::shared_ptr<VkPipelineViewportStateCreateInfoRAII>;
+
+#ifdef VK_NVX_device_generated_commands
+
+%template (VkObjectTableCreateInfoNVXPtr) std::shared_ptr<VkObjectTableCreateInfoNVXRAII>;
+
+#endif
+
+%template (VkPipelineCacheCreateInfoPtr) std::shared_ptr<VkPipelineCacheCreateInfoRAII>;
+
+%template (VkApplicationInfoPtr) std::shared_ptr<VkApplicationInfoRAII>;
+
+%template (VkDescriptorSetLayoutBindingPtr) std::shared_ptr<VkDescriptorSetLayoutBindingRAII>;
+
+%template (VkRenderPassBeginInfoPtr) std::shared_ptr<VkRenderPassBeginInfoRAII>;
+
+%template (VkFramebufferCreateInfoPtr) std::shared_ptr<VkFramebufferCreateInfoRAII>;
+
+#ifdef VK_KHX_device_group_creation
+
+%template (VkDeviceGroupDeviceCreateInfoKHXPtr) std::shared_ptr<VkDeviceGroupDeviceCreateInfoKHXRAII>;
+
+#endif
 
 #ifdef VK_EXT_debug_marker
 
 %template (VkDebugMarkerMarkerInfoEXTPtr) std::shared_ptr<VkDebugMarkerMarkerInfoEXTRAII>;
-
-#endif
-
-%template (VkDescriptorSetLayoutBindingPtr) std::shared_ptr<VkDescriptorSetLayoutBindingRAII>;
-
-%template (VkPipelineVertexInputStateCreateInfoPtr) std::shared_ptr<VkPipelineVertexInputStateCreateInfoRAII>;
-
-#ifdef VK_KHX_device_group
-
-%template (VkDeviceGroupPresentInfoKHXPtr) std::shared_ptr<VkDeviceGroupPresentInfoKHXRAII>;
-
-#endif
-
-#ifdef VK_KHR_display
-
-%template (VkDisplayPropertiesKHRPtr) std::shared_ptr<VkDisplayPropertiesKHRRAII>;
 
 #endif
 
@@ -15639,39 +17455,49 @@ std::shared_ptr<VkSurfaceKHR_T> createMacOSSurfaceMVK(
 
 #endif
 
-#ifdef VK_KHX_win32_keyed_mutex
+#ifdef VK_KHR_display
 
-%template (VkWin32KeyedMutexAcquireReleaseInfoKHXPtr) std::shared_ptr<VkWin32KeyedMutexAcquireReleaseInfoKHXRAII>;
+%template (VkDisplayPropertiesKHRPtr) std::shared_ptr<VkDisplayPropertiesKHRRAII>;
 
 #endif
 
-%template (VkDeviceQueueCreateInfoPtr) std::shared_ptr<VkDeviceQueueCreateInfoRAII>;
+%template (VkWriteDescriptorSetPtr) std::shared_ptr<VkWriteDescriptorSetRAII>;
 
-%template (VkBindSparseInfoPtr) std::shared_ptr<VkBindSparseInfoRAII>;
+#ifdef VK_NV_win32_keyed_mutex
+
+%template (VkWin32KeyedMutexAcquireReleaseInfoNVPtr) std::shared_ptr<VkWin32KeyedMutexAcquireReleaseInfoNVRAII>;
+
+#endif
+
+%template (VkInstanceCreateInfoPtr) std::shared_ptr<VkInstanceCreateInfoRAII>;
+
+#ifdef VK_KHR_incremental_present
+
+%template (VkPresentRegionsKHRPtr) std::shared_ptr<VkPresentRegionsKHRRAII>;
+
+#endif
+
+#ifdef VK_NV_framebuffer_mixed_samples
+
+%template (VkPipelineCoverageModulationStateCreateInfoNVPtr) std::shared_ptr<VkPipelineCoverageModulationStateCreateInfoNVRAII>;
+
+#endif
+
+#ifdef VK_KHR_incremental_present
+
+%template (VkPresentRegionKHRPtr) std::shared_ptr<VkPresentRegionKHRRAII>;
+
+#endif
+
+%template (VkDescriptorSetLayoutCreateInfoPtr) std::shared_ptr<VkDescriptorSetLayoutCreateInfoRAII>;
+
+%template (VkPresentInfoKHRPtr) std::shared_ptr<VkPresentInfoKHRRAII>;
 
 %template (VkSubmitInfoPtr) std::shared_ptr<VkSubmitInfoRAII>;
 
-#ifdef VK_KHX_device_group_creation
+#ifdef VK_KHR_win32_keyed_mutex
 
-%template (VkDeviceGroupDeviceCreateInfoKHXPtr) std::shared_ptr<VkDeviceGroupDeviceCreateInfoKHXRAII>;
-
-#endif
-
-%template (VkSparseBufferMemoryBindInfoPtr) std::shared_ptr<VkSparseBufferMemoryBindInfoRAII>;
-
-#ifdef VK_KHX_external_semaphore_win32
-
-%template (VkD3D12FenceSubmitInfoKHXPtr) std::shared_ptr<VkD3D12FenceSubmitInfoKHXRAII>;
-
-#endif
-
-%template (VkSparseImageOpaqueMemoryBindInfoPtr) std::shared_ptr<VkSparseImageOpaqueMemoryBindInfoRAII>;
-
-%template (VkGraphicsPipelineCreateInfoPtr) std::shared_ptr<VkGraphicsPipelineCreateInfoRAII>;
-
-#ifdef VK_KHX_device_group
-
-%template (VkBindBufferMemoryInfoKHXPtr) std::shared_ptr<VkBindBufferMemoryInfoKHXRAII>;
+%template (VkWin32KeyedMutexAcquireReleaseInfoKHRPtr) std::shared_ptr<VkWin32KeyedMutexAcquireReleaseInfoKHRRAII>;
 
 #endif
 
@@ -15681,59 +17507,15 @@ std::shared_ptr<VkSurfaceKHR_T> createMacOSSurfaceMVK(
 
 #endif
 
-#ifdef VK_NV_external_memory_win32
+%template (VkGraphicsPipelineCreateInfoPtr) std::shared_ptr<VkGraphicsPipelineCreateInfoRAII>;
 
-%template (VkExportMemoryWin32HandleInfoNVPtr) std::shared_ptr<VkExportMemoryWin32HandleInfoNVRAII>;
+#ifdef VK_KHX_device_group
 
-#endif
-
-%template (VkSparseImageMemoryBindInfoPtr) std::shared_ptr<VkSparseImageMemoryBindInfoRAII>;
-
-#ifdef VK_KHX_external_semaphore_win32
-
-%template (VkExportSemaphoreWin32HandleInfoKHXPtr) std::shared_ptr<VkExportSemaphoreWin32HandleInfoKHXRAII>;
+%template (VkDeviceGroupSubmitInfoKHXPtr) std::shared_ptr<VkDeviceGroupSubmitInfoKHXRAII>;
 
 #endif
 
-%template (VkPipelineCacheCreateInfoPtr) std::shared_ptr<VkPipelineCacheCreateInfoRAII>;
-
-#ifdef VK_EXT_validation_flags
-
-%template (VkValidationFlagsEXTPtr) std::shared_ptr<VkValidationFlagsEXTRAII>;
-
-#endif
-
-#ifdef VK_NVX_device_generated_commands
-
-%template (VkObjectTableCreateInfoNVXPtr) std::shared_ptr<VkObjectTableCreateInfoNVXRAII>;
-
-#endif
-
-%template (VkSubpassDescriptionPtr) std::shared_ptr<VkSubpassDescriptionRAII>;
-
-%template (VkSpecializationInfoPtr) std::shared_ptr<VkSpecializationInfoRAII>;
-
-%template (VkInstanceCreateInfoPtr) std::shared_ptr<VkInstanceCreateInfoRAII>;
-
-#ifdef VK_EXT_debug_marker
-
-%template (VkDebugMarkerObjectNameInfoEXTPtr) std::shared_ptr<VkDebugMarkerObjectNameInfoEXTRAII>;
-
-#endif
-
-%template (VkDescriptorPoolCreateInfoPtr) std::shared_ptr<VkDescriptorPoolCreateInfoRAII>;
-
-%template (VkPipelineColorBlendStateCreateInfoPtr) std::shared_ptr<VkPipelineColorBlendStateCreateInfoRAII>;
-
-%template (VkRenderPassBeginInfoPtr) std::shared_ptr<VkRenderPassBeginInfoRAII>;
-
-%template (VkFramebufferCreateInfoPtr) std::shared_ptr<VkFramebufferCreateInfoRAII>;
-
-#ifdef VK_NV_win32_keyed_mutex
-
-%template (VkWin32KeyedMutexAcquireReleaseInfoNVPtr) std::shared_ptr<VkWin32KeyedMutexAcquireReleaseInfoNVRAII>;
-
-#endif
+%template (VkSparseImageOpaqueMemoryBindInfoPtr) std::shared_ptr<VkSparseImageOpaqueMemoryBindInfoRAII>;
 
 #ifdef VK_KHX_device_group
 
@@ -15741,9 +17523,29 @@ std::shared_ptr<VkSurfaceKHR_T> createMacOSSurfaceMVK(
 
 #endif
 
-#ifdef VK_KHX_external_memory_win32
+#ifdef VK_KHX_device_group
 
-%template (VkExportMemoryWin32HandleInfoKHXPtr) std::shared_ptr<VkExportMemoryWin32HandleInfoKHXRAII>;
+%template (VkDeviceGroupRenderPassBeginInfoKHXPtr) std::shared_ptr<VkDeviceGroupRenderPassBeginInfoKHXRAII>;
+
+#endif
+
+#ifdef VK_NV_clip_space_w_scaling
+
+%template (VkPipelineViewportWScalingStateCreateInfoNVPtr) std::shared_ptr<VkPipelineViewportWScalingStateCreateInfoNVRAII>;
+
+#endif
+
+#ifdef VK_KHX_device_group
+
+%template (VkBindBufferMemoryInfoKHXPtr) std::shared_ptr<VkBindBufferMemoryInfoKHXRAII>;
+
+#endif
+
+%template (VkShaderModuleCreateInfoPtr) std::shared_ptr<VkShaderModuleCreateInfoRAII>;
+
+#ifdef VK_KHR_descriptor_update_template
+
+%template (VkDescriptorUpdateTemplateCreateInfoKHRPtr) std::shared_ptr<VkDescriptorUpdateTemplateCreateInfoKHRRAII>;
 
 #endif
 
@@ -15753,49 +17555,43 @@ std::shared_ptr<VkSurfaceKHR_T> createMacOSSurfaceMVK(
 
 #endif
 
-%template (VkDescriptorSetAllocateInfoPtr) std::shared_ptr<VkDescriptorSetAllocateInfoRAII>;
-
-%template (VkPipelineViewportStateCreateInfoPtr) std::shared_ptr<VkPipelineViewportStateCreateInfoRAII>;
-
-%template (VkApplicationInfoPtr) std::shared_ptr<VkApplicationInfoRAII>;
-
-%template (VkPipelineDynamicStateCreateInfoPtr) std::shared_ptr<VkPipelineDynamicStateCreateInfoRAII>;
-
 %template (VkBufferCreateInfoPtr) std::shared_ptr<VkBufferCreateInfoRAII>;
 
-%template (VkPresentInfoKHRPtr) std::shared_ptr<VkPresentInfoKHRRAII>;
+#ifdef VK_NV_external_memory_win32
+
+%template (VkExportMemoryWin32HandleInfoNVPtr) std::shared_ptr<VkExportMemoryWin32HandleInfoNVRAII>;
+
+#endif
+
+%template (VkPipelineShaderStageCreateInfoPtr) std::shared_ptr<VkPipelineShaderStageCreateInfoRAII>;
+
+%template (VkSparseBufferMemoryBindInfoPtr) std::shared_ptr<VkSparseBufferMemoryBindInfoRAII>;
+
+#ifdef VK_KHR_external_fence_win32
+
+%template (VkExportFenceWin32HandleInfoKHRPtr) std::shared_ptr<VkExportFenceWin32HandleInfoKHRRAII>;
+
+#endif
+
+%template (VkPipelineLayoutCreateInfoPtr) std::shared_ptr<VkPipelineLayoutCreateInfoRAII>;
+
+%template (VkSpecializationInfoPtr) std::shared_ptr<VkSpecializationInfoRAII>;
 
 %template (VkCommandBufferBeginInfoPtr) std::shared_ptr<VkCommandBufferBeginInfoRAII>;
 
-#ifdef VK_NV_clip_space_w_scaling
+#ifdef VK_EXT_debug_marker
 
-%template (VkPipelineViewportWScalingStateCreateInfoNVPtr) std::shared_ptr<VkPipelineViewportWScalingStateCreateInfoNVRAII>;
-
-#endif
-
-#ifdef VK_KHR_descriptor_update_template
-
-%template (VkDescriptorUpdateTemplateCreateInfoKHRPtr) std::shared_ptr<VkDescriptorUpdateTemplateCreateInfoKHRRAII>;
+%template (VkDebugMarkerObjectNameInfoEXTPtr) std::shared_ptr<VkDebugMarkerObjectNameInfoEXTRAII>;
 
 #endif
 
-%template (VkDeviceCreateInfoPtr) std::shared_ptr<VkDeviceCreateInfoRAII>;
+#ifdef VK_KHR_external_semaphore_win32
 
-#ifdef VK_KHX_device_group
-
-%template (VkDeviceGroupSubmitInfoKHXPtr) std::shared_ptr<VkDeviceGroupSubmitInfoKHXRAII>;
+%template (VkExportSemaphoreWin32HandleInfoKHRPtr) std::shared_ptr<VkExportSemaphoreWin32HandleInfoKHRRAII>;
 
 #endif
 
-%template (VkWriteDescriptorSetPtr) std::shared_ptr<VkWriteDescriptorSetRAII>;
-
-%template (VkShaderModuleCreateInfoPtr) std::shared_ptr<VkShaderModuleCreateInfoRAII>;
-
-#ifdef VK_NVX_device_generated_commands
-
-%template (VkIndirectCommandsLayoutCreateInfoNVXPtr) std::shared_ptr<VkIndirectCommandsLayoutCreateInfoNVXRAII>;
-
-#endif
+%template (VkBindSparseInfoPtr) std::shared_ptr<VkBindSparseInfoRAII>;
 
 #ifdef VK_NV_viewport_swizzle
 
@@ -15803,97 +17599,55 @@ std::shared_ptr<VkSurfaceKHR_T> createMacOSSurfaceMVK(
 
 #endif
 
-%template (VkRenderPassCreateInfoPtr) std::shared_ptr<VkRenderPassCreateInfoRAII>;
+#ifdef VK_KHR_external_semaphore_win32
 
-%template (VkPipelineLayoutCreateInfoPtr) std::shared_ptr<VkPipelineLayoutCreateInfoRAII>;
+%template (VkD3D12FenceSubmitInfoKHRPtr) std::shared_ptr<VkD3D12FenceSubmitInfoKHRRAII>;
+
+#endif
+
+#ifdef VK_KHR_external_memory_win32
+
+%template (VkExportMemoryWin32HandleInfoKHRPtr) std::shared_ptr<VkExportMemoryWin32HandleInfoKHRRAII>;
+
+#endif
+
+#ifdef VK_NVX_device_generated_commands
+
+%template (VkIndirectCommandsLayoutCreateInfoNVXPtr) std::shared_ptr<VkIndirectCommandsLayoutCreateInfoNVXRAII>;
+
+#endif
 
 #ifdef VK_KHX_device_group
 
-%template (VkDeviceGroupRenderPassBeginInfoKHXPtr) std::shared_ptr<VkDeviceGroupRenderPassBeginInfoKHXRAII>;
+%template (VkDeviceGroupPresentInfoKHXPtr) std::shared_ptr<VkDeviceGroupPresentInfoKHXRAII>;
 
 #endif
+
+%template (VkPipelineVertexInputStateCreateInfoPtr) std::shared_ptr<VkPipelineVertexInputStateCreateInfoRAII>;
 
 %template (VkSwapchainCreateInfoKHRPtr) std::shared_ptr<VkSwapchainCreateInfoKHRRAII>;
 
-#ifdef VK_EXT_discard_rectangles
-
-%template (VkPipelineDiscardRectangleStateCreateInfoEXTPtr) std::shared_ptr<VkPipelineDiscardRectangleStateCreateInfoEXTRAII>;
-
-#endif
-
-%template (VkPipelineShaderStageCreateInfoPtr) std::shared_ptr<VkPipelineShaderStageCreateInfoRAII>;
-
-%template (VkDescriptorSetLayoutCreateInfoPtr) std::shared_ptr<VkDescriptorSetLayoutCreateInfoRAII>;
-
-%template (VkImageCreateInfoPtr) std::shared_ptr<VkImageCreateInfoRAII>;
-
 %template (uint8Vector) std::vector<uint8_t>;
-
-#ifdef VK_KHR_display
-
-%template (VkDisplayPlanePropertiesKHRVector) std::vector<VkDisplayPlanePropertiesKHR>;
-
-#endif
 
 %template (VkDescriptorImageInfoVector) std::vector<VkDescriptorImageInfo>;
 
-%template (int32Vector) std::vector<int32_t>;
+%template (VkExtensionPropertiesVector) std::vector<VkExtensionProperties>;
 
-%template (VkValidationCheckEXTVector) std::vector<VkValidationCheckEXT>;
+%template (VkEventVector) std::vector<VkEvent>;
 
-%template (VkSparseImageFormatPropertiesVector) std::vector<VkSparseImageFormatProperties>;
+%template (VkVertexInputBindingDescriptionVector) std::vector<VkVertexInputBindingDescription>;
 
-%template (VkFenceVector) std::vector<VkFence>;
+%template (VkVertexInputAttributeDescriptionVector) std::vector<VkVertexInputAttributeDescription>;
 
-%template (VkWriteDescriptorSetVector) std::vector< std::shared_ptr<VkWriteDescriptorSetRAII> >;
+%template (VkRect2DVector) std::vector<VkRect2D>;
 
-%template (VkDeviceMemoryVector) std::vector<VkDeviceMemory>;
+%template (VkImageViewVector) std::vector<VkImageView>;
 
-%template (VkDescriptorPoolSizeVector) std::vector<VkDescriptorPoolSize>;
-
-%template (VkViewportVector) std::vector<VkViewport>;
-
-#ifdef VK_KHX_device_group
-
-%template (VkBindImageMemoryInfoKHXVector) std::vector< std::shared_ptr<VkBindImageMemoryInfoKHXRAII> >;
-
-#endif
-
-%template (VkPushConstantRangeVector) std::vector<VkPushConstantRange>;
-
-#ifdef VK_KHR_get_physical_device_properties2
-
-%template (VkSparseImageFormatProperties2KHRVector) std::vector<VkSparseImageFormatProperties2KHR>;
-
-#endif
-
-%template (VkMappedMemoryRangeVector) std::vector<VkMappedMemoryRange>;
-
-#ifdef VK_KHR_display
-
-%template (VkDisplayPropertiesKHRVector) std::vector< std::shared_ptr<VkDisplayPropertiesKHRRAII> >;
-
-#endif
-
-%template (VkImageVector) std::vector<VkImage>;
-
-%template (VkImageCopyVector) std::vector<VkImageCopy>;
-
-#ifdef VK_KHR_display
-
-%template (VkDisplayModePropertiesKHRVector) std::vector<VkDisplayModePropertiesKHR>;
-
-#endif
-
-%template (VkGraphicsPipelineCreateInfoVector) std::vector< std::shared_ptr<VkGraphicsPipelineCreateInfoRAII> >;
+%template (VkObjectEntryTypeNVXVector) std::vector<VkObjectEntryTypeNVX>;
 
 %template (VkQueueFamilyPropertiesVector) std::vector<VkQueueFamilyProperties>;
 
 %template (VkLayerPropertiesVector) std::vector<VkLayerProperties>;
-
-%template (VkSubpassDependencyVector) std::vector<VkSubpassDependency>;
-
-%template (VkSemaphoreVector) std::vector<VkSemaphore>;
 
 #ifdef VK_NV_viewport_swizzle
 
@@ -15901,93 +17655,105 @@ std::shared_ptr<VkSurfaceKHR_T> createMacOSSurfaceMVK(
 
 #endif
 
-#ifdef VK_KHR_get_physical_device_properties2
+#ifdef VK_KHR_display
 
-%template (VkQueueFamilyProperties2KHRVector) std::vector<VkQueueFamilyProperties2KHR>;
+%template (VkDisplayPropertiesKHRVector) std::vector< std::shared_ptr<VkDisplayPropertiesKHRRAII> >;
 
 #endif
 
-%template (VkSparseImageMemoryBindInfoVector) std::vector< std::shared_ptr<VkSparseImageMemoryBindInfoRAII> >;
+%template (VkDescriptorPoolSizeVector) std::vector<VkDescriptorPoolSize>;
 
-#ifdef VK_NV_clip_space_w_scaling
+#ifdef VK_EXT_hdr_metadata
 
-%template (VkViewportWScalingNVVector) std::vector<VkViewportWScalingNV>;
+%template (VkHdrMetadataEXTVector) std::vector<VkHdrMetadataEXT>;
+
+#endif
+
+%template (VkSparseImageFormatPropertiesVector) std::vector<VkSparseImageFormatProperties>;
+
+#ifdef VK_KHR_display
+
+%template (VkDisplayPlanePropertiesKHRVector) std::vector<VkDisplayPlanePropertiesKHR>;
+
+#endif
+
+%template (VkSparseImageOpaqueMemoryBindInfoVector) std::vector< std::shared_ptr<VkSparseImageOpaqueMemoryBindInfoRAII> >;
+
+%template (VkPipelineShaderStageCreateInfoVector) std::vector< std::shared_ptr<VkPipelineShaderStageCreateInfoRAII> >;
+
+%template (VkSparseBufferMemoryBindInfoVector) std::vector< std::shared_ptr<VkSparseBufferMemoryBindInfoRAII> >;
+
+%template (VkDeviceMemoryVector) std::vector<VkDeviceMemory>;
+
+#ifdef VK_KHR_incremental_present
+
+%template (VkRectLayerKHRVector) std::vector<VkRectLayerKHR>;
 
 #endif
 
 %template (VkBufferVector) std::vector<VkBuffer>;
 
-%template (VkSurfaceFormatKHRVector) std::vector<VkSurfaceFormatKHR>;
-
-%template (VkPipelineColorBlendAttachmentStateVector) std::vector<VkPipelineColorBlendAttachmentState>;
-
-%template (VkMemoryBarrierVector) std::vector<VkMemoryBarrier>;
-
-%template (VkDescriptorBufferInfoVector) std::vector<VkDescriptorBufferInfo>;
-
-%template (VkObjectEntryTypeNVXVector) std::vector<VkObjectEntryTypeNVX>;
-
-%template (VkBufferMemoryBarrierVector) std::vector<VkBufferMemoryBarrier>;
-
-%template (VkImageResolveVector) std::vector<VkImageResolve>;
-
-%template (VkPhysicalDeviceVector) std::vector<VkPhysicalDevice>;
-
-%template (floatVector) std::vector<float>;
-
-%template (VkDescriptorSetLayoutVector) std::vector<VkDescriptorSetLayout>;
-
-%template (VkBufferImageCopyVector) std::vector<VkBufferImageCopy>;
-
-%template (VkBufferCopyVector) std::vector<VkBufferCopy>;
-
-%template (VkAttachmentDescriptionVector) std::vector<VkAttachmentDescription>;
-
-%template (VkImageSubresourceRangeVector) std::vector<VkImageSubresourceRange>;
+%template (VkImageBlitVector) std::vector<VkImageBlit>;
 
 %template (VkSwapchainCreateInfoKHRVector) std::vector< std::shared_ptr<VkSwapchainCreateInfoKHRRAII> >;
 
-%template (VkPipelineShaderStageCreateInfoVector) std::vector< std::shared_ptr<VkPipelineShaderStageCreateInfoRAII> >;
+%template (VkFenceVector) std::vector<VkFence>;
 
-%template (VkResultVector) std::vector<VkResult>;
+%template (VkSubpassDescriptionVector) std::vector< std::shared_ptr<VkSubpassDescriptionRAII> >;
 
-%template (VkBindSparseInfoVector) std::vector< std::shared_ptr<VkBindSparseInfoRAII> >;
+%template (VkPresentModeKHRVector) std::vector<VkPresentModeKHR>;
 
-%template (VkSpecializationMapEntryVector) std::vector<VkSpecializationMapEntry>;
-
-%template (VkSubmitInfoVector) std::vector< std::shared_ptr<VkSubmitInfoRAII> >;
-
-%template (VkDeviceSizeVector) std::vector<VkDeviceSize>;
-
-%template (VkVertexInputAttributeDescriptionVector) std::vector<VkVertexInputAttributeDescription>;
-
-%template (VkSparseImageMemoryBindVector) std::vector<VkSparseImageMemoryBind>;
-
-%template (VkSwapchainKHRVector) std::vector<VkSwapchainKHR>;
+%template (VkSparseImageMemoryRequirementsVector) std::vector<VkSparseImageMemoryRequirements>;
 
 %template (VkPipelineVector) std::vector<VkPipeline>;
 
-%template (VkSparseMemoryBindVector) std::vector<VkSparseMemoryBind>;
+%template (VkClearRectVector) std::vector<VkClearRect>;
 
-%template (VkRect2DVector) std::vector<VkRect2D>;
+%template (VkResultVector) std::vector<VkResult>;
 
-%template (VkPipelineCacheVector) std::vector<VkPipelineCache>;
+#ifdef VK_KHR_display
 
-#ifdef VK_KHX_device_group_creation
-
-%template (VkPhysicalDeviceGroupPropertiesKHXVector) std::vector<VkPhysicalDeviceGroupPropertiesKHX>;
+%template (VkDisplayModePropertiesKHRVector) std::vector<VkDisplayModePropertiesKHR>;
 
 #endif
 
+%template (VkBufferMemoryBarrierVector) std::vector<VkBufferMemoryBarrier>;
+
+%template (VkSurfaceFormatKHRVector) std::vector<VkSurfaceFormatKHR>;
+
+%template (VkDescriptorBufferInfoVector) std::vector<VkDescriptorBufferInfo>;
+
+%template (VkPipelineCacheVector) std::vector<VkPipelineCache>;
+
+%template (VkImageCopyVector) std::vector<VkImageCopy>;
+
+%template (VkSparseMemoryBindVector) std::vector<VkSparseMemoryBind>;
+
+%template (VkAttachmentDescriptionVector) std::vector<VkAttachmentDescription>;
+
 %template (VkSamplerVector) std::vector<VkSampler>;
 
-%template (VkBufferViewVector) std::vector<VkBufferView>;
+%template (VkSwapchainKHRVector) std::vector<VkSwapchainKHR>;
 
-%template (VkDynamicStateVector) std::vector<VkDynamicState>;
+%template (VkImageSubresourceRangeVector) std::vector<VkImageSubresourceRange>;
 
-%template (VkVertexInputBindingDescriptionVector) std::vector<VkVertexInputBindingDescription>;
+%template (VkBindSparseInfoVector) std::vector< std::shared_ptr<VkBindSparseInfoRAII> >;
 
-%template (VkClearValueVector) std::vector<VkClearValue>;
+%template (VkImageVector) std::vector<VkImage>;
+
+%template (VkValidationCheckEXTVector) std::vector<VkValidationCheckEXT>;
+
+%template (VkDeviceSizeVector) std::vector<VkDeviceSize>;
+
+%template (VkAttachmentReferenceVector) std::vector<VkAttachmentReference>;
+
+%template (VkCopyDescriptorSetVector) std::vector<VkCopyDescriptorSet>;
+
+%template (VkMemoryBarrierVector) std::vector<VkMemoryBarrier>;
+
+%template (VkDeviceQueueCreateInfoVector) std::vector< std::shared_ptr<VkDeviceQueueCreateInfoRAII> >;
+
+%template (VkMappedMemoryRangeVector) std::vector<VkMappedMemoryRange>;
 
 #ifdef VK_NVX_device_generated_commands
 
@@ -15995,51 +17761,41 @@ std::shared_ptr<VkSurfaceKHR_T> createMacOSSurfaceMVK(
 
 #endif
 
-%template (VkDescriptorSetLayoutBindingVector) std::vector< std::shared_ptr<VkDescriptorSetLayoutBindingRAII> >;
+%template (VkComputePipelineCreateInfoVector) std::vector<VkComputePipelineCreateInfo>;
 
-%template (VkEventVector) std::vector<VkEvent>;
+%template (VkWriteDescriptorSetVector) std::vector< std::shared_ptr<VkWriteDescriptorSetRAII> >;
 
-%template (VkDeviceQueueCreateInfoVector) std::vector< std::shared_ptr<VkDeviceQueueCreateInfoRAII> >;
+#ifdef VK_KHR_incremental_present
 
-%template (VkClearRectVector) std::vector<VkClearRect>;
-
-%template (VkSparseBufferMemoryBindInfoVector) std::vector< std::shared_ptr<VkSparseBufferMemoryBindInfoRAII> >;
-
-%template (VkDisplayKHRVector) std::vector<VkDisplayKHR>;
-
-%template (VkSparseImageOpaqueMemoryBindInfoVector) std::vector< std::shared_ptr<VkSparseImageOpaqueMemoryBindInfoRAII> >;
-
-%template (VkPresentModeKHRVector) std::vector<VkPresentModeKHR>;
-
-#ifdef VK_KHX_device_group
-
-%template (VkBindBufferMemoryInfoKHXVector) std::vector< std::shared_ptr<VkBindBufferMemoryInfoKHXRAII> >;
+%template (VkPresentRegionKHRVector) std::vector< std::shared_ptr<VkPresentRegionKHRRAII> >;
 
 #endif
 
-#ifdef VK_KHR_descriptor_update_template
+%template (VkPipelineColorBlendAttachmentStateVector) std::vector<VkPipelineColorBlendAttachmentState>;
 
-%template (VkDescriptorUpdateTemplateEntryKHRVector) std::vector<VkDescriptorUpdateTemplateEntryKHR>;
+%template (VkPushConstantRangeVector) std::vector<VkPushConstantRange>;
+
+%template (VkSubpassDependencyVector) std::vector<VkSubpassDependency>;
+
+%template (VkClearValueVector) std::vector<VkClearValue>;
+
+#ifdef VK_KHX_device_group_creation
+
+%template (VkPhysicalDeviceGroupPropertiesKHXVector) std::vector<VkPhysicalDeviceGroupPropertiesKHX>;
 
 #endif
 
-%template (VkImageViewVector) std::vector<VkImageView>;
+%template (VkSpecializationMapEntryVector) std::vector<VkSpecializationMapEntry>;
 
-%template (VkCopyDescriptorSetVector) std::vector<VkCopyDescriptorSet>;
+%template (int32Vector) std::vector<int32_t>;
 
-%template (VkSparseImageMemoryRequirementsVector) std::vector<VkSparseImageMemoryRequirements>;
+#ifdef VK_KHR_get_memory_requirements2
 
-%template (VkSubpassDescriptionVector) std::vector< std::shared_ptr<VkSubpassDescriptionRAII> >;
+%template (VkSparseImageMemoryRequirements2KHRVector) std::vector<VkSparseImageMemoryRequirements2KHR>;
 
-%template (VkImageBlitVector) std::vector<VkImageBlit>;
-
-%template (VkImageMemoryBarrierVector) std::vector<VkImageMemoryBarrier>;
-
-%template (VkExtensionPropertiesVector) std::vector<VkExtensionProperties>;
+#endif
 
 %template (VkClearAttachmentVector) std::vector<VkClearAttachment>;
-
-%template (VkComputePipelineCreateInfoVector) std::vector<VkComputePipelineCreateInfo>;
 
 #ifdef VK_NVX_device_generated_commands
 
@@ -16047,7 +17803,93 @@ std::shared_ptr<VkSurfaceKHR_T> createMacOSSurfaceMVK(
 
 #endif
 
-%template (VkAttachmentReferenceVector) std::vector<VkAttachmentReference>;
+%template (VkPhysicalDeviceVector) std::vector<VkPhysicalDevice>;
+
+%template (VkSparseImageMemoryBindInfoVector) std::vector< std::shared_ptr<VkSparseImageMemoryBindInfoRAII> >;
+
+%template (VkSparseImageMemoryBindVector) std::vector<VkSparseImageMemoryBind>;
+
+%template (VkImageResolveVector) std::vector<VkImageResolve>;
+
+#ifdef VK_NV_clip_space_w_scaling
+
+%template (VkViewportWScalingNVVector) std::vector<VkViewportWScalingNV>;
+
+#endif
+
+%template (floatVector) std::vector<float>;
+
+%template (VkDynamicStateVector) std::vector<VkDynamicState>;
+
+#ifdef VK_KHR_descriptor_update_template
+
+%template (VkDescriptorUpdateTemplateEntryKHRVector) std::vector<VkDescriptorUpdateTemplateEntryKHR>;
+
+#endif
+
+%template (VkBufferImageCopyVector) std::vector<VkBufferImageCopy>;
+
+%template (VkDescriptorSetLayoutBindingVector) std::vector< std::shared_ptr<VkDescriptorSetLayoutBindingRAII> >;
+
+%template (VkDescriptorSetLayoutVector) std::vector<VkDescriptorSetLayout>;
+
+#ifdef VK_GOOGLE_display_timing
+
+%template (VkPastPresentationTimingGOOGLEVector) std::vector<VkPastPresentationTimingGOOGLE>;
+
+#endif
+
+%template (VkSemaphoreVector) std::vector<VkSemaphore>;
+
+#ifdef VK_GOOGLE_display_timing
+
+%template (VkPresentTimeGOOGLEVector) std::vector<VkPresentTimeGOOGLE>;
+
+#endif
+
+%template (VkImageMemoryBarrierVector) std::vector<VkImageMemoryBarrier>;
+
+%template (VkSubmitInfoVector) std::vector< std::shared_ptr<VkSubmitInfoRAII> >;
+
+%template (VkGraphicsPipelineCreateInfoVector) std::vector< std::shared_ptr<VkGraphicsPipelineCreateInfoRAII> >;
+
+#ifdef VK_KHX_device_group
+
+%template (VkBindImageMemoryInfoKHXVector) std::vector< std::shared_ptr<VkBindImageMemoryInfoKHXRAII> >;
+
+#endif
+
+#ifdef VK_KHX_device_group
+
+%template (VkBindBufferMemoryInfoKHXVector) std::vector< std::shared_ptr<VkBindBufferMemoryInfoKHXRAII> >;
+
+#endif
+
+%template (VkViewportVector) std::vector<VkViewport>;
+
+%template (VkDisplayKHRVector) std::vector<VkDisplayKHR>;
+
+#ifdef VK_KHR_get_surface_capabilities2
+
+%template (VkSurfaceFormat2KHRVector) std::vector<VkSurfaceFormat2KHR>;
+
+#endif
+
+#ifdef VK_KHR_get_physical_device_properties2
+
+%template (VkSparseImageFormatProperties2KHRVector) std::vector<VkSparseImageFormatProperties2KHR>;
+
+#endif
+
+%template (VkBufferCopyVector) std::vector<VkBufferCopy>;
+
+%template (VkBufferViewVector) std::vector<VkBufferView>;
+
+#ifdef VK_KHR_get_physical_device_properties2
+
+%template (VkQueueFamilyProperties2KHRVector) std::vector<VkQueueFamilyProperties2KHR>;
+
+#endif
 
 %template (VkPipelineHandleVector) std::vector< std::shared_ptr< VkPipeline_T > >;
 

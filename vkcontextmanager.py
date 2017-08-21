@@ -244,7 +244,7 @@ class VkContextManager:
 
         vk.cmdPipelineBarrier(self.command_buffers[0], 
                               vk.VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, 
-                              vk.VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, 0, 
+                              vk.VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, 0, 
                               vk.VkMemoryBarrierVector(), 
                               vk.VkBufferMemoryBarrierVector(),
                               vk.VkImageMemoryBarrierVector(1,img_mem_barrier))
@@ -302,7 +302,7 @@ class VkContextManager:
 
         vk.cmdPipelineBarrier(self.command_buffers[0], 
                               vk.VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, 
-                              vk.VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, 0, 
+                              vk.VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT, 0, 
                               vk.VkMemoryBarrierVector(), 
                               vk.VkBufferMemoryBarrierVector(),
                               vk.VkImageMemoryBarrierVector(1,img_mem_barrier))
@@ -406,7 +406,7 @@ class VkContextManager:
 
             vk.cmdPipelineBarrier(self.command_buffers[0], 
                                   vk.VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, 
-                                  vk.VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, 0, 
+                                  vk.VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, 0, 
                                   vk.VkMemoryBarrierVector(), 
                                   vk.VkBufferMemoryBarrierVector(),
                                   vk.VkImageMemoryBarrierVector(1,img_mem_barrier))
@@ -440,8 +440,8 @@ class VkContextManager:
             img_mem_barrier = vk.ImageMemoryBarrier(0, vk.VK_ACCESS_MEMORY_WRITE_BIT, old_image_layout, vk.VK_IMAGE_LAYOUT_UNDEFINED, vk.VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 0, 0, self.dst_img, subresource_range)
 
             vk.cmdPipelineBarrier(self.command_buffers[0], 
-                                  vk.VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, 
-                                  vk.VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, 0, 
+                                  vk.VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, 
+                                  vk.VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, 0, 
                                   vk.VkMemoryBarrierVector(), 
                                   vk.VkBufferMemoryBarrierVector(),
                                   vk.VkImageMemoryBarrierVector(1,img_mem_barrier))
@@ -454,8 +454,8 @@ class VkContextManager:
             img_mem_barrier = vk.ImageMemoryBarrier(vk.VK_ACCESS_MEMORY_WRITE_BIT, vk.VK_ACCESS_MEMORY_READ_BIT, vk.VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, vk.VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, 0, 0, self.dst_img, subresource_range)
 
             vk.cmdPipelineBarrier(self.command_buffers[0], 
-                                  vk.VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, 
-                                  vk.VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, 0, 
+                                  vk.VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, 
+                                  vk.VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, 0, 
                                   vk.VkMemoryBarrierVector(), 
                                   vk.VkBufferMemoryBarrierVector(),
                                   vk.VkImageMemoryBarrierVector(1,img_mem_barrier))
@@ -477,7 +477,7 @@ class VkContextManager:
                                                                                     vk.VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE,
                                                                                     0.0, 
                                                                                     False, 
-                                                                                    0,
+                                                                                    1.0,
                                                                                     False,
                                                                                     vk.VK_COMPARE_OP_NEVER,
                                                                                     0.0,
@@ -622,7 +622,7 @@ class VkContextManager:
         pvisci = vk.PipelineVertexInputStateCreateInfo(0, vk.VkVertexInputBindingDescriptionVector(1,vi_bindings), vi_attribs)
         piasci = vk.PipelineInputAssemblyStateCreateInfo(0, vk.VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST, False)
         line_width = 1.0 # this must set to avoid a reported error
-        prsci = vk.PipelineRasterizationStateCreateInfo(0, True, False, vk.VK_POLYGON_MODE_FILL, vk.VK_CULL_MODE_BACK_BIT, vk.VK_FRONT_FACE_CLOCKWISE, False, 0, 0, 0, line_width)
+        prsci = vk.PipelineRasterizationStateCreateInfo(0, False, False, vk.VK_POLYGON_MODE_FILL, vk.VK_CULL_MODE_BACK_BIT, vk.VK_FRONT_FACE_CLOCKWISE, False, 0, 0, 0, line_width)
         pcbsci = vk.PipelineColorBlendStateCreateInfo(0, False, vk.VK_LOGIC_OP_NO_OP, 
                                                       vk.VkPipelineColorBlendAttachmentStateVector(1, vk.PipelineColorBlendAttachmentState(False, 
                                                                                                                                            vk.VK_BLEND_FACTOR_ZERO,  
@@ -753,8 +753,8 @@ class VkContextManager:
                                                 subresource_range)
 
         vk.cmdPipelineBarrier(  self.command_buffers[0], 
-                                vk.VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, 
-                                vk.VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, 0, 
+                                vk.VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, 
+                                vk.VK_PIPELINE_STAGE_TRANSFER_BIT, 0, 
                                 vk.VkMemoryBarrierVector(), 
                                 vk.VkBufferMemoryBarrierVector(),
                                 vk.VkImageMemoryBarrierVector(1,img_mem_barrier))
@@ -769,7 +769,7 @@ class VkContextManager:
 
         vk.cmdPipelineBarrier(  self.command_buffers[0], 
                                 vk.VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, 
-                                vk.VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, 0, 
+                                vk.VK_PIPELINE_STAGE_TRANSFER_BIT, 0, 
                                 vk.VkMemoryBarrierVector(), 
                                 vk.VkBufferMemoryBarrierVector(),
                                 vk.VkImageMemoryBarrierVector(1,img_mem_barrier))
@@ -790,7 +790,7 @@ class VkContextManager:
                                                 0, 0, self.readback_image, subresource_range)
 
         vk.cmdPipelineBarrier(  self.command_buffers[0], 
-                                vk.VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, 
+                                vk.VK_PIPELINE_STAGE_TRANSFER_BIT, 
                                 vk.VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, 0, 
                                 vk.VkMemoryBarrierVector(), 
                                 vk.VkBufferMemoryBarrierVector(),
