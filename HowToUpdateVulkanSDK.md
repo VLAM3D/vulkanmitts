@@ -7,4 +7,7 @@
 * Using C:\VulkanSDK\1.0.42.1\Samples\build_windows_samples.bat would be nice, but we need to define PYTHON_EXECUTABLE for CMake to find the virtualenv Python interpreter
 * cmake -G "Visual Studio 14 Win64" -DPYTHON_EXECUTABLE=C:/Users/mathi/Miniconda2/envs/build_pyvk3/python.exe ..
 * So do the same as in build_windows_samples.bat manually
-* Find the corresponding release tag in the following GitHub project https://github.com/KhronosGroup/Vulkan-Docs/releases and make a checkout
+* Find the corresponding release tag in the following GitHub project https://github.com/KhronosGroup/Vulkan-Docs/releases and checkout the release
+* Add Vulkan-Docs\src\spec to PYTHONPATH 
+* Run genswiggi.py to generate the SWIG interface file
+* Go back to the How to build instructions
