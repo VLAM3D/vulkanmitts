@@ -19,5 +19,6 @@ set PYTHONPATH=c:\build\pyvulkan3\bin;C:\dev\Vulkan-Docs\src\spec
 ~~~~
 python genswigi.py C:\dev\Vulkan-Docs\src\spec\vk.xml .
 ~~~~
-* Go back to the How to build instructions
+* Go back to the How to build instructions - try to build and fix errors
+* Update conda-recipes - do not forget to update Vulkan SDK path in the recipes
 
