@@ -8,6 +8,16 @@
 * cmake -G "Visual Studio 14 Win64" -DPYTHON_EXECUTABLE=C:/Users/mathi/Miniconda2/envs/build_pyvk3/python.exe ..
 * So do the same as in build_windows_samples.bat manually
 * Find the corresponding release tag in the following GitHub project https://github.com/KhronosGroup/Vulkan-Docs/releases and checkout the release
+~~~~
+git checkout -b v1.0.57-core v1.0.57-core
+~~~~
 * Add Vulkan-Docs\src\spec to PYTHONPATH 
+~~~
+set PYTHONPATH=c:\build\pyvulkan3\bin;C:\dev\Vulkan-Docs\src\spec
+~~~
 * Run genswiggi.py to generate the SWIG interface file
+~~~~
+python genswigi.py C:\dev\Vulkan-Docs\src\spec\vk.xml .
+~~~~
 * Go back to the How to build instructions
+
