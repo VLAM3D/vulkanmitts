@@ -1,3 +1,6 @@
+build
+dist
+install
 CMakeCache.txt
 CMakeFiles
 cmake_install.cmake
