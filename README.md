@@ -88,21 +88,24 @@ cmake --build . --target INSTALL --config Release -- -m:12
 
 If you forked the project to make your own conda package, edit the *bld.bat* and *meta.yaml* files under *conda-recipes* subfolders with you local path and forked github URL.
 
-### Installing conda build
+### Installing conda build and anaconda client
 
 From the main conda environment, i.e. right after starting an Anaconda Prompt
 ```
 conda install conda-build
+conda install anaconda
 ```
 ### Building one Python version
 
-Activate an environment with the desired python version and run something like:
+Still from the main environment prompt, use something like this:
 
 ```
 cd c:\dev\pyvulkan\conda-recipes
-conda build pyglslang
-conda build pyvulkan
+conda build pyglslang --python 2.7
+conda build pyvulkan --python 2.7
 ```
+
+Repeat for other versions.
 
 
 
