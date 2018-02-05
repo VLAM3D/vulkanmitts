@@ -325,7 +325,7 @@ class VkContextManager:
             with open(texture_file_path, 'rb') as img_file:
                 with Image.open(img_file) as pil_img:
                     assert(pil_img.mode == 'RGBA') # for the unit test's purpose we don't need more
-                    flat_array = np.fromstring( pil_img.tobytes(), dtype=np.uint8)
+                    flat_array = np.frombuffer( pil_img.tobytes(), dtype=np.uint8)
                     # note that we create a numpy array with width = 4 * image width to keep the color packed per pixel
                     # the default behavior of numpy.array(pil_img) would be to split the colors in planes, which is not what we want for a texture
                     img_size = pil_img.size

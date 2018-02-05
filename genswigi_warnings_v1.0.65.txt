@@ -1,0 +1,39 @@
+VkSubmitInfo  member pWaitDstStageMask  size is not used 
+VkSubpassDescription  member pResolveAttachments  size is not used 
+VkPresentInfoKHR  member pImageIndices  size is not used 
+VkPresentInfoKHR  member pResults  size is not used 
+Warning: VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES2_KHR not found in the VkStructure enum elements
+Warning: VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROPERTIES2_KHR not found in the VkStructure enum elements
+Warning: VK_STRUCTURE_TYPE_FORMAT_PROPERTIES2_KHR not found in the VkStructure enum elements
+Warning: VK_STRUCTURE_TYPE_IMAGE_FORMAT_PROPERTIES2_KHR not found in the VkStructure enum elements
+Warning: VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_FORMAT_INFO2_KHR not found in the VkStructure enum elements
+Warning: VK_STRUCTURE_TYPE_QUEUE_FAMILY_PROPERTIES2_KHR not found in the VkStructure enum elements
+Warning: VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MEMORY_PROPERTIES2_KHR not found in the VkStructure enum elements
+Warning: VK_STRUCTURE_TYPE_SPARSE_IMAGE_FORMAT_PROPERTIES2_KHR not found in the VkStructure enum elements
+Warning: VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SPARSE_IMAGE_FORMAT_INFO2_KHR not found in the VkStructure enum elements
+Warning: VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IDPROPERTIES_KHR not found in the VkStructure enum elements
+VkWin32KeyedMutexAcquireReleaseInfoKHR  member pAcquireKeys  size is not used 
+VkWin32KeyedMutexAcquireReleaseInfoKHR  member pAcquireTimeouts  size is not used 
+VkWin32KeyedMutexAcquireReleaseInfoKHR  member pReleaseKeys  size is not used 
+Warning: VK_STRUCTURE_TYPE_D3_D12_FENCE_SUBMIT_INFO_KHR not found in the VkStructure enum elements
+Warning: VK_STRUCTURE_TYPE_PHYSICAL_DEVICE16_BIT_STORAGE_FEATURES_KHR not found in the VkStructure enum elements
+Warning: VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SURFACE_INFO2_KHR not found in the VkStructure enum elements
+Warning: VK_STRUCTURE_TYPE_SURFACE_CAPABILITIES2_KHR not found in the VkStructure enum elements
+Warning: VK_STRUCTURE_TYPE_SURFACE_FORMAT2_KHR not found in the VkStructure enum elements
+Warning: VK_STRUCTURE_TYPE_BUFFER_MEMORY_REQUIREMENTS_INFO2_KHR not found in the VkStructure enum elements
+Warning: VK_STRUCTURE_TYPE_IMAGE_MEMORY_REQUIREMENTS_INFO2_KHR not found in the VkStructure enum elements
+Warning: VK_STRUCTURE_TYPE_IMAGE_SPARSE_MEMORY_REQUIREMENTS_INFO2_KHR not found in the VkStructure enum elements
+Warning: VK_STRUCTURE_TYPE_MEMORY_REQUIREMENTS2_KHR not found in the VkStructure enum elements
+Warning: VK_STRUCTURE_TYPE_SPARSE_IMAGE_MEMORY_REQUIREMENTS2_KHR not found in the VkStructure enum elements
+Warning: VK_STRUCTURE_TYPE_TEXTURE_LODGATHER_FORMAT_PROPERTIES_AMD not found in the VkStructure enum elements
+VkWin32KeyedMutexAcquireReleaseInfoNV  member pAcquireKeys  size is not used 
+VkWin32KeyedMutexAcquireReleaseInfoNV  member pAcquireTimeoutMilliseconds  size is not used 
+VkWin32KeyedMutexAcquireReleaseInfoNV  member pReleaseKeys  size is not used 
+VkObjectTableCreateInfoNVX  member pObjectEntryCounts  size is not used 
+VkObjectTableCreateInfoNVX  member pObjectEntryUsageFlags  size is not used 
+Warning: multiple argout parameter found for command vkGetPhysicalDeviceGeneratedCommandsPropertiesNVX - this function is not correctly wrapped
+Warning: VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_WSCALING_STATE_CREATE_INFO_NV not found in the VkStructure enum elements
+Warning: multiple argout parameter found for command vkGetRandROutputDisplayEXT - this function is not correctly wrapped
+Warning: VK_STRUCTURE_TYPE_SURFACE_CAPABILITIES2_EXT not found in the VkStructure enum elements
+Warning: VK_STRUCTURE_TYPE_IOSSURFACE_CREATE_INFO_MVK not found in the VkStructure enum elements
+Warning: VK_STRUCTURE_TYPE_MAC_OSSURFACE_CREATE_INFO_MVK not found in the VkStructure enum elements

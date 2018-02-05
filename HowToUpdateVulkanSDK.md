@@ -4,16 +4,16 @@
 * Change four CMakeLists.txt : glslang, spirv-tools, Samples and Samples/Sample-Programs/Hologram
 * Add the line add_definitions(-D_ITERATOR_DEBUG_LEVEL=0) in the win32 section for each of these file
 * Just do a file compare with previously patched SDK folder with a tool like BeyondCompare
-* Using C:\VulkanSDK\1.0.42.1\Samples\build_windows_samples.bat would be nice, but we need to define PYTHON_EXECUTABLE for CMake to find the virtualenv Python interpreter
-* cmake -G "Visual Studio 14 Win64" -DPYTHON_EXECUTABLE=C:/Users/mathi/Miniconda2/envs/build_pyvk3/python.exe ..
+* Using C:\VulkanSDK\1.0.65.0\Samples\build_windows_samples.bat would be nice, but we need to define PYTHON_EXECUTABLE for CMake to find the virtualenv Python interpreter
+* cmake -G "Visual Studio 14 Win64" -DPYTHON_EXECUTABLE=C:/Users/mathi/Miniconda2/envs/build_pyvk36/python.exe ..
 * So do the same as in build_windows_samples.bat manually
 * Find the corresponding release tag in the following GitHub project https://github.com/KhronosGroup/Vulkan-Docs/releases and checkout the release
 ~~~~
-git checkout -b v1.0.57-core v1.0.57-core
+git checkout -b v1.0.65-core v1.0.65-core
 ~~~~
 * Add Vulkan-Docs\src\spec to PYTHONPATH 
 ~~~
-set PYTHONPATH=c:\build\pyvulkan3\bin;C:\dev\Vulkan-Docs\src\spec
+set PYTHONPATH=c:\build\pyvulkan36\bin;C:\dev\Vulkan-Docs\src\spec
 ~~~
 * Run genswiggi.py to generate the SWIG interface file
 ~~~~

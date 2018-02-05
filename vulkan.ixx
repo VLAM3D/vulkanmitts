@@ -53,7 +53,7 @@ const char* vkGetErrorString(VkResult retval);
 #define VK_VERSION_MINOR(version) (((uint32_t)(version) >> 12) & 0x3ff)
 #define VK_VERSION_PATCH(version) ((uint32_t)(version) & 0xfff)
 // Version of this file
-#define VK_HEADER_VERSION 57
+#define VK_HEADER_VERSION 65
 
 
 #define VK_NULL_HANDLE 0
@@ -155,6 +155,7 @@ typedef enum VkResult {
     VK_ERROR_INVALID_SHADER_NV = -1000012000,
     VK_ERROR_OUT_OF_POOL_MEMORY_KHR = -1000069000,
     VK_ERROR_INVALID_EXTERNAL_HANDLE_KHR = -1000072003,
+    VK_ERROR_NOT_PERMITTED_EXT = -1000174001,
     VK_RESULT_BEGIN_RANGE = VK_ERROR_FRAGMENTED_POOL,
     VK_RESULT_END_RANGE = VK_INCOMPLETE,
     VK_RESULT_RANGE_SIZE = (VK_INCOMPLETE - VK_ERROR_FRAGMENTED_POOL + 1),
@@ -249,16 +250,16 @@ typedef enum VkStructureType {
     VK_STRUCTURE_TYPE_SPARSE_IMAGE_FORMAT_PROPERTIES_2_KHR = 1000059007,
     VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SPARSE_IMAGE_FORMAT_INFO_2_KHR = 1000059008,
     VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_FLAGS_INFO_KHX = 1000060000,
-    VK_STRUCTURE_TYPE_BIND_BUFFER_MEMORY_INFO_KHX = 1000060001,
-    VK_STRUCTURE_TYPE_BIND_IMAGE_MEMORY_INFO_KHX = 1000060002,
     VK_STRUCTURE_TYPE_DEVICE_GROUP_RENDER_PASS_BEGIN_INFO_KHX = 1000060003,
     VK_STRUCTURE_TYPE_DEVICE_GROUP_COMMAND_BUFFER_BEGIN_INFO_KHX = 1000060004,
     VK_STRUCTURE_TYPE_DEVICE_GROUP_SUBMIT_INFO_KHX = 1000060005,
     VK_STRUCTURE_TYPE_DEVICE_GROUP_BIND_SPARSE_INFO_KHX = 1000060006,
+    VK_STRUCTURE_TYPE_ACQUIRE_NEXT_IMAGE_INFO_KHX = 1000060010,
+    VK_STRUCTURE_TYPE_BIND_BUFFER_MEMORY_DEVICE_GROUP_INFO_KHX = 1000060013,
+    VK_STRUCTURE_TYPE_BIND_IMAGE_MEMORY_DEVICE_GROUP_INFO_KHX = 1000060014,
     VK_STRUCTURE_TYPE_DEVICE_GROUP_PRESENT_CAPABILITIES_KHX = 1000060007,
     VK_STRUCTURE_TYPE_IMAGE_SWAPCHAIN_CREATE_INFO_KHX = 1000060008,
     VK_STRUCTURE_TYPE_BIND_IMAGE_MEMORY_SWAPCHAIN_INFO_KHX = 1000060009,
-    VK_STRUCTURE_TYPE_ACQUIRE_NEXT_IMAGE_INFO_KHX = 1000060010,
     VK_STRUCTURE_TYPE_DEVICE_GROUP_PRESENT_INFO_KHX = 1000060011,
     VK_STRUCTURE_TYPE_DEVICE_GROUP_SWAPCHAIN_CREATE_INFO_KHX = 1000060012,
     VK_STRUCTURE_TYPE_VALIDATION_FLAGS_EXT = 1000061000,
@@ -301,7 +302,7 @@ typedef enum VkStructureType {
     VK_STRUCTURE_TYPE_DEVICE_GENERATED_COMMANDS_LIMITS_NVX = 1000086004,
     VK_STRUCTURE_TYPE_DEVICE_GENERATED_COMMANDS_FEATURES_NVX = 1000086005,
     VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_W_SCALING_STATE_CREATE_INFO_NV = 1000087000,
-    VK_STRUCTURE_TYPE_SURFACE_CAPABILITIES2_EXT = 1000090000,
+    VK_STRUCTURE_TYPE_SURFACE_CAPABILITIES_2_EXT = 1000090000,
     VK_STRUCTURE_TYPE_DISPLAY_POWER_INFO_EXT = 1000091000,
     VK_STRUCTURE_TYPE_DEVICE_EVENT_INFO_EXT = 1000091001,
     VK_STRUCTURE_TYPE_DISPLAY_EVENT_INFO_EXT = 1000091002,
@@ -321,6 +322,10 @@ typedef enum VkStructureType {
     VK_STRUCTURE_TYPE_FENCE_GET_WIN32_HANDLE_INFO_KHR = 1000114002,
     VK_STRUCTURE_TYPE_IMPORT_FENCE_FD_INFO_KHR = 1000115000,
     VK_STRUCTURE_TYPE_FENCE_GET_FD_INFO_KHR = 1000115001,
+    VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_POINT_CLIPPING_PROPERTIES_KHR = 1000117000,
+    VK_STRUCTURE_TYPE_RENDER_PASS_INPUT_ATTACHMENT_ASPECT_CREATE_INFO_KHR = 1000117001,
+    VK_STRUCTURE_TYPE_IMAGE_VIEW_USAGE_CREATE_INFO_KHR = 1000117002,
+    VK_STRUCTURE_TYPE_PIPELINE_TESSELLATION_DOMAIN_ORIGIN_STATE_CREATE_INFO_KHR = 1000117003,
     VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SURFACE_INFO_2_KHR = 1000119000,
     VK_STRUCTURE_TYPE_SURFACE_CAPABILITIES_2_KHR = 1000119001,
     VK_STRUCTURE_TYPE_SURFACE_FORMAT_2_KHR = 1000119002,
@@ -331,16 +336,33 @@ typedef enum VkStructureType {
     VK_STRUCTURE_TYPE_MEMORY_DEDICATED_ALLOCATE_INFO_KHR = 1000127001,
     VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SAMPLER_FILTER_MINMAX_PROPERTIES_EXT = 1000130000,
     VK_STRUCTURE_TYPE_SAMPLER_REDUCTION_MODE_CREATE_INFO_EXT = 1000130001,
+    VK_STRUCTURE_TYPE_SAMPLE_LOCATIONS_INFO_EXT = 1000143000,
+    VK_STRUCTURE_TYPE_RENDER_PASS_SAMPLE_LOCATIONS_BEGIN_INFO_EXT = 1000143001,
+    VK_STRUCTURE_TYPE_PIPELINE_SAMPLE_LOCATIONS_STATE_CREATE_INFO_EXT = 1000143002,
+    VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SAMPLE_LOCATIONS_PROPERTIES_EXT = 1000143003,
+    VK_STRUCTURE_TYPE_MULTISAMPLE_PROPERTIES_EXT = 1000143004,
     VK_STRUCTURE_TYPE_BUFFER_MEMORY_REQUIREMENTS_INFO_2_KHR = 1000146000,
     VK_STRUCTURE_TYPE_IMAGE_MEMORY_REQUIREMENTS_INFO_2_KHR = 1000146001,
     VK_STRUCTURE_TYPE_IMAGE_SPARSE_MEMORY_REQUIREMENTS_INFO_2_KHR = 1000146002,
     VK_STRUCTURE_TYPE_MEMORY_REQUIREMENTS_2_KHR = 1000146003,
     VK_STRUCTURE_TYPE_SPARSE_IMAGE_MEMORY_REQUIREMENTS_2_KHR = 1000146004,
+    VK_STRUCTURE_TYPE_IMAGE_FORMAT_LIST_CREATE_INFO_KHR = 1000147000,
     VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_BLEND_OPERATION_ADVANCED_FEATURES_EXT = 1000148000,
     VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_BLEND_OPERATION_ADVANCED_PROPERTIES_EXT = 1000148001,
     VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_ADVANCED_STATE_CREATE_INFO_EXT = 1000148002,
     VK_STRUCTURE_TYPE_PIPELINE_COVERAGE_TO_COLOR_STATE_CREATE_INFO_NV = 1000149000,
     VK_STRUCTURE_TYPE_PIPELINE_COVERAGE_MODULATION_STATE_CREATE_INFO_NV = 1000152000,
+    VK_STRUCTURE_TYPE_SAMPLER_YCBCR_CONVERSION_CREATE_INFO_KHR = 1000156000,
+    VK_STRUCTURE_TYPE_SAMPLER_YCBCR_CONVERSION_INFO_KHR = 1000156001,
+    VK_STRUCTURE_TYPE_BIND_IMAGE_PLANE_MEMORY_INFO_KHR = 1000156002,
+    VK_STRUCTURE_TYPE_IMAGE_PLANE_MEMORY_REQUIREMENTS_INFO_KHR = 1000156003,
+    VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SAMPLER_YCBCR_CONVERSION_FEATURES_KHR = 1000156004,
+    VK_STRUCTURE_TYPE_SAMPLER_YCBCR_CONVERSION_IMAGE_FORMAT_PROPERTIES_KHR = 1000156005,
+    VK_STRUCTURE_TYPE_BIND_BUFFER_MEMORY_INFO_KHR = 1000157000,
+    VK_STRUCTURE_TYPE_BIND_IMAGE_MEMORY_INFO_KHR = 1000157001,
+    VK_STRUCTURE_TYPE_VALIDATION_CACHE_CREATE_INFO_EXT = 1000160000,
+    VK_STRUCTURE_TYPE_SHADER_MODULE_VALIDATION_CACHE_CREATE_INFO_EXT = 1000160001,
+    VK_STRUCTURE_TYPE_DEVICE_QUEUE_GLOBAL_PRIORITY_CREATE_INFO_EXT = 1000174000,
     VK_STRUCTURE_TYPE_BEGIN_RANGE = VK_STRUCTURE_TYPE_APPLICATION_INFO,
     VK_STRUCTURE_TYPE_END_RANGE = VK_STRUCTURE_TYPE_LOADER_DEVICE_CREATE_INFO,
     VK_STRUCTURE_TYPE_RANGE_SIZE = (VK_STRUCTURE_TYPE_LOADER_DEVICE_CREATE_INFO - VK_STRUCTURE_TYPE_APPLICATION_INFO + 1),
@@ -561,6 +583,40 @@ typedef enum VkFormat {
     VK_FORMAT_PVRTC1_4BPP_SRGB_BLOCK_IMG = 1000054005,
     VK_FORMAT_PVRTC2_2BPP_SRGB_BLOCK_IMG = 1000054006,
     VK_FORMAT_PVRTC2_4BPP_SRGB_BLOCK_IMG = 1000054007,
+    VK_FORMAT_G8B8G8R8_422_UNORM_KHR = 1000156000,
+    VK_FORMAT_B8G8R8G8_422_UNORM_KHR = 1000156001,
+    VK_FORMAT_G8_B8_R8_3PLANE_420_UNORM_KHR = 1000156002,
+    VK_FORMAT_G8_B8R8_2PLANE_420_UNORM_KHR = 1000156003,
+    VK_FORMAT_G8_B8_R8_3PLANE_422_UNORM_KHR = 1000156004,
+    VK_FORMAT_G8_B8R8_2PLANE_422_UNORM_KHR = 1000156005,
+    VK_FORMAT_G8_B8_R8_3PLANE_444_UNORM_KHR = 1000156006,
+    VK_FORMAT_R10X6_UNORM_PACK16_KHR = 1000156007,
+    VK_FORMAT_R10X6G10X6_UNORM_2PACK16_KHR = 1000156008,
+    VK_FORMAT_R10X6G10X6B10X6A10X6_UNORM_4PACK16_KHR = 1000156009,
+    VK_FORMAT_G10X6B10X6G10X6R10X6_422_UNORM_4PACK16_KHR = 1000156010,
+    VK_FORMAT_B10X6G10X6R10X6G10X6_422_UNORM_4PACK16_KHR = 1000156011,
+    VK_FORMAT_G10X6_B10X6_R10X6_3PLANE_420_UNORM_3PACK16_KHR = 1000156012,
+    VK_FORMAT_G10X6_B10X6R10X6_2PLANE_420_UNORM_3PACK16_KHR = 1000156013,
+    VK_FORMAT_G10X6_B10X6_R10X6_3PLANE_422_UNORM_3PACK16_KHR = 1000156014,
+    VK_FORMAT_G10X6_B10X6R10X6_2PLANE_422_UNORM_3PACK16_KHR = 1000156015,
+    VK_FORMAT_G10X6_B10X6_R10X6_3PLANE_444_UNORM_3PACK16_KHR = 1000156016,
+    VK_FORMAT_R12X4_UNORM_PACK16_KHR = 1000156017,
+    VK_FORMAT_R12X4G12X4_UNORM_2PACK16_KHR = 1000156018,
+    VK_FORMAT_R12X4G12X4B12X4A12X4_UNORM_4PACK16_KHR = 1000156019,
+    VK_FORMAT_G12X4B12X4G12X4R12X4_422_UNORM_4PACK16_KHR = 1000156020,
+    VK_FORMAT_B12X4G12X4R12X4G12X4_422_UNORM_4PACK16_KHR = 1000156021,
+    VK_FORMAT_G12X4_B12X4_R12X4_3PLANE_420_UNORM_3PACK16_KHR = 1000156022,
+    VK_FORMAT_G12X4_B12X4R12X4_2PLANE_420_UNORM_3PACK16_KHR = 1000156023,
+    VK_FORMAT_G12X4_B12X4_R12X4_3PLANE_422_UNORM_3PACK16_KHR = 1000156024,
+    VK_FORMAT_G12X4_B12X4R12X4_2PLANE_422_UNORM_3PACK16_KHR = 1000156025,
+    VK_FORMAT_G12X4_B12X4_R12X4_3PLANE_444_UNORM_3PACK16_KHR = 1000156026,
+    VK_FORMAT_G16B16G16R16_422_UNORM_KHR = 1000156027,
+    VK_FORMAT_B16G16R16G16_422_UNORM_KHR = 1000156028,
+    VK_FORMAT_G16_B16_R16_3PLANE_420_UNORM_KHR = 1000156029,
+    VK_FORMAT_G16_B16R16_2PLANE_420_UNORM_KHR = 1000156030,
+    VK_FORMAT_G16_B16_R16_3PLANE_422_UNORM_KHR = 1000156031,
+    VK_FORMAT_G16_B16R16_2PLANE_422_UNORM_KHR = 1000156032,
+    VK_FORMAT_G16_B16_R16_3PLANE_444_UNORM_KHR = 1000156033,
     VK_FORMAT_BEGIN_RANGE = VK_FORMAT_UNDEFINED,
     VK_FORMAT_END_RANGE = VK_FORMAT_ASTC_12x12_SRGB_BLOCK,
     VK_FORMAT_RANGE_SIZE = (VK_FORMAT_ASTC_12x12_SRGB_BLOCK - VK_FORMAT_UNDEFINED + 1),
@@ -629,6 +685,8 @@ typedef enum VkImageLayout {
     VK_IMAGE_LAYOUT_PREINITIALIZED = 8,
     VK_IMAGE_LAYOUT_PRESENT_SRC_KHR = 1000001002,
     VK_IMAGE_LAYOUT_SHARED_PRESENT_KHR = 1000111000,
+    VK_IMAGE_LAYOUT_DEPTH_READ_ONLY_STENCIL_ATTACHMENT_OPTIMAL_KHR = 1000117000,
+    VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_STENCIL_READ_ONLY_OPTIMAL_KHR = 1000117001,
     VK_IMAGE_LAYOUT_BEGIN_RANGE = VK_IMAGE_LAYOUT_UNDEFINED,
     VK_IMAGE_LAYOUT_END_RANGE = VK_IMAGE_LAYOUT_PREINITIALIZED,
     VK_IMAGE_LAYOUT_RANGE_SIZE = (VK_IMAGE_LAYOUT_PREINITIALIZED - VK_IMAGE_LAYOUT_UNDEFINED + 1),
@@ -859,6 +917,7 @@ typedef enum VkDynamicState {
     VK_DYNAMIC_STATE_STENCIL_REFERENCE = 8,
     VK_DYNAMIC_STATE_VIEWPORT_W_SCALING_NV = 1000087000,
     VK_DYNAMIC_STATE_DISCARD_RECTANGLE_EXT = 1000099000,
+    VK_DYNAMIC_STATE_SAMPLE_LOCATIONS_EXT = 1000143000,
     VK_DYNAMIC_STATE_BEGIN_RANGE = VK_DYNAMIC_STATE_VIEWPORT,
     VK_DYNAMIC_STATE_END_RANGE = VK_DYNAMIC_STATE_STENCIL_REFERENCE,
     VK_DYNAMIC_STATE_RANGE_SIZE = (VK_DYNAMIC_STATE_STENCIL_REFERENCE - VK_DYNAMIC_STATE_VIEWPORT + 1),
@@ -1017,6 +1076,8 @@ typedef enum VkObjectType {
     VK_OBJECT_TYPE_DESCRIPTOR_UPDATE_TEMPLATE_KHR = 1000085000,
     VK_OBJECT_TYPE_OBJECT_TABLE_NVX = 1000086000,
     VK_OBJECT_TYPE_INDIRECT_COMMANDS_LAYOUT_NVX = 1000086001,
+    VK_OBJECT_TYPE_SAMPLER_YCBCR_CONVERSION_KHR = 1000156000,
+    VK_OBJECT_TYPE_VALIDATION_CACHE_EXT = 1000160000,
     VK_OBJECT_TYPE_BEGIN_RANGE = VK_OBJECT_TYPE_UNKNOWN,
     VK_OBJECT_TYPE_END_RANGE = VK_OBJECT_TYPE_COMMAND_POOL,
     VK_OBJECT_TYPE_RANGE_SIZE = (VK_OBJECT_TYPE_COMMAND_POOL - VK_OBJECT_TYPE_UNKNOWN + 1),
@@ -1043,6 +1104,13 @@ typedef enum VkFormatFeatureFlagBits {
     VK_FORMAT_FEATURE_TRANSFER_SRC_BIT_KHR = 0x00004000,
     VK_FORMAT_FEATURE_TRANSFER_DST_BIT_KHR = 0x00008000,
     VK_FORMAT_FEATURE_SAMPLED_IMAGE_FILTER_MINMAX_BIT_EXT = 0x00010000,
+    VK_FORMAT_FEATURE_MIDPOINT_CHROMA_SAMPLES_BIT_KHR = 0x00020000,
+    VK_FORMAT_FEATURE_SAMPLED_IMAGE_YCBCR_CONVERSION_LINEAR_FILTER_BIT_KHR = 0x00040000,
+    VK_FORMAT_FEATURE_SAMPLED_IMAGE_YCBCR_CONVERSION_SEPARATE_RECONSTRUCTION_FILTER_BIT_KHR = 0x00080000,
+    VK_FORMAT_FEATURE_SAMPLED_IMAGE_YCBCR_CONVERSION_CHROMA_RECONSTRUCTION_EXPLICIT_BIT_KHR = 0x00100000,
+    VK_FORMAT_FEATURE_SAMPLED_IMAGE_YCBCR_CONVERSION_CHROMA_RECONSTRUCTION_EXPLICIT_FORCEABLE_BIT_KHR = 0x00200000,
+    VK_FORMAT_FEATURE_DISJOINT_BIT_KHR = 0x00400000,
+    VK_FORMAT_FEATURE_COSITED_CHROMA_SAMPLES_BIT_KHR = 0x00800000,
     VK_FORMAT_FEATURE_FLAG_BITS_MAX_ENUM = 0x7FFFFFFF
 } VkFormatFeatureFlagBits;
 typedef VkFlags VkFormatFeatureFlags;
@@ -1068,6 +1136,11 @@ typedef enum VkImageCreateFlagBits {
     VK_IMAGE_CREATE_CUBE_COMPATIBLE_BIT = 0x00000010,
     VK_IMAGE_CREATE_BIND_SFR_BIT_KHX = 0x00000040,
     VK_IMAGE_CREATE_2D_ARRAY_COMPATIBLE_BIT_KHR = 0x00000020,
+    VK_IMAGE_CREATE_BLOCK_TEXEL_VIEW_COMPATIBLE_BIT_KHR = 0x00000080,
+    VK_IMAGE_CREATE_EXTENDED_USAGE_BIT_KHR = 0x00000100,
+    VK_IMAGE_CREATE_SAMPLE_LOCATIONS_COMPATIBLE_DEPTH_BIT_EXT = 0x00001000,
+    VK_IMAGE_CREATE_DISJOINT_BIT_KHR = 0x00000200,
+    VK_IMAGE_CREATE_ALIAS_BIT_KHR = 0x00000400,
     VK_IMAGE_CREATE_FLAG_BITS_MAX_ENUM = 0x7FFFFFFF
 } VkImageCreateFlagBits;
 typedef VkFlags VkImageCreateFlags;
@@ -1141,6 +1214,9 @@ typedef enum VkImageAspectFlagBits {
     VK_IMAGE_ASPECT_DEPTH_BIT = 0x00000002,
     VK_IMAGE_ASPECT_STENCIL_BIT = 0x00000004,
     VK_IMAGE_ASPECT_METADATA_BIT = 0x00000008,
+    VK_IMAGE_ASPECT_PLANE_0_BIT_KHR = 0x00000010,
+    VK_IMAGE_ASPECT_PLANE_1_BIT_KHR = 0x00000020,
+    VK_IMAGE_ASPECT_PLANE_2_BIT_KHR = 0x00000040,
     VK_IMAGE_ASPECT_FLAG_BITS_MAX_ENUM = 0x7FFFFFFF
 } VkImageAspectFlagBits;
 typedef VkFlags VkImageAspectFlags;
@@ -5984,6 +6060,89 @@ int getFenceFdKHR(
         const VkFenceGetFdInfoKHR & pGetFdInfo);
 
 
+#define VK_KHR_maintenance2 1
+#define VK_KHR_MAINTENANCE2_SPEC_VERSION  1
+#define VK_KHR_MAINTENANCE2_EXTENSION_NAME "VK_KHR_maintenance2"
+
+
+typedef enum VkPointClippingBehaviorKHR {
+    VK_POINT_CLIPPING_BEHAVIOR_ALL_CLIP_PLANES_KHR = 0,
+    VK_POINT_CLIPPING_BEHAVIOR_USER_CLIP_PLANES_ONLY_KHR = 1,
+    VK_POINT_CLIPPING_BEHAVIOR_BEGIN_RANGE_KHR = VK_POINT_CLIPPING_BEHAVIOR_ALL_CLIP_PLANES_KHR,
+    VK_POINT_CLIPPING_BEHAVIOR_END_RANGE_KHR = VK_POINT_CLIPPING_BEHAVIOR_USER_CLIP_PLANES_ONLY_KHR,
+    VK_POINT_CLIPPING_BEHAVIOR_RANGE_SIZE_KHR = (VK_POINT_CLIPPING_BEHAVIOR_USER_CLIP_PLANES_ONLY_KHR - VK_POINT_CLIPPING_BEHAVIOR_ALL_CLIP_PLANES_KHR + 1),
+    VK_POINT_CLIPPING_BEHAVIOR_MAX_ENUM_KHR = 0x7FFFFFFF
+} VkPointClippingBehaviorKHR;
+
+typedef enum VkTessellationDomainOriginKHR {
+    VK_TESSELLATION_DOMAIN_ORIGIN_UPPER_LEFT_KHR = 0,
+    VK_TESSELLATION_DOMAIN_ORIGIN_LOWER_LEFT_KHR = 1,
+    VK_TESSELLATION_DOMAIN_ORIGIN_BEGIN_RANGE_KHR = VK_TESSELLATION_DOMAIN_ORIGIN_UPPER_LEFT_KHR,
+    VK_TESSELLATION_DOMAIN_ORIGIN_END_RANGE_KHR = VK_TESSELLATION_DOMAIN_ORIGIN_LOWER_LEFT_KHR,
+    VK_TESSELLATION_DOMAIN_ORIGIN_RANGE_SIZE_KHR = (VK_TESSELLATION_DOMAIN_ORIGIN_LOWER_LEFT_KHR - VK_TESSELLATION_DOMAIN_ORIGIN_UPPER_LEFT_KHR + 1),
+    VK_TESSELLATION_DOMAIN_ORIGIN_MAX_ENUM_KHR = 0x7FFFFFFF
+} VkTessellationDomainOriginKHR;
+
+typedef struct VkPhysicalDevicePointClippingPropertiesKHR {
+    VkStructureType               sType;
+    void*                         pNext;
+    VkPointClippingBehaviorKHR    pointClippingBehavior;
+} VkPhysicalDevicePointClippingPropertiesKHR;
+
+typedef struct VkInputAttachmentAspectReferenceKHR {
+    uint32_t              subpass;
+    uint32_t              inputAttachmentIndex;
+    VkImageAspectFlags    aspectMask;
+} VkInputAttachmentAspectReferenceKHR;
+
+typedef struct VkRenderPassInputAttachmentAspectCreateInfoKHR {
+    VkStructureType                               sType;
+    const void*                                   pNext;
+    uint32_t                                      aspectReferenceCount;
+    const VkInputAttachmentAspectReferenceKHR*    pAspectReferences;
+} VkRenderPassInputAttachmentAspectCreateInfoKHR;
+
+struct VkRenderPassInputAttachmentAspectCreateInfoKHRRAII {
+   VkRenderPassInputAttachmentAspectCreateInfoKHR nonRaiiObj;
+    std::vector<VkInputAttachmentAspectReferenceKHR>vecAspectReferences;
+};
+
+typedef struct VkImageViewUsageCreateInfoKHR {
+    VkStructureType      sType;
+    const void*          pNext;
+    VkImageUsageFlags    usage;
+} VkImageViewUsageCreateInfoKHR;
+
+typedef struct VkPipelineTessellationDomainOriginStateCreateInfoKHR {
+    VkStructureType                  sType;
+    const void*                      pNext;
+    VkTessellationDomainOriginKHR    domainOrigin;
+} VkPipelineTessellationDomainOriginStateCreateInfoKHR;
+
+
+VkPhysicalDevicePointClippingPropertiesKHR PhysicalDevicePointClippingPropertiesKHR(
+    VkPointClippingBehaviorKHR                  pointClippingBehavior);
+
+
+VkInputAttachmentAspectReferenceKHR InputAttachmentAspectReferenceKHR(
+    uint32_t                                    subpass,
+    uint32_t                                    inputAttachmentIndex,
+    VkImageAspectFlags                          aspectMask);
+
+
+std::shared_ptr<VkRenderPassInputAttachmentAspectCreateInfoKHRRAII> RenderPassInputAttachmentAspectCreateInfoKHR(
+    const std::vector<VkInputAttachmentAspectReferenceKHR> &vecAspectReferences);
+
+
+VkImageViewUsageCreateInfoKHR ImageViewUsageCreateInfoKHR(
+    VkImageUsageFlags                           usage);
+
+
+VkPipelineTessellationDomainOriginStateCreateInfoKHR PipelineTessellationDomainOriginStateCreateInfoKHR(
+    VkTessellationDomainOriginKHR               domainOrigin);
+
+
+
 #define VK_KHR_get_surface_capabilities2 1
 #define VK_KHR_GET_SURFACE_CAPABILITIES_2_SPEC_VERSION 1
 #define VK_KHR_GET_SURFACE_CAPABILITIES_2_EXTENSION_NAME "VK_KHR_get_surface_capabilities2"
@@ -6050,7 +6209,7 @@ VkPhysicalDeviceVariablePointerFeaturesKHR PhysicalDeviceVariablePointerFeatures
 
 
 #define VK_KHR_dedicated_allocation 1
-#define VK_KHR_DEDICATED_ALLOCATION_SPEC_VERSION 1
+#define VK_KHR_DEDICATED_ALLOCATION_SPEC_VERSION 3
 #define VK_KHR_DEDICATED_ALLOCATION_EXTENSION_NAME "VK_KHR_dedicated_allocation"
 
 typedef struct VkMemoryDedicatedRequirementsKHR {
@@ -6161,10 +6320,197 @@ std::vector< VkSparseImageMemoryRequirements2KHR > getImageSparseMemoryRequireme
         const VkImageSparseMemoryRequirementsInfo2KHR & pInfo);
 
 
+#define VK_KHR_image_format_list 1
+#define VK_KHR_IMAGE_FORMAT_LIST_SPEC_VERSION 1
+#define VK_KHR_IMAGE_FORMAT_LIST_EXTENSION_NAME "VK_KHR_image_format_list"
+
+typedef struct VkImageFormatListCreateInfoKHR {
+    VkStructureType    sType;
+    const void*        pNext;
+    uint32_t           viewFormatCount;
+    const VkFormat*    pViewFormats;
+} VkImageFormatListCreateInfoKHR;
+
+struct VkImageFormatListCreateInfoKHRRAII {
+   VkImageFormatListCreateInfoKHR nonRaiiObj;
+    std::vector<VkFormat>                       vecViewFormats;
+};
+
+
+std::shared_ptr<VkImageFormatListCreateInfoKHRRAII> ImageFormatListCreateInfoKHR(
+    const std::vector<VkFormat> &               vecViewFormats);
+
+
+
+#define VK_KHR_sampler_ycbcr_conversion 1
+VK_DEFINE_NON_DISPATCHABLE_HANDLE(VkSamplerYcbcrConversionKHR)
+
+#define VK_KHR_SAMPLER_YCBCR_CONVERSION_SPEC_VERSION 1
+#define VK_KHR_SAMPLER_YCBCR_CONVERSION_EXTENSION_NAME "VK_KHR_sampler_ycbcr_conversion"
+
+
+typedef enum VkSamplerYcbcrModelConversionKHR {
+    VK_SAMPLER_YCBCR_MODEL_CONVERSION_RGB_IDENTITY_KHR = 0,
+    VK_SAMPLER_YCBCR_MODEL_CONVERSION_YCBCR_IDENTITY_KHR = 1,
+    VK_SAMPLER_YCBCR_MODEL_CONVERSION_YCBCR_709_KHR = 2,
+    VK_SAMPLER_YCBCR_MODEL_CONVERSION_YCBCR_601_KHR = 3,
+    VK_SAMPLER_YCBCR_MODEL_CONVERSION_YCBCR_2020_KHR = 4,
+    VK_SAMPLER_YCBCR_MODEL_CONVERSION_BEGIN_RANGE_KHR = VK_SAMPLER_YCBCR_MODEL_CONVERSION_RGB_IDENTITY_KHR,
+    VK_SAMPLER_YCBCR_MODEL_CONVERSION_END_RANGE_KHR = VK_SAMPLER_YCBCR_MODEL_CONVERSION_YCBCR_2020_KHR,
+    VK_SAMPLER_YCBCR_MODEL_CONVERSION_RANGE_SIZE_KHR = (VK_SAMPLER_YCBCR_MODEL_CONVERSION_YCBCR_2020_KHR - VK_SAMPLER_YCBCR_MODEL_CONVERSION_RGB_IDENTITY_KHR + 1),
+    VK_SAMPLER_YCBCR_MODEL_CONVERSION_MAX_ENUM_KHR = 0x7FFFFFFF
+} VkSamplerYcbcrModelConversionKHR;
+
+typedef enum VkSamplerYcbcrRangeKHR {
+    VK_SAMPLER_YCBCR_RANGE_ITU_FULL_KHR = 0,
+    VK_SAMPLER_YCBCR_RANGE_ITU_NARROW_KHR = 1,
+    VK_SAMPLER_YCBCR_RANGE_BEGIN_RANGE_KHR = VK_SAMPLER_YCBCR_RANGE_ITU_FULL_KHR,
+    VK_SAMPLER_YCBCR_RANGE_END_RANGE_KHR = VK_SAMPLER_YCBCR_RANGE_ITU_NARROW_KHR,
+    VK_SAMPLER_YCBCR_RANGE_RANGE_SIZE_KHR = (VK_SAMPLER_YCBCR_RANGE_ITU_NARROW_KHR - VK_SAMPLER_YCBCR_RANGE_ITU_FULL_KHR + 1),
+    VK_SAMPLER_YCBCR_RANGE_MAX_ENUM_KHR = 0x7FFFFFFF
+} VkSamplerYcbcrRangeKHR;
+
+typedef enum VkChromaLocationKHR {
+    VK_CHROMA_LOCATION_COSITED_EVEN_KHR = 0,
+    VK_CHROMA_LOCATION_MIDPOINT_KHR = 1,
+    VK_CHROMA_LOCATION_BEGIN_RANGE_KHR = VK_CHROMA_LOCATION_COSITED_EVEN_KHR,
+    VK_CHROMA_LOCATION_END_RANGE_KHR = VK_CHROMA_LOCATION_MIDPOINT_KHR,
+    VK_CHROMA_LOCATION_RANGE_SIZE_KHR = (VK_CHROMA_LOCATION_MIDPOINT_KHR - VK_CHROMA_LOCATION_COSITED_EVEN_KHR + 1),
+    VK_CHROMA_LOCATION_MAX_ENUM_KHR = 0x7FFFFFFF
+} VkChromaLocationKHR;
+
+typedef struct VkSamplerYcbcrConversionCreateInfoKHR {
+    VkStructureType                     sType;
+    const void*                         pNext;
+    VkFormat                            format;
+    VkSamplerYcbcrModelConversionKHR    ycbcrModel;
+    VkSamplerYcbcrRangeKHR              ycbcrRange;
+    VkComponentMapping                  components;
+    VkChromaLocationKHR                 xChromaOffset;
+    VkChromaLocationKHR                 yChromaOffset;
+    VkFilter                            chromaFilter;
+    VkBool32                            forceExplicitReconstruction;
+} VkSamplerYcbcrConversionCreateInfoKHR;
+
+typedef struct VkSamplerYcbcrConversionInfoKHR {
+    VkStructureType                sType;
+    const void*                    pNext;
+    VkSamplerYcbcrConversionKHR    conversion;
+} VkSamplerYcbcrConversionInfoKHR;
+
+typedef struct VkBindImagePlaneMemoryInfoKHR {
+    VkStructureType          sType;
+    const void*              pNext;
+    VkImageAspectFlagBits    planeAspect;
+} VkBindImagePlaneMemoryInfoKHR;
+
+typedef struct VkImagePlaneMemoryRequirementsInfoKHR {
+    VkStructureType          sType;
+    const void*              pNext;
+    VkImageAspectFlagBits    planeAspect;
+} VkImagePlaneMemoryRequirementsInfoKHR;
+
+typedef struct VkPhysicalDeviceSamplerYcbcrConversionFeaturesKHR {
+    VkStructureType    sType;
+    void*              pNext;
+    VkBool32           samplerYcbcrConversion;
+} VkPhysicalDeviceSamplerYcbcrConversionFeaturesKHR;
+
+typedef struct VkSamplerYcbcrConversionImageFormatPropertiesKHR {
+    VkStructureType    sType;
+    void*              pNext;
+    uint32_t           combinedImageSamplerDescriptorCount;
+} VkSamplerYcbcrConversionImageFormatPropertiesKHR;
+
+
+typedef VkResult (VKAPI_PTR *PFN_vkCreateSamplerYcbcrConversionKHR)(VkDevice device, const VkSamplerYcbcrConversionCreateInfoKHR* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkSamplerYcbcrConversionKHR* pYcbcrConversion);
+typedef void (VKAPI_PTR *PFN_vkDestroySamplerYcbcrConversionKHR)(VkDevice device, VkSamplerYcbcrConversionKHR ycbcrConversion, const VkAllocationCallbacks* pAllocator);
+
+VkSamplerYcbcrConversionCreateInfoKHR SamplerYcbcrConversionCreateInfoKHR(
+    VkFormat                                    format,
+    VkSamplerYcbcrModelConversionKHR            ycbcrModel,
+    VkSamplerYcbcrRangeKHR                      ycbcrRange,
+    VkComponentMapping                          components,
+    VkChromaLocationKHR                         xChromaOffset,
+    VkChromaLocationKHR                         yChromaOffset,
+    VkFilter                                    chromaFilter,
+    VkBool32                                    forceExplicitReconstruction);
+
+
+VkSamplerYcbcrConversionInfoKHR SamplerYcbcrConversionInfoKHR(
+    VkSamplerYcbcrConversionKHR                 conversion);
+
+
+VkBindImagePlaneMemoryInfoKHR BindImagePlaneMemoryInfoKHR(
+    VkImageAspectFlagBits                       planeAspect);
+
+
+VkImagePlaneMemoryRequirementsInfoKHR ImagePlaneMemoryRequirementsInfoKHR(
+    VkImageAspectFlagBits                       planeAspect);
+
+
+VkPhysicalDeviceSamplerYcbcrConversionFeaturesKHR PhysicalDeviceSamplerYcbcrConversionFeaturesKHR(
+    VkBool32                                    samplerYcbcrConversion);
+
+
+VkSamplerYcbcrConversionImageFormatPropertiesKHR SamplerYcbcrConversionImageFormatPropertiesKHR(
+    uint32_t                                    combinedImageSamplerDescriptorCount);
+
+
+std::shared_ptr<VkSamplerYcbcrConversionKHR_T> createSamplerYcbcrConversionKHR(
+        VkDevice device,
+        const VkSamplerYcbcrConversionCreateInfoKHR & pCreateInfo);
+
+
+#define VK_KHR_bind_memory2 1
+#define VK_KHR_BIND_MEMORY_2_SPEC_VERSION 1
+#define VK_KHR_BIND_MEMORY_2_EXTENSION_NAME "VK_KHR_bind_memory2"
+
+typedef struct VkBindBufferMemoryInfoKHR {
+    VkStructureType    sType;
+    const void*        pNext;
+    VkBuffer           buffer;
+    VkDeviceMemory     memory;
+    VkDeviceSize       memoryOffset;
+} VkBindBufferMemoryInfoKHR;
+
+typedef struct VkBindImageMemoryInfoKHR {
+    VkStructureType    sType;
+    const void*        pNext;
+    VkImage            image;
+    VkDeviceMemory     memory;
+    VkDeviceSize       memoryOffset;
+} VkBindImageMemoryInfoKHR;
+
+
+typedef VkResult (VKAPI_PTR *PFN_vkBindBufferMemory2KHR)(VkDevice device, uint32_t bindInfoCount, const VkBindBufferMemoryInfoKHR* pBindInfos);
+typedef VkResult (VKAPI_PTR *PFN_vkBindImageMemory2KHR)(VkDevice device, uint32_t bindInfoCount, const VkBindImageMemoryInfoKHR* pBindInfos);
+
+VkBindBufferMemoryInfoKHR BindBufferMemoryInfoKHR(
+    VkBuffer                                    buffer,
+    VkDeviceMemory                              memory,
+    VkDeviceSize                                memoryOffset);
+
+
+VkBindImageMemoryInfoKHR BindImageMemoryInfoKHR(
+    VkImage                                     image,
+    VkDeviceMemory                              memory,
+    VkDeviceSize                                memoryOffset);
+
+
+void  bindBufferMemory2KHR(
+        VkDevice device,
+        const std::vector<VkBindBufferMemoryInfoKHR> & pBindInfos);
+
+void  bindImageMemory2KHR(
+        VkDevice device,
+        const std::vector<VkBindImageMemoryInfoKHR> & pBindInfos);
+
+
 #define VK_EXT_debug_report 1
 VK_DEFINE_NON_DISPATCHABLE_HANDLE(VkDebugReportCallbackEXT)
 
-#define VK_EXT_DEBUG_REPORT_SPEC_VERSION  8
+#define VK_EXT_DEBUG_REPORT_SPEC_VERSION  9
 #define VK_EXT_DEBUG_REPORT_EXTENSION_NAME "VK_EXT_debug_report"
 #define VK_STRUCTURE_TYPE_DEBUG_REPORT_CREATE_INFO_EXT VK_STRUCTURE_TYPE_DEBUG_REPORT_CALLBACK_CREATE_INFO_EXT
 #define VK_DEBUG_REPORT_OBJECT_TYPE_DEBUG_REPORT_EXT VK_DEBUG_REPORT_OBJECT_TYPE_DEBUG_REPORT_CALLBACK_EXT_EXT
@@ -6204,10 +6550,12 @@ typedef enum VkDebugReportObjectTypeEXT {
     VK_DEBUG_REPORT_OBJECT_TYPE_DISPLAY_MODE_KHR_EXT = 30,
     VK_DEBUG_REPORT_OBJECT_TYPE_OBJECT_TABLE_NVX_EXT = 31,
     VK_DEBUG_REPORT_OBJECT_TYPE_INDIRECT_COMMANDS_LAYOUT_NVX_EXT = 32,
+    VK_DEBUG_REPORT_OBJECT_TYPE_VALIDATION_CACHE_EXT = 33,
     VK_DEBUG_REPORT_OBJECT_TYPE_DESCRIPTOR_UPDATE_TEMPLATE_KHR_EXT = 1000085000,
+    VK_DEBUG_REPORT_OBJECT_TYPE_SAMPLER_YCBCR_CONVERSION_KHR_EXT = 1000156000,
     VK_DEBUG_REPORT_OBJECT_TYPE_BEGIN_RANGE_EXT = VK_DEBUG_REPORT_OBJECT_TYPE_UNKNOWN_EXT,
-    VK_DEBUG_REPORT_OBJECT_TYPE_END_RANGE_EXT = VK_DEBUG_REPORT_OBJECT_TYPE_INDIRECT_COMMANDS_LAYOUT_NVX_EXT,
-    VK_DEBUG_REPORT_OBJECT_TYPE_RANGE_SIZE_EXT = (VK_DEBUG_REPORT_OBJECT_TYPE_INDIRECT_COMMANDS_LAYOUT_NVX_EXT - VK_DEBUG_REPORT_OBJECT_TYPE_UNKNOWN_EXT + 1),
+    VK_DEBUG_REPORT_OBJECT_TYPE_END_RANGE_EXT = VK_DEBUG_REPORT_OBJECT_TYPE_VALIDATION_CACHE_EXT,
+    VK_DEBUG_REPORT_OBJECT_TYPE_RANGE_SIZE_EXT = (VK_DEBUG_REPORT_OBJECT_TYPE_VALIDATION_CACHE_EXT - VK_DEBUG_REPORT_OBJECT_TYPE_UNKNOWN_EXT + 1),
     VK_DEBUG_REPORT_OBJECT_TYPE_MAX_ENUM_EXT = 0x7FFFFFFF
 } VkDebugReportObjectTypeEXT;
 
@@ -6505,6 +6853,72 @@ VkTextureLODGatherFormatPropertiesAMD TextureLODGatherFormatPropertiesAMD(
 
 
 
+#define VK_AMD_shader_info 1
+#define VK_AMD_SHADER_INFO_SPEC_VERSION   1
+#define VK_AMD_SHADER_INFO_EXTENSION_NAME "VK_AMD_shader_info"
+
+
+typedef enum VkShaderInfoTypeAMD {
+    VK_SHADER_INFO_TYPE_STATISTICS_AMD = 0,
+    VK_SHADER_INFO_TYPE_BINARY_AMD = 1,
+    VK_SHADER_INFO_TYPE_DISASSEMBLY_AMD = 2,
+    VK_SHADER_INFO_TYPE_BEGIN_RANGE_AMD = VK_SHADER_INFO_TYPE_STATISTICS_AMD,
+    VK_SHADER_INFO_TYPE_END_RANGE_AMD = VK_SHADER_INFO_TYPE_DISASSEMBLY_AMD,
+    VK_SHADER_INFO_TYPE_RANGE_SIZE_AMD = (VK_SHADER_INFO_TYPE_DISASSEMBLY_AMD - VK_SHADER_INFO_TYPE_STATISTICS_AMD + 1),
+    VK_SHADER_INFO_TYPE_MAX_ENUM_AMD = 0x7FFFFFFF
+} VkShaderInfoTypeAMD;
+
+typedef struct VkShaderResourceUsageAMD {
+    uint32_t    numUsedVgprs;
+    uint32_t    numUsedSgprs;
+    uint32_t    ldsSizePerLocalWorkGroup;
+    size_t      ldsUsageSizeInBytes;
+    size_t      scratchMemUsageInBytes;
+} VkShaderResourceUsageAMD;
+
+typedef struct VkShaderStatisticsInfoAMD {
+    VkShaderStageFlags          shaderStageMask;
+    VkShaderResourceUsageAMD    resourceUsage;
+    uint32_t                    numPhysicalVgprs;
+    uint32_t                    numPhysicalSgprs;
+    uint32_t                    numAvailableVgprs;
+    uint32_t                    numAvailableSgprs;
+    uint32_t                    computeWorkGroupSize[3];
+} VkShaderStatisticsInfoAMD;
+
+
+typedef VkResult (VKAPI_PTR *PFN_vkGetShaderInfoAMD)(VkDevice device, VkPipeline pipeline, VkShaderStageFlagBits shaderStage, VkShaderInfoTypeAMD infoType, size_t* pInfoSize, void* pInfo);
+
+VkShaderResourceUsageAMD ShaderResourceUsageAMD(
+    uint32_t                                    numUsedVgprs,
+    uint32_t                                    numUsedSgprs,
+    uint32_t                                    ldsSizePerLocalWorkGroup,
+    size_t                                      ldsUsageSizeInBytes,
+    size_t                                      scratchMemUsageInBytes);
+
+
+VkShaderStatisticsInfoAMD ShaderStatisticsInfoAMD(
+    VkShaderStageFlags                          shaderStageMask,
+    VkShaderResourceUsageAMD                    resourceUsage,
+    uint32_t                                    numPhysicalVgprs,
+    uint32_t                                    numPhysicalSgprs,
+    uint32_t                                    numAvailableVgprs,
+    uint32_t                                    numAvailableSgprs,
+    uint32_t                                    computeWorkGroupSize[3]);
+
+
+size_t getShaderInfoAMD(
+        VkDevice device,
+        VkPipeline pipeline,
+        VkShaderStageFlagBits shaderStage,
+        VkShaderInfoTypeAMD infoType);
+
+
+#define VK_AMD_shader_image_load_store_lod 1
+#define VK_AMD_SHADER_IMAGE_LOAD_STORE_LOD_SPEC_VERSION 1
+#define VK_AMD_SHADER_IMAGE_LOAD_STORE_LOD_EXTENSION_NAME "VK_AMD_shader_image_load_store_lod"
+
+
 #define VK_KHX_multiview 1
 #define VK_KHX_MULTIVIEW_SPEC_VERSION     1
 #define VK_KHX_MULTIVIEW_EXTENSION_NAME   "VK_KHX_multiview"
@@ -6723,9 +7137,9 @@ std::shared_ptr<VkWin32KeyedMutexAcquireReleaseInfoNVRAII> Win32KeyedMutexAcquir
 #endif /* VK_USE_PLATFORM_WIN32_KHR */
 
 #define VK_KHX_device_group 1
-#define VK_MAX_DEVICE_GROUP_SIZE_KHX      32
-#define VK_KHX_DEVICE_GROUP_SPEC_VERSION  1
+#define VK_KHX_DEVICE_GROUP_SPEC_VERSION  2
 #define VK_KHX_DEVICE_GROUP_EXTENSION_NAME "VK_KHX_device_group"
+#define VK_MAX_DEVICE_GROUP_SIZE_KHX      32
 
 
 typedef enum VkPeerMemoryFeatureFlagBitsKHX {
@@ -6758,39 +7172,6 @@ typedef struct VkMemoryAllocateFlagsInfoKHX {
     VkMemoryAllocateFlagsKHX    flags;
     uint32_t                    deviceMask;
 } VkMemoryAllocateFlagsInfoKHX;
-
-typedef struct VkBindBufferMemoryInfoKHX {
-    VkStructureType    sType;
-    const void*        pNext;
-    VkBuffer           buffer;
-    VkDeviceMemory     memory;
-    VkDeviceSize       memoryOffset;
-    uint32_t           deviceIndexCount;
-    const uint32_t*    pDeviceIndices;
-} VkBindBufferMemoryInfoKHX;
-
-struct VkBindBufferMemoryInfoKHXRAII {
-   VkBindBufferMemoryInfoKHX nonRaiiObj;
-    std::vector<uint32_t>                       vecDeviceIndices;
-};
-
-typedef struct VkBindImageMemoryInfoKHX {
-    VkStructureType    sType;
-    const void*        pNext;
-    VkImage            image;
-    VkDeviceMemory     memory;
-    VkDeviceSize       memoryOffset;
-    uint32_t           deviceIndexCount;
-    const uint32_t*    pDeviceIndices;
-    uint32_t           SFRRectCount;
-    const VkRect2D*    pSFRRects;
-} VkBindImageMemoryInfoKHX;
-
-struct VkBindImageMemoryInfoKHXRAII {
-   VkBindImageMemoryInfoKHX nonRaiiObj;
-    std::vector<uint32_t>                       vecDeviceIndices;
-    std::vector<VkRect2D>                       vecSFRRects;
-};
 
 typedef struct VkDeviceGroupRenderPassBeginInfoKHX {
     VkStructureType    sType;
@@ -6835,6 +7216,33 @@ typedef struct VkDeviceGroupBindSparseInfoKHX {
     uint32_t           resourceDeviceIndex;
     uint32_t           memoryDeviceIndex;
 } VkDeviceGroupBindSparseInfoKHX;
+
+typedef struct VkBindBufferMemoryDeviceGroupInfoKHX {
+    VkStructureType    sType;
+    const void*        pNext;
+    uint32_t           deviceIndexCount;
+    const uint32_t*    pDeviceIndices;
+} VkBindBufferMemoryDeviceGroupInfoKHX;
+
+struct VkBindBufferMemoryDeviceGroupInfoKHXRAII {
+   VkBindBufferMemoryDeviceGroupInfoKHX nonRaiiObj;
+    std::vector<uint32_t>                       vecDeviceIndices;
+};
+
+typedef struct VkBindImageMemoryDeviceGroupInfoKHX {
+    VkStructureType    sType;
+    const void*        pNext;
+    uint32_t           deviceIndexCount;
+    const uint32_t*    pDeviceIndices;
+    uint32_t           SFRRectCount;
+    const VkRect2D*    pSFRRects;
+} VkBindImageMemoryDeviceGroupInfoKHX;
+
+struct VkBindImageMemoryDeviceGroupInfoKHXRAII {
+   VkBindImageMemoryDeviceGroupInfoKHX nonRaiiObj;
+    std::vector<uint32_t>                       vecDeviceIndices;
+    std::vector<VkRect2D>                       vecSFRRects;
+};
 
 typedef struct VkDeviceGroupPresentCapabilitiesKHX {
     VkStructureType                     sType;
@@ -6887,33 +7295,16 @@ typedef struct VkDeviceGroupSwapchainCreateInfoKHX {
 
 
 typedef void (VKAPI_PTR *PFN_vkGetDeviceGroupPeerMemoryFeaturesKHX)(VkDevice device, uint32_t heapIndex, uint32_t localDeviceIndex, uint32_t remoteDeviceIndex, VkPeerMemoryFeatureFlagsKHX* pPeerMemoryFeatures);
-typedef VkResult (VKAPI_PTR *PFN_vkBindBufferMemory2KHX)(VkDevice device, uint32_t bindInfoCount, const VkBindBufferMemoryInfoKHX* pBindInfos);
-typedef VkResult (VKAPI_PTR *PFN_vkBindImageMemory2KHX)(VkDevice device, uint32_t bindInfoCount, const VkBindImageMemoryInfoKHX* pBindInfos);
 typedef void (VKAPI_PTR *PFN_vkCmdSetDeviceMaskKHX)(VkCommandBuffer commandBuffer, uint32_t deviceMask);
+typedef void (VKAPI_PTR *PFN_vkCmdDispatchBaseKHX)(VkCommandBuffer commandBuffer, uint32_t baseGroupX, uint32_t baseGroupY, uint32_t baseGroupZ, uint32_t groupCountX, uint32_t groupCountY, uint32_t groupCountZ);
 typedef VkResult (VKAPI_PTR *PFN_vkGetDeviceGroupPresentCapabilitiesKHX)(VkDevice device, VkDeviceGroupPresentCapabilitiesKHX* pDeviceGroupPresentCapabilities);
 typedef VkResult (VKAPI_PTR *PFN_vkGetDeviceGroupSurfacePresentModesKHX)(VkDevice device, VkSurfaceKHR surface, VkDeviceGroupPresentModeFlagsKHX* pModes);
-typedef VkResult (VKAPI_PTR *PFN_vkAcquireNextImage2KHX)(VkDevice device, const VkAcquireNextImageInfoKHX* pAcquireInfo, uint32_t* pImageIndex);
-typedef void (VKAPI_PTR *PFN_vkCmdDispatchBaseKHX)(VkCommandBuffer commandBuffer, uint32_t baseGroupX, uint32_t baseGroupY, uint32_t baseGroupZ, uint32_t groupCountX, uint32_t groupCountY, uint32_t groupCountZ);
 typedef VkResult (VKAPI_PTR *PFN_vkGetPhysicalDevicePresentRectanglesKHX)(VkPhysicalDevice physicalDevice, VkSurfaceKHR surface, uint32_t* pRectCount, VkRect2D* pRects);
+typedef VkResult (VKAPI_PTR *PFN_vkAcquireNextImage2KHX)(VkDevice device, const VkAcquireNextImageInfoKHX* pAcquireInfo, uint32_t* pImageIndex);
 
 VkMemoryAllocateFlagsInfoKHX MemoryAllocateFlagsInfoKHX(
     VkMemoryAllocateFlagsKHX                    flags,
     uint32_t                                    deviceMask);
-
-
-std::shared_ptr<VkBindBufferMemoryInfoKHXRAII> BindBufferMemoryInfoKHX(
-    VkBuffer                                    buffer,
-    VkDeviceMemory                              memory,
-    VkDeviceSize                                memoryOffset,
-    unsigned int* pDeviceIndices_in_array1, int pDeviceIndices_dim1);
-
-
-std::shared_ptr<VkBindImageMemoryInfoKHXRAII> BindImageMemoryInfoKHX(
-    VkImage                                     image,
-    VkDeviceMemory                              memory,
-    VkDeviceSize                                memoryOffset,
-    unsigned int* pDeviceIndices_in_array1, int pDeviceIndices_dim1,
-    const std::vector<VkRect2D> &               vecSFRRects);
 
 
 std::shared_ptr<VkDeviceGroupRenderPassBeginInfoKHXRAII> DeviceGroupRenderPassBeginInfoKHX(
@@ -6936,10 +7327,49 @@ VkDeviceGroupBindSparseInfoKHX DeviceGroupBindSparseInfoKHX(
     uint32_t                                    memoryDeviceIndex);
 
 
+std::shared_ptr< VkPeerMemoryFeatureFlagsKHX > getDeviceGroupPeerMemoryFeaturesKHX(
+        VkDevice device,
+        uint32_t heapIndex,
+        uint32_t localDeviceIndex,
+        uint32_t remoteDeviceIndex);
+
+void  cmdSetDeviceMaskKHX(
+        VkCommandBuffer commandBuffer,
+        uint32_t deviceMask);
+
+void  cmdDispatchBaseKHX(
+        VkCommandBuffer commandBuffer,
+        uint32_t baseGroupX,
+        uint32_t baseGroupY,
+        uint32_t baseGroupZ,
+        uint32_t groupCountX,
+        uint32_t groupCountY,
+        uint32_t groupCountZ);
+
+std::shared_ptr<VkBindBufferMemoryDeviceGroupInfoKHXRAII> BindBufferMemoryDeviceGroupInfoKHX(
+    unsigned int* pDeviceIndices_in_array1, int pDeviceIndices_dim1);
+
+
+std::shared_ptr<VkBindImageMemoryDeviceGroupInfoKHXRAII> BindImageMemoryDeviceGroupInfoKHX(
+    unsigned int* pDeviceIndices_in_array1, int pDeviceIndices_dim1,
+    const std::vector<VkRect2D> &               vecSFRRects);
+
+
 VkDeviceGroupPresentCapabilitiesKHX DeviceGroupPresentCapabilitiesKHX(
     uint32_t                                    presentMask[VK_MAX_DEVICE_GROUP_SIZE_KHX],
     VkDeviceGroupPresentModeFlagsKHX            modes);
 
+
+VkDeviceGroupPresentCapabilitiesKHX getDeviceGroupPresentCapabilitiesKHX(
+        VkDevice device);
+
+std::shared_ptr< VkDeviceGroupPresentModeFlagsKHX > getDeviceGroupSurfacePresentModesKHX(
+        VkDevice device,
+        VkSurfaceKHR surface);
+
+std::vector< VkRect2D > getPhysicalDevicePresentRectanglesKHX(
+        VkPhysicalDevice physicalDevice,
+        VkSurfaceKHR surface);
 
 VkImageSwapchainCreateInfoKHX ImageSwapchainCreateInfoKHX(
     VkSwapchainKHR                              swapchain);
@@ -6967,47 +7397,9 @@ VkDeviceGroupSwapchainCreateInfoKHX DeviceGroupSwapchainCreateInfoKHX(
     VkDeviceGroupPresentModeFlagsKHX            modes);
 
 
-std::shared_ptr< VkPeerMemoryFeatureFlagsKHX > getDeviceGroupPeerMemoryFeaturesKHX(
-        VkDevice device,
-        uint32_t heapIndex,
-        uint32_t localDeviceIndex,
-        uint32_t remoteDeviceIndex);
-
-void  bindBufferMemory2KHX(
-        VkDevice device,
-        const std::vector<VkBindBufferMemoryInfoKHX> & pBindInfos);
-
-void  bindImageMemory2KHX(
-        VkDevice device,
-        const std::vector<VkBindImageMemoryInfoKHX> & pBindInfos);
-
-void  cmdSetDeviceMaskKHX(
-        VkCommandBuffer commandBuffer,
-        uint32_t deviceMask);
-
-VkDeviceGroupPresentCapabilitiesKHX getDeviceGroupPresentCapabilitiesKHX(
-        VkDevice device);
-
-std::shared_ptr< VkDeviceGroupPresentModeFlagsKHX > getDeviceGroupSurfacePresentModesKHX(
-        VkDevice device,
-        VkSurfaceKHR surface);
-
 uint32_t acquireNextImage2KHX(
         VkDevice device,
         const VkAcquireNextImageInfoKHX & pAcquireInfo);
-
-void  cmdDispatchBaseKHX(
-        VkCommandBuffer commandBuffer,
-        uint32_t baseGroupX,
-        uint32_t baseGroupY,
-        uint32_t baseGroupZ,
-        uint32_t groupCountX,
-        uint32_t groupCountY,
-        uint32_t groupCountZ);
-
-std::vector< VkRect2D > getPhysicalDevicePresentRectanglesKHX(
-        VkPhysicalDevice physicalDevice,
-        VkSurfaceKHR surface);
 
 
 #define VK_EXT_validation_flags 1
@@ -7124,7 +7516,7 @@ std::vector< VkPhysicalDeviceGroupPropertiesKHX > enumeratePhysicalDeviceGroupsK
 VK_DEFINE_NON_DISPATCHABLE_HANDLE(VkObjectTableNVX)
 VK_DEFINE_NON_DISPATCHABLE_HANDLE(VkIndirectCommandsLayoutNVX)
 
-#define VK_NVX_DEVICE_GENERATED_COMMANDS_SPEC_VERSION 1
+#define VK_NVX_DEVICE_GENERATED_COMMANDS_SPEC_VERSION 3
 #define VK_NVX_DEVICE_GENERATED_COMMANDS_EXTENSION_NAME "VK_NVX_device_generated_commands"
 
 
@@ -7511,6 +7903,7 @@ VkDisplayKHR getRandROutputDisplayEXT(
 #define VK_EXT_display_surface_counter 1
 #define VK_EXT_DISPLAY_SURFACE_COUNTER_SPEC_VERSION 1
 #define VK_EXT_DISPLAY_SURFACE_COUNTER_EXTENSION_NAME "VK_EXT_display_surface_counter"
+#define VK_STRUCTURE_TYPE_SURFACE_CAPABILITIES2_EXT VK_STRUCTURE_TYPE_SURFACE_CAPABILITIES_2_EXT
 
 
 typedef enum VkSurfaceCounterFlagBitsEXT {
@@ -8018,6 +8411,143 @@ VkPhysicalDeviceSamplerFilterMinmaxPropertiesEXT PhysicalDeviceSamplerFilterMinm
 #define VK_AMD_MIXED_ATTACHMENT_SAMPLES_EXTENSION_NAME "VK_AMD_mixed_attachment_samples"
 
 
+#define VK_AMD_shader_fragment_mask 1
+#define VK_AMD_SHADER_FRAGMENT_MASK_SPEC_VERSION 1
+#define VK_AMD_SHADER_FRAGMENT_MASK_EXTENSION_NAME "VK_AMD_shader_fragment_mask"
+
+
+#define VK_EXT_shader_stencil_export 1
+#define VK_EXT_SHADER_STENCIL_EXPORT_SPEC_VERSION 1
+#define VK_EXT_SHADER_STENCIL_EXPORT_EXTENSION_NAME "VK_EXT_shader_stencil_export"
+
+
+#define VK_EXT_sample_locations 1
+#define VK_EXT_SAMPLE_LOCATIONS_SPEC_VERSION 1
+#define VK_EXT_SAMPLE_LOCATIONS_EXTENSION_NAME "VK_EXT_sample_locations"
+
+typedef struct VkSampleLocationEXT {
+    float    x;
+    float    y;
+} VkSampleLocationEXT;
+
+typedef struct VkSampleLocationsInfoEXT {
+    VkStructureType               sType;
+    const void*                   pNext;
+    VkSampleCountFlagBits         sampleLocationsPerPixel;
+    VkExtent2D                    sampleLocationGridSize;
+    uint32_t                      sampleLocationsCount;
+    const VkSampleLocationEXT*    pSampleLocations;
+} VkSampleLocationsInfoEXT;
+
+struct VkSampleLocationsInfoEXTRAII {
+   VkSampleLocationsInfoEXT nonRaiiObj;
+    std::vector<VkSampleLocationEXT>            vecSampleLocations;
+};
+
+typedef struct VkAttachmentSampleLocationsEXT {
+    uint32_t                    attachmentIndex;
+    VkSampleLocationsInfoEXT    sampleLocationsInfo;
+} VkAttachmentSampleLocationsEXT;
+
+typedef struct VkSubpassSampleLocationsEXT {
+    uint32_t                    subpassIndex;
+    VkSampleLocationsInfoEXT    sampleLocationsInfo;
+} VkSubpassSampleLocationsEXT;
+
+typedef struct VkRenderPassSampleLocationsBeginInfoEXT {
+    VkStructureType                          sType;
+    const void*                              pNext;
+    uint32_t                                 attachmentInitialSampleLocationsCount;
+    const VkAttachmentSampleLocationsEXT*    pAttachmentInitialSampleLocations;
+    uint32_t                                 postSubpassSampleLocationsCount;
+    const VkSubpassSampleLocationsEXT*       pPostSubpassSampleLocations;
+} VkRenderPassSampleLocationsBeginInfoEXT;
+
+struct VkRenderPassSampleLocationsBeginInfoEXTRAII {
+   VkRenderPassSampleLocationsBeginInfoEXT nonRaiiObj;
+    std::vector<VkAttachmentSampleLocationsEXT> vecAttachmentInitialSampleLocations;
+    std::vector<VkSubpassSampleLocationsEXT>    vecPostSubpassSampleLocations;
+};
+
+typedef struct VkPipelineSampleLocationsStateCreateInfoEXT {
+    VkStructureType             sType;
+    const void*                 pNext;
+    VkBool32                    sampleLocationsEnable;
+    VkSampleLocationsInfoEXT    sampleLocationsInfo;
+} VkPipelineSampleLocationsStateCreateInfoEXT;
+
+typedef struct VkPhysicalDeviceSampleLocationsPropertiesEXT {
+    VkStructureType       sType;
+    void*                 pNext;
+    VkSampleCountFlags    sampleLocationSampleCounts;
+    VkExtent2D            maxSampleLocationGridSize;
+    float                 sampleLocationCoordinateRange[2];
+    uint32_t              sampleLocationSubPixelBits;
+    VkBool32              variableSampleLocations;
+} VkPhysicalDeviceSampleLocationsPropertiesEXT;
+
+typedef struct VkMultisamplePropertiesEXT {
+    VkStructureType    sType;
+    void*              pNext;
+    VkExtent2D         maxSampleLocationGridSize;
+} VkMultisamplePropertiesEXT;
+
+
+typedef void (VKAPI_PTR *PFN_vkCmdSetSampleLocationsEXT)(VkCommandBuffer commandBuffer, const VkSampleLocationsInfoEXT* pSampleLocationsInfo);
+typedef void (VKAPI_PTR *PFN_vkGetPhysicalDeviceMultisamplePropertiesEXT)(VkPhysicalDevice physicalDevice, VkSampleCountFlagBits samples, VkMultisamplePropertiesEXT* pMultisampleProperties);
+
+VkSampleLocationEXT SampleLocationEXT(
+    float                                       x,
+    float                                       y);
+
+
+std::shared_ptr<VkSampleLocationsInfoEXTRAII> SampleLocationsInfoEXT(
+    VkSampleCountFlagBits                       sampleLocationsPerPixel,
+    VkExtent2D                                  sampleLocationGridSize,
+    const std::vector<VkSampleLocationEXT> &    vecSampleLocations);
+
+
+VkAttachmentSampleLocationsEXT AttachmentSampleLocationsEXT(
+    uint32_t                                    attachmentIndex,
+    VkSampleLocationsInfoEXT                    sampleLocationsInfo);
+
+
+VkSubpassSampleLocationsEXT SubpassSampleLocationsEXT(
+    uint32_t                                    subpassIndex,
+    VkSampleLocationsInfoEXT                    sampleLocationsInfo);
+
+
+std::shared_ptr<VkRenderPassSampleLocationsBeginInfoEXTRAII> RenderPassSampleLocationsBeginInfoEXT(
+    const std::vector<VkAttachmentSampleLocationsEXT> &vecAttachmentInitialSampleLocations,
+    const std::vector<VkSubpassSampleLocationsEXT> &vecPostSubpassSampleLocations);
+
+
+VkPipelineSampleLocationsStateCreateInfoEXT PipelineSampleLocationsStateCreateInfoEXT(
+    VkBool32                                    sampleLocationsEnable,
+    VkSampleLocationsInfoEXT                    sampleLocationsInfo);
+
+
+VkPhysicalDeviceSampleLocationsPropertiesEXT PhysicalDeviceSampleLocationsPropertiesEXT(
+    VkSampleCountFlags                          sampleLocationSampleCounts,
+    VkExtent2D                                  maxSampleLocationGridSize,
+    float                                       sampleLocationCoordinateRange[2],
+    uint32_t                                    sampleLocationSubPixelBits,
+    VkBool32                                    variableSampleLocations);
+
+
+VkMultisamplePropertiesEXT MultisamplePropertiesEXT(
+    VkExtent2D                                  maxSampleLocationGridSize);
+
+
+void  cmdSetSampleLocationsEXT(
+        VkCommandBuffer commandBuffer,
+        const VkSampleLocationsInfoEXT & pSampleLocationsInfo);
+
+VkMultisamplePropertiesEXT getPhysicalDeviceMultisamplePropertiesEXT(
+        VkPhysicalDevice physicalDevice,
+        VkSampleCountFlagBits samples);
+
+
 #define VK_EXT_blend_operation_advanced 1
 #define VK_EXT_BLEND_OPERATION_ADVANCED_SPEC_VERSION 2
 #define VK_EXT_BLEND_OPERATION_ADVANCED_EXTENSION_NAME "VK_EXT_blend_operation_advanced"
@@ -8152,13 +8682,111 @@ std::shared_ptr<VkPipelineCoverageModulationStateCreateInfoNVRAII> PipelineCover
 #define VK_EXT_POST_DEPTH_COVERAGE_SPEC_VERSION 1
 #define VK_EXT_POST_DEPTH_COVERAGE_EXTENSION_NAME "VK_EXT_post_depth_coverage"
 
+
+#define VK_EXT_validation_cache 1
+VK_DEFINE_NON_DISPATCHABLE_HANDLE(VkValidationCacheEXT)
+
+#define VK_EXT_VALIDATION_CACHE_SPEC_VERSION 1
+#define VK_EXT_VALIDATION_CACHE_EXTENSION_NAME "VK_EXT_validation_cache"
+
+
+typedef enum VkValidationCacheHeaderVersionEXT {
+    VK_VALIDATION_CACHE_HEADER_VERSION_ONE_EXT = 1,
+    VK_VALIDATION_CACHE_HEADER_VERSION_BEGIN_RANGE_EXT = VK_VALIDATION_CACHE_HEADER_VERSION_ONE_EXT,
+    VK_VALIDATION_CACHE_HEADER_VERSION_END_RANGE_EXT = VK_VALIDATION_CACHE_HEADER_VERSION_ONE_EXT,
+    VK_VALIDATION_CACHE_HEADER_VERSION_RANGE_SIZE_EXT = (VK_VALIDATION_CACHE_HEADER_VERSION_ONE_EXT - VK_VALIDATION_CACHE_HEADER_VERSION_ONE_EXT + 1),
+    VK_VALIDATION_CACHE_HEADER_VERSION_MAX_ENUM_EXT = 0x7FFFFFFF
+} VkValidationCacheHeaderVersionEXT;
+
+typedef VkFlags VkValidationCacheCreateFlagsEXT;
+
+typedef struct VkValidationCacheCreateInfoEXT {
+    VkStructureType                    sType;
+    const void*                        pNext;
+    VkValidationCacheCreateFlagsEXT    flags;
+    size_t                             initialDataSize;
+    const void*                        pInitialData;
+} VkValidationCacheCreateInfoEXT;
+
+struct VkValidationCacheCreateInfoEXTRAII {
+   VkValidationCacheCreateInfoEXT nonRaiiObj;
+    std::vector<uint8_t>                        vecInitialData;
+};
+
+typedef struct VkShaderModuleValidationCacheCreateInfoEXT {
+    VkStructureType         sType;
+    const void*             pNext;
+    VkValidationCacheEXT    validationCache;
+} VkShaderModuleValidationCacheCreateInfoEXT;
+
+
+typedef VkResult (VKAPI_PTR *PFN_vkCreateValidationCacheEXT)(VkDevice device, const VkValidationCacheCreateInfoEXT* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkValidationCacheEXT* pValidationCache);
+typedef void (VKAPI_PTR *PFN_vkDestroyValidationCacheEXT)(VkDevice device, VkValidationCacheEXT validationCache, const VkAllocationCallbacks* pAllocator);
+typedef VkResult (VKAPI_PTR *PFN_vkMergeValidationCachesEXT)(VkDevice device, VkValidationCacheEXT dstCache, uint32_t srcCacheCount, const VkValidationCacheEXT* pSrcCaches);
+typedef VkResult (VKAPI_PTR *PFN_vkGetValidationCacheDataEXT)(VkDevice device, VkValidationCacheEXT validationCache, size_t* pDataSize, void* pData);
+
+std::shared_ptr<VkValidationCacheCreateInfoEXTRAII> ValidationCacheCreateInfoEXT(
+    VkValidationCacheCreateFlagsEXT             flags,
+    const std::vector<uint8_t> &                vecInitialData);
+
+
+VkShaderModuleValidationCacheCreateInfoEXT ShaderModuleValidationCacheCreateInfoEXT(
+    VkValidationCacheEXT                        validationCache);
+
+
+std::shared_ptr<VkValidationCacheEXT_T> createValidationCacheEXT(
+        VkDevice device,
+        const VkValidationCacheCreateInfoEXT & pCreateInfo);
+
+void  mergeValidationCachesEXT(
+        VkDevice device,
+        VkValidationCacheEXT dstCache,
+        const std::vector<VkValidationCacheEXT> & pSrcCaches);
+
+size_t getValidationCacheDataEXT(
+        VkDevice device,
+        VkValidationCacheEXT validationCache);
+
+
+#define VK_EXT_shader_viewport_index_layer 1
+#define VK_EXT_SHADER_VIEWPORT_INDEX_LAYER_SPEC_VERSION 1
+#define VK_EXT_SHADER_VIEWPORT_INDEX_LAYER_EXTENSION_NAME "VK_EXT_shader_viewport_index_layer"
+
+
+#define VK_EXT_global_priority 1
+#define VK_EXT_GLOBAL_PRIORITY_SPEC_VERSION 1
+#define VK_EXT_GLOBAL_PRIORITY_EXTENSION_NAME "VK_EXT_global_priority"
+
+
+typedef enum VkQueueGlobalPriorityEXT {
+    VK_QUEUE_GLOBAL_PRIORITY_LOW = 128,
+    VK_QUEUE_GLOBAL_PRIORITY_MEDIUM = 256,
+    VK_QUEUE_GLOBAL_PRIORITY_HIGH = 512,
+    VK_QUEUE_GLOBAL_PRIORITY_REALTIME = 1024,
+    VK_QUEUE_GLOBAL_PRIORITY_BEGIN_RANGE_EXT = VK_QUEUE_GLOBAL_PRIORITY_LOW,
+    VK_QUEUE_GLOBAL_PRIORITY_END_RANGE_EXT = VK_QUEUE_GLOBAL_PRIORITY_REALTIME,
+    VK_QUEUE_GLOBAL_PRIORITY_RANGE_SIZE_EXT = (VK_QUEUE_GLOBAL_PRIORITY_REALTIME - VK_QUEUE_GLOBAL_PRIORITY_LOW + 1),
+    VK_QUEUE_GLOBAL_PRIORITY_MAX_ENUM_EXT = 0x7FFFFFFF
+} VkQueueGlobalPriorityEXT;
+
+typedef struct VkDeviceQueueGlobalPriorityCreateInfoEXT {
+    VkStructureType             sType;
+    const void*                 pNext;
+    VkQueueGlobalPriorityEXT    globalPriority;
+} VkDeviceQueueGlobalPriorityCreateInfoEXT;
+
+
+VkDeviceQueueGlobalPriorityCreateInfoEXT DeviceQueueGlobalPriorityCreateInfoEXT(
+    VkQueueGlobalPriorityEXT                    globalPriority);
+
+
 void load_vulkan_fct_ptrs(VkInstance instance);
 
 %{
 
      const char* vkGetErrorString(VkResult retval)
      {
-         static const char vk_err_messages[27][123] = {
+         static const char vk_err_messages[28][123] = {
              "Vulkan error (VK_SUCCESS) : Command completed successfully",
              "Vulkan error (VK_NOT_READY) : A fence or query has not yet completed",
              "Vulkan error (VK_TIMEOUT) : A wait operation has not completed in the specified time",
@@ -8186,6 +8814,7 @@ void load_vulkan_fct_ptrs(VkInstance instance);
              "Vulkan error: VK_ERROR_INVALID_SHADER_NV",
              "Vulkan error: VK_ERROR_OUT_OF_POOL_MEMORY_KHR",
              "Vulkan error: VK_ERROR_INVALID_EXTERNAL_HANDLE_KHR",
+             "Vulkan error: VK_ERROR_NOT_PERMITTED_EXT",
          };
          switch (retval) {
              case VK_SUCCESS : return vk_err_messages[0];
@@ -8215,6 +8844,7 @@ void load_vulkan_fct_ptrs(VkInstance instance);
              case VK_ERROR_INVALID_SHADER_NV : return vk_err_messages[24];
              case VK_ERROR_OUT_OF_POOL_MEMORY_KHR : return vk_err_messages[25];
              case VK_ERROR_INVALID_EXTERNAL_HANDLE_KHR : return vk_err_messages[26];
+             case VK_ERROR_NOT_PERMITTED_EXT : return vk_err_messages[27];
          }
          return nullptr;
      }
@@ -8348,6 +8978,18 @@ void load_vulkan_fct_ptrs(VkInstance instance);
     #ifdef VK_KHR_get_memory_requirements2
     PFN_vkGetImageSparseMemoryRequirements2KHR pfvkGetImageSparseMemoryRequirements2KHR;
     #endif //VK_KHR_get_memory_requirements2
+    #ifdef VK_KHR_sampler_ycbcr_conversion
+    PFN_vkCreateSamplerYcbcrConversionKHR pfvkCreateSamplerYcbcrConversionKHR;
+    #endif //VK_KHR_sampler_ycbcr_conversion
+    #ifdef VK_KHR_sampler_ycbcr_conversion
+    PFN_vkDestroySamplerYcbcrConversionKHR pfvkDestroySamplerYcbcrConversionKHR;
+    #endif //VK_KHR_sampler_ycbcr_conversion
+    #ifdef VK_KHR_bind_memory2
+    PFN_vkBindBufferMemory2KHR pfvkBindBufferMemory2KHR;
+    #endif //VK_KHR_bind_memory2
+    #ifdef VK_KHR_bind_memory2
+    PFN_vkBindImageMemory2KHR pfvkBindImageMemory2KHR;
+    #endif //VK_KHR_bind_memory2
     #ifdef VK_EXT_debug_report
     PFN_vkCreateDebugReportCallbackEXT pfvkCreateDebugReportCallbackEXT;
     #endif //VK_EXT_debug_report
@@ -8378,6 +9020,9 @@ void load_vulkan_fct_ptrs(VkInstance instance);
     #ifdef VK_AMD_draw_indirect_count
     PFN_vkCmdDrawIndexedIndirectCountAMD pfvkCmdDrawIndexedIndirectCountAMD;
     #endif //VK_AMD_draw_indirect_count
+    #ifdef VK_AMD_shader_info
+    PFN_vkGetShaderInfoAMD pfvkGetShaderInfoAMD;
+    #endif //VK_AMD_shader_info
     #ifdef VK_NV_external_memory_capabilities
     PFN_vkGetPhysicalDeviceExternalImageFormatPropertiesNV pfvkGetPhysicalDeviceExternalImageFormatPropertiesNV;
     #endif //VK_NV_external_memory_capabilities
@@ -8388,13 +9033,10 @@ void load_vulkan_fct_ptrs(VkInstance instance);
     PFN_vkGetDeviceGroupPeerMemoryFeaturesKHX pfvkGetDeviceGroupPeerMemoryFeaturesKHX;
     #endif //VK_KHX_device_group
     #ifdef VK_KHX_device_group
-    PFN_vkBindBufferMemory2KHX pfvkBindBufferMemory2KHX;
-    #endif //VK_KHX_device_group
-    #ifdef VK_KHX_device_group
-    PFN_vkBindImageMemory2KHX pfvkBindImageMemory2KHX;
-    #endif //VK_KHX_device_group
-    #ifdef VK_KHX_device_group
     PFN_vkCmdSetDeviceMaskKHX pfvkCmdSetDeviceMaskKHX;
+    #endif //VK_KHX_device_group
+    #ifdef VK_KHX_device_group
+    PFN_vkCmdDispatchBaseKHX pfvkCmdDispatchBaseKHX;
     #endif //VK_KHX_device_group
     #ifdef VK_KHX_device_group
     PFN_vkGetDeviceGroupPresentCapabilitiesKHX pfvkGetDeviceGroupPresentCapabilitiesKHX;
@@ -8403,13 +9045,10 @@ void load_vulkan_fct_ptrs(VkInstance instance);
     PFN_vkGetDeviceGroupSurfacePresentModesKHX pfvkGetDeviceGroupSurfacePresentModesKHX;
     #endif //VK_KHX_device_group
     #ifdef VK_KHX_device_group
-    PFN_vkAcquireNextImage2KHX pfvkAcquireNextImage2KHX;
-    #endif //VK_KHX_device_group
-    #ifdef VK_KHX_device_group
-    PFN_vkCmdDispatchBaseKHX pfvkCmdDispatchBaseKHX;
-    #endif //VK_KHX_device_group
-    #ifdef VK_KHX_device_group
     PFN_vkGetPhysicalDevicePresentRectanglesKHX pfvkGetPhysicalDevicePresentRectanglesKHX;
+    #endif //VK_KHX_device_group
+    #ifdef VK_KHX_device_group
+    PFN_vkAcquireNextImage2KHX pfvkAcquireNextImage2KHX;
     #endif //VK_KHX_device_group
     #ifdef VK_NN_vi_surface
     PFN_vkCreateViSurfaceNN pfvkCreateViSurfaceNN;
@@ -8492,6 +9131,24 @@ void load_vulkan_fct_ptrs(VkInstance instance);
     #ifdef VK_MVK_macos_surface
     PFN_vkCreateMacOSSurfaceMVK pfvkCreateMacOSSurfaceMVK;
     #endif //VK_MVK_macos_surface
+    #ifdef VK_EXT_sample_locations
+    PFN_vkCmdSetSampleLocationsEXT pfvkCmdSetSampleLocationsEXT;
+    #endif //VK_EXT_sample_locations
+    #ifdef VK_EXT_sample_locations
+    PFN_vkGetPhysicalDeviceMultisamplePropertiesEXT pfvkGetPhysicalDeviceMultisamplePropertiesEXT;
+    #endif //VK_EXT_sample_locations
+    #ifdef VK_EXT_validation_cache
+    PFN_vkCreateValidationCacheEXT pfvkCreateValidationCacheEXT;
+    #endif //VK_EXT_validation_cache
+    #ifdef VK_EXT_validation_cache
+    PFN_vkDestroyValidationCacheEXT pfvkDestroyValidationCacheEXT;
+    #endif //VK_EXT_validation_cache
+    #ifdef VK_EXT_validation_cache
+    PFN_vkMergeValidationCachesEXT pfvkMergeValidationCachesEXT;
+    #endif //VK_EXT_validation_cache
+    #ifdef VK_EXT_validation_cache
+    PFN_vkGetValidationCacheDataEXT pfvkGetValidationCacheDataEXT;
+    #endif //VK_EXT_validation_cache
 
     void load_vulkan_fct_ptrs(VkInstance instance)
     {
@@ -8624,6 +9281,18 @@ void load_vulkan_fct_ptrs(VkInstance instance);
 #ifdef VK_KHR_get_memory_requirements2
 	    pfvkGetImageSparseMemoryRequirements2KHR = reinterpret_cast<PFN_vkGetImageSparseMemoryRequirements2KHR>(vkGetInstanceProcAddr(instance, "vkGetImageSparseMemoryRequirements2KHR"));
 #endif
+#ifdef VK_KHR_sampler_ycbcr_conversion
+	    pfvkCreateSamplerYcbcrConversionKHR = reinterpret_cast<PFN_vkCreateSamplerYcbcrConversionKHR>(vkGetInstanceProcAddr(instance, "vkCreateSamplerYcbcrConversionKHR"));
+#endif
+#ifdef VK_KHR_sampler_ycbcr_conversion
+	    pfvkDestroySamplerYcbcrConversionKHR = reinterpret_cast<PFN_vkDestroySamplerYcbcrConversionKHR>(vkGetInstanceProcAddr(instance, "vkDestroySamplerYcbcrConversionKHR"));
+#endif
+#ifdef VK_KHR_bind_memory2
+	    pfvkBindBufferMemory2KHR = reinterpret_cast<PFN_vkBindBufferMemory2KHR>(vkGetInstanceProcAddr(instance, "vkBindBufferMemory2KHR"));
+#endif
+#ifdef VK_KHR_bind_memory2
+	    pfvkBindImageMemory2KHR = reinterpret_cast<PFN_vkBindImageMemory2KHR>(vkGetInstanceProcAddr(instance, "vkBindImageMemory2KHR"));
+#endif
 #ifdef VK_EXT_debug_report
 	    pfvkCreateDebugReportCallbackEXT = reinterpret_cast<PFN_vkCreateDebugReportCallbackEXT>(vkGetInstanceProcAddr(instance, "vkCreateDebugReportCallbackEXT"));
 #endif
@@ -8654,6 +9323,9 @@ void load_vulkan_fct_ptrs(VkInstance instance);
 #ifdef VK_AMD_draw_indirect_count
 	    pfvkCmdDrawIndexedIndirectCountAMD = reinterpret_cast<PFN_vkCmdDrawIndexedIndirectCountAMD>(vkGetInstanceProcAddr(instance, "vkCmdDrawIndexedIndirectCountAMD"));
 #endif
+#ifdef VK_AMD_shader_info
+	    pfvkGetShaderInfoAMD = reinterpret_cast<PFN_vkGetShaderInfoAMD>(vkGetInstanceProcAddr(instance, "vkGetShaderInfoAMD"));
+#endif
 #ifdef VK_NV_external_memory_capabilities
 	    pfvkGetPhysicalDeviceExternalImageFormatPropertiesNV = reinterpret_cast<PFN_vkGetPhysicalDeviceExternalImageFormatPropertiesNV>(vkGetInstanceProcAddr(instance, "vkGetPhysicalDeviceExternalImageFormatPropertiesNV"));
 #endif
@@ -8664,13 +9336,10 @@ void load_vulkan_fct_ptrs(VkInstance instance);
 	    pfvkGetDeviceGroupPeerMemoryFeaturesKHX = reinterpret_cast<PFN_vkGetDeviceGroupPeerMemoryFeaturesKHX>(vkGetInstanceProcAddr(instance, "vkGetDeviceGroupPeerMemoryFeaturesKHX"));
 #endif
 #ifdef VK_KHX_device_group
-	    pfvkBindBufferMemory2KHX = reinterpret_cast<PFN_vkBindBufferMemory2KHX>(vkGetInstanceProcAddr(instance, "vkBindBufferMemory2KHX"));
-#endif
-#ifdef VK_KHX_device_group
-	    pfvkBindImageMemory2KHX = reinterpret_cast<PFN_vkBindImageMemory2KHX>(vkGetInstanceProcAddr(instance, "vkBindImageMemory2KHX"));
-#endif
-#ifdef VK_KHX_device_group
 	    pfvkCmdSetDeviceMaskKHX = reinterpret_cast<PFN_vkCmdSetDeviceMaskKHX>(vkGetInstanceProcAddr(instance, "vkCmdSetDeviceMaskKHX"));
+#endif
+#ifdef VK_KHX_device_group
+	    pfvkCmdDispatchBaseKHX = reinterpret_cast<PFN_vkCmdDispatchBaseKHX>(vkGetInstanceProcAddr(instance, "vkCmdDispatchBaseKHX"));
 #endif
 #ifdef VK_KHX_device_group
 	    pfvkGetDeviceGroupPresentCapabilitiesKHX = reinterpret_cast<PFN_vkGetDeviceGroupPresentCapabilitiesKHX>(vkGetInstanceProcAddr(instance, "vkGetDeviceGroupPresentCapabilitiesKHX"));
@@ -8679,13 +9348,10 @@ void load_vulkan_fct_ptrs(VkInstance instance);
 	    pfvkGetDeviceGroupSurfacePresentModesKHX = reinterpret_cast<PFN_vkGetDeviceGroupSurfacePresentModesKHX>(vkGetInstanceProcAddr(instance, "vkGetDeviceGroupSurfacePresentModesKHX"));
 #endif
 #ifdef VK_KHX_device_group
-	    pfvkAcquireNextImage2KHX = reinterpret_cast<PFN_vkAcquireNextImage2KHX>(vkGetInstanceProcAddr(instance, "vkAcquireNextImage2KHX"));
-#endif
-#ifdef VK_KHX_device_group
-	    pfvkCmdDispatchBaseKHX = reinterpret_cast<PFN_vkCmdDispatchBaseKHX>(vkGetInstanceProcAddr(instance, "vkCmdDispatchBaseKHX"));
-#endif
-#ifdef VK_KHX_device_group
 	    pfvkGetPhysicalDevicePresentRectanglesKHX = reinterpret_cast<PFN_vkGetPhysicalDevicePresentRectanglesKHX>(vkGetInstanceProcAddr(instance, "vkGetPhysicalDevicePresentRectanglesKHX"));
+#endif
+#ifdef VK_KHX_device_group
+	    pfvkAcquireNextImage2KHX = reinterpret_cast<PFN_vkAcquireNextImage2KHX>(vkGetInstanceProcAddr(instance, "vkAcquireNextImage2KHX"));
 #endif
 #ifdef VK_NN_vi_surface
 	    pfvkCreateViSurfaceNN = reinterpret_cast<PFN_vkCreateViSurfaceNN>(vkGetInstanceProcAddr(instance, "vkCreateViSurfaceNN"));
@@ -8767,6 +9433,24 @@ void load_vulkan_fct_ptrs(VkInstance instance);
 #endif
 #ifdef VK_MVK_macos_surface
 	    pfvkCreateMacOSSurfaceMVK = reinterpret_cast<PFN_vkCreateMacOSSurfaceMVK>(vkGetInstanceProcAddr(instance, "vkCreateMacOSSurfaceMVK"));
+#endif
+#ifdef VK_EXT_sample_locations
+	    pfvkCmdSetSampleLocationsEXT = reinterpret_cast<PFN_vkCmdSetSampleLocationsEXT>(vkGetInstanceProcAddr(instance, "vkCmdSetSampleLocationsEXT"));
+#endif
+#ifdef VK_EXT_sample_locations
+	    pfvkGetPhysicalDeviceMultisamplePropertiesEXT = reinterpret_cast<PFN_vkGetPhysicalDeviceMultisamplePropertiesEXT>(vkGetInstanceProcAddr(instance, "vkGetPhysicalDeviceMultisamplePropertiesEXT"));
+#endif
+#ifdef VK_EXT_validation_cache
+	    pfvkCreateValidationCacheEXT = reinterpret_cast<PFN_vkCreateValidationCacheEXT>(vkGetInstanceProcAddr(instance, "vkCreateValidationCacheEXT"));
+#endif
+#ifdef VK_EXT_validation_cache
+	    pfvkDestroyValidationCacheEXT = reinterpret_cast<PFN_vkDestroyValidationCacheEXT>(vkGetInstanceProcAddr(instance, "vkDestroyValidationCacheEXT"));
+#endif
+#ifdef VK_EXT_validation_cache
+	    pfvkMergeValidationCachesEXT = reinterpret_cast<PFN_vkMergeValidationCachesEXT>(vkGetInstanceProcAddr(instance, "vkMergeValidationCachesEXT"));
+#endif
+#ifdef VK_EXT_validation_cache
+	    pfvkGetValidationCacheDataEXT = reinterpret_cast<PFN_vkGetValidationCacheDataEXT>(vkGetInstanceProcAddr(instance, "vkGetValidationCacheDataEXT"));
 #endif
   }
 %}
@@ -14983,6 +15667,72 @@ int getFenceFdKHR(
       return pFd; 
    }
 
+VkPhysicalDevicePointClippingPropertiesKHR PhysicalDevicePointClippingPropertiesKHR(
+    VkPointClippingBehaviorKHR                  pointClippingBehavior)
+   {
+      VkPhysicalDevicePointClippingPropertiesKHR obj;
+      obj.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_POINT_CLIPPING_PROPERTIES_KHR;
+      obj.pNext = nullptr;
+      obj.pointClippingBehavior = pointClippingBehavior;
+      return obj;
+   }
+
+VkInputAttachmentAspectReferenceKHR InputAttachmentAspectReferenceKHR(
+    uint32_t                                    subpass,
+    uint32_t                                    inputAttachmentIndex,
+    VkImageAspectFlags                          aspectMask)
+   {
+      VkInputAttachmentAspectReferenceKHR obj;
+      obj.subpass = subpass;
+      obj.inputAttachmentIndex = inputAttachmentIndex;
+      obj.aspectMask = aspectMask;
+      return obj;
+   }
+
+struct VkRenderPassInputAttachmentAspectCreateInfoKHRRAII {
+   VkRenderPassInputAttachmentAspectCreateInfoKHR nonRaiiObj;
+    std::vector<VkInputAttachmentAspectReferenceKHR>vecAspectReferences;
+};
+
+std::shared_ptr<VkRenderPassInputAttachmentAspectCreateInfoKHRRAII> RenderPassInputAttachmentAspectCreateInfoKHR(
+    const std::vector<VkInputAttachmentAspectReferenceKHR> &vecAspectReferences)
+   {
+      std::shared_ptr<VkRenderPassInputAttachmentAspectCreateInfoKHRRAII> raii_obj(new VkRenderPassInputAttachmentAspectCreateInfoKHRRAII);
+      raii_obj->nonRaiiObj.sType = VK_STRUCTURE_TYPE_RENDER_PASS_INPUT_ATTACHMENT_ASPECT_CREATE_INFO_KHR;
+      raii_obj->nonRaiiObj.pNext = nullptr;
+      raii_obj->nonRaiiObj.aspectReferenceCount = static_cast<uint32_t>(vecAspectReferences.size());
+      raii_obj->vecAspectReferences = vecAspectReferences;
+      if ( raii_obj->vecAspectReferences.size() > 0)
+      {
+          raii_obj->nonRaiiObj.pAspectReferences = &raii_obj->vecAspectReferences[0];
+      }
+      else
+      {
+          raii_obj->nonRaiiObj.pAspectReferences = nullptr;
+      }
+      return raii_obj;
+   }
+
+VkImageViewUsageCreateInfoKHR ImageViewUsageCreateInfoKHR(
+    VkImageUsageFlags                           usage)
+   {
+      VkImageViewUsageCreateInfoKHR obj;
+      obj.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_USAGE_CREATE_INFO_KHR;
+      obj.pNext = nullptr;
+      obj.usage = usage;
+      return obj;
+   }
+
+VkPipelineTessellationDomainOriginStateCreateInfoKHR PipelineTessellationDomainOriginStateCreateInfoKHR(
+    VkTessellationDomainOriginKHR               domainOrigin)
+   {
+      VkPipelineTessellationDomainOriginStateCreateInfoKHR obj;
+      obj.sType = VK_STRUCTURE_TYPE_PIPELINE_TESSELLATION_DOMAIN_ORIGIN_STATE_CREATE_INFO_KHR;
+      obj.pNext = nullptr;
+      obj.domainOrigin = domainOrigin;
+      return obj;
+   }
+
 VkPhysicalDeviceSurfaceInfo2KHR PhysicalDeviceSurfaceInfo2KHR(
     VkSurfaceKHR                                surface)
    {
@@ -15202,6 +15952,181 @@ std::vector< VkSparseImageMemoryRequirements2KHR > getImageSparseMemoryRequireme
           &pSparseMemoryRequirementsCount,
           &vecpSparseMemoryRequirements[0]  );
       return vecpSparseMemoryRequirements; 
+   }
+
+struct VkImageFormatListCreateInfoKHRRAII {
+   VkImageFormatListCreateInfoKHR nonRaiiObj;
+    std::vector<VkFormat>                       vecViewFormats;
+};
+
+std::shared_ptr<VkImageFormatListCreateInfoKHRRAII> ImageFormatListCreateInfoKHR(
+    const std::vector<VkFormat> &               vecViewFormats)
+   {
+      std::shared_ptr<VkImageFormatListCreateInfoKHRRAII> raii_obj(new VkImageFormatListCreateInfoKHRRAII);
+      raii_obj->nonRaiiObj.sType = VK_STRUCTURE_TYPE_IMAGE_FORMAT_LIST_CREATE_INFO_KHR;
+      raii_obj->nonRaiiObj.pNext = nullptr;
+      raii_obj->nonRaiiObj.viewFormatCount = static_cast<uint32_t>(vecViewFormats.size());
+      raii_obj->vecViewFormats = vecViewFormats;
+      if ( raii_obj->vecViewFormats.size() > 0)
+      {
+          raii_obj->nonRaiiObj.pViewFormats = &raii_obj->vecViewFormats[0];
+      }
+      else
+      {
+          raii_obj->nonRaiiObj.pViewFormats = nullptr;
+      }
+      return raii_obj;
+   }
+
+VkSamplerYcbcrConversionCreateInfoKHR SamplerYcbcrConversionCreateInfoKHR(
+    VkFormat                                    format,
+    VkSamplerYcbcrModelConversionKHR            ycbcrModel,
+    VkSamplerYcbcrRangeKHR                      ycbcrRange,
+    VkComponentMapping                          components,
+    VkChromaLocationKHR                         xChromaOffset,
+    VkChromaLocationKHR                         yChromaOffset,
+    VkFilter                                    chromaFilter,
+    VkBool32                                    forceExplicitReconstruction)
+   {
+      VkSamplerYcbcrConversionCreateInfoKHR obj;
+      obj.sType = VK_STRUCTURE_TYPE_SAMPLER_YCBCR_CONVERSION_CREATE_INFO_KHR;
+      obj.pNext = nullptr;
+      obj.format = format;
+      obj.ycbcrModel = ycbcrModel;
+      obj.ycbcrRange = ycbcrRange;
+      obj.components = components;
+      obj.xChromaOffset = xChromaOffset;
+      obj.yChromaOffset = yChromaOffset;
+      obj.chromaFilter = chromaFilter;
+      obj.forceExplicitReconstruction = forceExplicitReconstruction;
+      return obj;
+   }
+
+VkSamplerYcbcrConversionInfoKHR SamplerYcbcrConversionInfoKHR(
+    VkSamplerYcbcrConversionKHR                 conversion)
+   {
+      VkSamplerYcbcrConversionInfoKHR obj;
+      obj.sType = VK_STRUCTURE_TYPE_SAMPLER_YCBCR_CONVERSION_INFO_KHR;
+      obj.pNext = nullptr;
+      obj.conversion = conversion;
+      return obj;
+   }
+
+VkBindImagePlaneMemoryInfoKHR BindImagePlaneMemoryInfoKHR(
+    VkImageAspectFlagBits                       planeAspect)
+   {
+      VkBindImagePlaneMemoryInfoKHR obj;
+      obj.sType = VK_STRUCTURE_TYPE_BIND_IMAGE_PLANE_MEMORY_INFO_KHR;
+      obj.pNext = nullptr;
+      obj.planeAspect = planeAspect;
+      return obj;
+   }
+
+VkImagePlaneMemoryRequirementsInfoKHR ImagePlaneMemoryRequirementsInfoKHR(
+    VkImageAspectFlagBits                       planeAspect)
+   {
+      VkImagePlaneMemoryRequirementsInfoKHR obj;
+      obj.sType = VK_STRUCTURE_TYPE_IMAGE_PLANE_MEMORY_REQUIREMENTS_INFO_KHR;
+      obj.pNext = nullptr;
+      obj.planeAspect = planeAspect;
+      return obj;
+   }
+
+VkPhysicalDeviceSamplerYcbcrConversionFeaturesKHR PhysicalDeviceSamplerYcbcrConversionFeaturesKHR(
+    VkBool32                                    samplerYcbcrConversion)
+   {
+      VkPhysicalDeviceSamplerYcbcrConversionFeaturesKHR obj;
+      obj.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SAMPLER_YCBCR_CONVERSION_FEATURES_KHR;
+      obj.pNext = nullptr;
+      obj.samplerYcbcrConversion = samplerYcbcrConversion;
+      return obj;
+   }
+
+VkSamplerYcbcrConversionImageFormatPropertiesKHR SamplerYcbcrConversionImageFormatPropertiesKHR(
+    uint32_t                                    combinedImageSamplerDescriptorCount)
+   {
+      VkSamplerYcbcrConversionImageFormatPropertiesKHR obj;
+      obj.sType = VK_STRUCTURE_TYPE_SAMPLER_YCBCR_CONVERSION_IMAGE_FORMAT_PROPERTIES_KHR;
+      obj.pNext = nullptr;
+      obj.combinedImageSamplerDescriptorCount = combinedImageSamplerDescriptorCount;
+      return obj;
+   }
+
+std::shared_ptr<VkSamplerYcbcrConversionKHR_T> createSamplerYcbcrConversionKHR(
+        VkDevice device,
+        const VkSamplerYcbcrConversionCreateInfoKHR & pCreateInfo)
+   {
+      if ( nullptr == pfvkCreateSamplerYcbcrConversionKHR )
+          throw std::runtime_error("Trying to use an unavailable function\n"
+                                   "Review you instance create info\n"
+                                   "and call load_vulkan_fct_ptrs() with the new instance");
+
+      VkSamplerYcbcrConversionKHR hYcbcrConversion; 
+      V( pfvkCreateSamplerYcbcrConversionKHR(
+          device,
+          &pCreateInfo,
+          nullptr,
+          &hYcbcrConversion  ));
+      return std::shared_ptr<VkSamplerYcbcrConversionKHR_T>(hYcbcrConversion, 
+              [=](VkSamplerYcbcrConversionKHR to_free) {pfvkDestroySamplerYcbcrConversionKHR(device, to_free, nullptr);});
+   }
+
+VkBindBufferMemoryInfoKHR BindBufferMemoryInfoKHR(
+    VkBuffer                                    buffer,
+    VkDeviceMemory                              memory,
+    VkDeviceSize                                memoryOffset)
+   {
+      VkBindBufferMemoryInfoKHR obj;
+      obj.sType = VK_STRUCTURE_TYPE_BIND_BUFFER_MEMORY_INFO_KHR;
+      obj.pNext = nullptr;
+      obj.buffer = buffer;
+      obj.memory = memory;
+      obj.memoryOffset = memoryOffset;
+      return obj;
+   }
+
+VkBindImageMemoryInfoKHR BindImageMemoryInfoKHR(
+    VkImage                                     image,
+    VkDeviceMemory                              memory,
+    VkDeviceSize                                memoryOffset)
+   {
+      VkBindImageMemoryInfoKHR obj;
+      obj.sType = VK_STRUCTURE_TYPE_BIND_IMAGE_MEMORY_INFO_KHR;
+      obj.pNext = nullptr;
+      obj.image = image;
+      obj.memory = memory;
+      obj.memoryOffset = memoryOffset;
+      return obj;
+   }
+
+void  bindBufferMemory2KHR(
+        VkDevice device,
+        const std::vector<VkBindBufferMemoryInfoKHR> & pBindInfos)
+   {
+      if ( nullptr == pfvkBindBufferMemory2KHR )
+          throw std::runtime_error("Trying to use an unavailable function\n"
+                                   "Review you instance create info\n"
+                                   "and call load_vulkan_fct_ptrs() with the new instance");
+
+      V( pfvkBindBufferMemory2KHR(
+          device,
+          static_cast<uint32_t>(pBindInfos.size()),
+          &pBindInfos[0]  ));
+   }
+
+void  bindImageMemory2KHR(
+        VkDevice device,
+        const std::vector<VkBindImageMemoryInfoKHR> & pBindInfos)
+   {
+      if ( nullptr == pfvkBindImageMemory2KHR )
+          throw std::runtime_error("Trying to use an unavailable function\n"
+                                   "Review you instance create info\n"
+                                   "and call load_vulkan_fct_ptrs() with the new instance");
+
+      V( pfvkBindImageMemory2KHR(
+          device,
+          static_cast<uint32_t>(pBindInfos.size()),
+          &pBindInfos[0]  ));
    }
 
 VkDebugReportCallbackCreateInfoEXT DebugReportCallbackCreateInfoEXT(
@@ -15498,6 +16423,64 @@ VkTextureLODGatherFormatPropertiesAMD TextureLODGatherFormatPropertiesAMD(
       return obj;
    }
 
+VkShaderResourceUsageAMD ShaderResourceUsageAMD(
+    uint32_t                                    numUsedVgprs,
+    uint32_t                                    numUsedSgprs,
+    uint32_t                                    ldsSizePerLocalWorkGroup,
+    size_t                                      ldsUsageSizeInBytes,
+    size_t                                      scratchMemUsageInBytes)
+   {
+      VkShaderResourceUsageAMD obj;
+      obj.numUsedVgprs = numUsedVgprs;
+      obj.numUsedSgprs = numUsedSgprs;
+      obj.ldsSizePerLocalWorkGroup = ldsSizePerLocalWorkGroup;
+      obj.ldsUsageSizeInBytes = ldsUsageSizeInBytes;
+      obj.scratchMemUsageInBytes = scratchMemUsageInBytes;
+      return obj;
+   }
+
+VkShaderStatisticsInfoAMD ShaderStatisticsInfoAMD(
+    VkShaderStageFlags                          shaderStageMask,
+    VkShaderResourceUsageAMD                    resourceUsage,
+    uint32_t                                    numPhysicalVgprs,
+    uint32_t                                    numPhysicalSgprs,
+    uint32_t                                    numAvailableVgprs,
+    uint32_t                                    numAvailableSgprs,
+    uint32_t                                    computeWorkGroupSize[3])
+   {
+      VkShaderStatisticsInfoAMD obj;
+      obj.shaderStageMask = shaderStageMask;
+      obj.resourceUsage = resourceUsage;
+      obj.numPhysicalVgprs = numPhysicalVgprs;
+      obj.numPhysicalSgprs = numPhysicalSgprs;
+      obj.numAvailableVgprs = numAvailableVgprs;
+      obj.numAvailableSgprs = numAvailableSgprs;
+      std::copy(computeWorkGroupSize, computeWorkGroupSize + 3, obj.computeWorkGroupSize);
+      return obj;
+   }
+
+size_t getShaderInfoAMD(
+        VkDevice device,
+        VkPipeline pipeline,
+        VkShaderStageFlagBits shaderStage,
+        VkShaderInfoTypeAMD infoType)
+   {
+      if ( nullptr == pfvkGetShaderInfoAMD )
+          throw std::runtime_error("Trying to use an unavailable function\n"
+                                   "Review you instance create info\n"
+                                   "and call load_vulkan_fct_ptrs() with the new instance");
+
+      size_t pInfoSize; 
+      V( pfvkGetShaderInfoAMD(
+          device,
+          pipeline,
+          shaderStage,
+          infoType,
+          &pInfoSize,
+          nullptr  ));
+      return pInfoSize; 
+   }
+
 struct VkRenderPassMultiviewCreateInfoKHXRAII {
    VkRenderPassMultiviewCreateInfoKHX nonRaiiObj;
     std::vector<uint32_t>                       vecViewMasks;
@@ -15772,78 +16755,6 @@ VkMemoryAllocateFlagsInfoKHX MemoryAllocateFlagsInfoKHX(
       return obj;
    }
 
-struct VkBindBufferMemoryInfoKHXRAII {
-   VkBindBufferMemoryInfoKHX nonRaiiObj;
-    std::vector<uint32_t>                       vecDeviceIndices;
-};
-
-std::shared_ptr<VkBindBufferMemoryInfoKHXRAII> BindBufferMemoryInfoKHX(
-    VkBuffer                                    buffer,
-    VkDeviceMemory                              memory,
-    VkDeviceSize                                memoryOffset,
-    unsigned int* pDeviceIndices_in_array1, int pDeviceIndices_dim1)
-   {
-      std::shared_ptr<VkBindBufferMemoryInfoKHXRAII> raii_obj(new VkBindBufferMemoryInfoKHXRAII);
-      raii_obj->nonRaiiObj.sType = VK_STRUCTURE_TYPE_BIND_BUFFER_MEMORY_INFO_KHX;
-      raii_obj->nonRaiiObj.pNext = nullptr;
-      raii_obj->nonRaiiObj.buffer = buffer;
-      raii_obj->nonRaiiObj.memory = memory;
-      raii_obj->nonRaiiObj.memoryOffset = memoryOffset;
-      raii_obj->nonRaiiObj.deviceIndexCount = static_cast<uint32_t>(pDeviceIndices_dim1);
-      raii_obj->vecDeviceIndices.assign(pDeviceIndices_in_array1, pDeviceIndices_in_array1 + pDeviceIndices_dim1);
-      if ( raii_obj->vecDeviceIndices.size() > 0)
-      {
-          raii_obj->nonRaiiObj.pDeviceIndices = &raii_obj->vecDeviceIndices[0];
-      }
-      else
-      {
-          raii_obj->nonRaiiObj.pDeviceIndices = nullptr;
-      }
-      return raii_obj;
-   }
-
-struct VkBindImageMemoryInfoKHXRAII {
-   VkBindImageMemoryInfoKHX nonRaiiObj;
-    std::vector<uint32_t>                       vecDeviceIndices;
-    std::vector<VkRect2D>                       vecSFRRects;
-};
-
-std::shared_ptr<VkBindImageMemoryInfoKHXRAII> BindImageMemoryInfoKHX(
-    VkImage                                     image,
-    VkDeviceMemory                              memory,
-    VkDeviceSize                                memoryOffset,
-    unsigned int* pDeviceIndices_in_array1, int pDeviceIndices_dim1,
-    const std::vector<VkRect2D> &               vecSFRRects)
-   {
-      std::shared_ptr<VkBindImageMemoryInfoKHXRAII> raii_obj(new VkBindImageMemoryInfoKHXRAII);
-      raii_obj->nonRaiiObj.sType = VK_STRUCTURE_TYPE_BIND_IMAGE_MEMORY_INFO_KHX;
-      raii_obj->nonRaiiObj.pNext = nullptr;
-      raii_obj->nonRaiiObj.image = image;
-      raii_obj->nonRaiiObj.memory = memory;
-      raii_obj->nonRaiiObj.memoryOffset = memoryOffset;
-      raii_obj->nonRaiiObj.deviceIndexCount = static_cast<uint32_t>(pDeviceIndices_dim1);
-      raii_obj->vecDeviceIndices.assign(pDeviceIndices_in_array1, pDeviceIndices_in_array1 + pDeviceIndices_dim1);
-      if ( raii_obj->vecDeviceIndices.size() > 0)
-      {
-          raii_obj->nonRaiiObj.pDeviceIndices = &raii_obj->vecDeviceIndices[0];
-      }
-      else
-      {
-          raii_obj->nonRaiiObj.pDeviceIndices = nullptr;
-      }
-      raii_obj->nonRaiiObj.SFRRectCount = static_cast<uint32_t>(vecSFRRects.size());
-      raii_obj->vecSFRRects = vecSFRRects;
-      if ( raii_obj->vecSFRRects.size() > 0)
-      {
-          raii_obj->nonRaiiObj.pSFRRects = &raii_obj->vecSFRRects[0];
-      }
-      else
-      {
-          raii_obj->nonRaiiObj.pSFRRects = nullptr;
-      }
-      return raii_obj;
-   }
-
 struct VkDeviceGroupRenderPassBeginInfoKHXRAII {
    VkDeviceGroupRenderPassBeginInfoKHX nonRaiiObj;
     std::vector<VkRect2D>                       vecDeviceRenderAreas;
@@ -15940,6 +16851,125 @@ VkDeviceGroupBindSparseInfoKHX DeviceGroupBindSparseInfoKHX(
       return obj;
    }
 
+std::shared_ptr< VkPeerMemoryFeatureFlagsKHX > getDeviceGroupPeerMemoryFeaturesKHX(
+        VkDevice device,
+        uint32_t heapIndex,
+        uint32_t localDeviceIndex,
+        uint32_t remoteDeviceIndex)
+   {
+      if ( nullptr == pfvkGetDeviceGroupPeerMemoryFeaturesKHX )
+          throw std::runtime_error("Trying to use an unavailable function\n"
+                                   "Review you instance create info\n"
+                                   "and call load_vulkan_fct_ptrs() with the new instance");
+
+      std::shared_ptr<VkPeerMemoryFeatureFlagsKHX> ptrpPeerMemoryFeatures(new VkPeerMemoryFeatureFlagsKHX); 
+      pfvkGetDeviceGroupPeerMemoryFeaturesKHX(
+          device,
+          heapIndex,
+          localDeviceIndex,
+          remoteDeviceIndex,
+          ptrpPeerMemoryFeatures.get()  );
+      return ptrpPeerMemoryFeatures; 
+   }
+
+void  cmdSetDeviceMaskKHX(
+        VkCommandBuffer commandBuffer,
+        uint32_t deviceMask)
+   {
+      if ( nullptr == pfvkCmdSetDeviceMaskKHX )
+          throw std::runtime_error("Trying to use an unavailable function\n"
+                                   "Review you instance create info\n"
+                                   "and call load_vulkan_fct_ptrs() with the new instance");
+
+      pfvkCmdSetDeviceMaskKHX(
+          commandBuffer,
+          deviceMask  );
+   }
+
+void  cmdDispatchBaseKHX(
+        VkCommandBuffer commandBuffer,
+        uint32_t baseGroupX,
+        uint32_t baseGroupY,
+        uint32_t baseGroupZ,
+        uint32_t groupCountX,
+        uint32_t groupCountY,
+        uint32_t groupCountZ)
+   {
+      if ( nullptr == pfvkCmdDispatchBaseKHX )
+          throw std::runtime_error("Trying to use an unavailable function\n"
+                                   "Review you instance create info\n"
+                                   "and call load_vulkan_fct_ptrs() with the new instance");
+
+      pfvkCmdDispatchBaseKHX(
+          commandBuffer,
+          baseGroupX,
+          baseGroupY,
+          baseGroupZ,
+          groupCountX,
+          groupCountY,
+          groupCountZ  );
+   }
+
+struct VkBindBufferMemoryDeviceGroupInfoKHXRAII {
+   VkBindBufferMemoryDeviceGroupInfoKHX nonRaiiObj;
+    std::vector<uint32_t>                       vecDeviceIndices;
+};
+
+std::shared_ptr<VkBindBufferMemoryDeviceGroupInfoKHXRAII> BindBufferMemoryDeviceGroupInfoKHX(
+    unsigned int* pDeviceIndices_in_array1, int pDeviceIndices_dim1)
+   {
+      std::shared_ptr<VkBindBufferMemoryDeviceGroupInfoKHXRAII> raii_obj(new VkBindBufferMemoryDeviceGroupInfoKHXRAII);
+      raii_obj->nonRaiiObj.sType = VK_STRUCTURE_TYPE_BIND_BUFFER_MEMORY_DEVICE_GROUP_INFO_KHX;
+      raii_obj->nonRaiiObj.pNext = nullptr;
+      raii_obj->nonRaiiObj.deviceIndexCount = static_cast<uint32_t>(pDeviceIndices_dim1);
+      raii_obj->vecDeviceIndices.assign(pDeviceIndices_in_array1, pDeviceIndices_in_array1 + pDeviceIndices_dim1);
+      if ( raii_obj->vecDeviceIndices.size() > 0)
+      {
+          raii_obj->nonRaiiObj.pDeviceIndices = &raii_obj->vecDeviceIndices[0];
+      }
+      else
+      {
+          raii_obj->nonRaiiObj.pDeviceIndices = nullptr;
+      }
+      return raii_obj;
+   }
+
+struct VkBindImageMemoryDeviceGroupInfoKHXRAII {
+   VkBindImageMemoryDeviceGroupInfoKHX nonRaiiObj;
+    std::vector<uint32_t>                       vecDeviceIndices;
+    std::vector<VkRect2D>                       vecSFRRects;
+};
+
+std::shared_ptr<VkBindImageMemoryDeviceGroupInfoKHXRAII> BindImageMemoryDeviceGroupInfoKHX(
+    unsigned int* pDeviceIndices_in_array1, int pDeviceIndices_dim1,
+    const std::vector<VkRect2D> &               vecSFRRects)
+   {
+      std::shared_ptr<VkBindImageMemoryDeviceGroupInfoKHXRAII> raii_obj(new VkBindImageMemoryDeviceGroupInfoKHXRAII);
+      raii_obj->nonRaiiObj.sType = VK_STRUCTURE_TYPE_BIND_IMAGE_MEMORY_DEVICE_GROUP_INFO_KHX;
+      raii_obj->nonRaiiObj.pNext = nullptr;
+      raii_obj->nonRaiiObj.deviceIndexCount = static_cast<uint32_t>(pDeviceIndices_dim1);
+      raii_obj->vecDeviceIndices.assign(pDeviceIndices_in_array1, pDeviceIndices_in_array1 + pDeviceIndices_dim1);
+      if ( raii_obj->vecDeviceIndices.size() > 0)
+      {
+          raii_obj->nonRaiiObj.pDeviceIndices = &raii_obj->vecDeviceIndices[0];
+      }
+      else
+      {
+          raii_obj->nonRaiiObj.pDeviceIndices = nullptr;
+      }
+      raii_obj->nonRaiiObj.SFRRectCount = static_cast<uint32_t>(vecSFRRects.size());
+      raii_obj->vecSFRRects = vecSFRRects;
+      if ( raii_obj->vecSFRRects.size() > 0)
+      {
+          raii_obj->nonRaiiObj.pSFRRects = &raii_obj->vecSFRRects[0];
+      }
+      else
+      {
+          raii_obj->nonRaiiObj.pSFRRects = nullptr;
+      }
+      return raii_obj;
+   }
+
 VkDeviceGroupPresentCapabilitiesKHX DeviceGroupPresentCapabilitiesKHX(
     uint32_t                                    presentMask[VK_MAX_DEVICE_GROUP_SIZE_KHX],
     VkDeviceGroupPresentModeFlagsKHX            modes)
@@ -15950,6 +16980,65 @@ VkDeviceGroupPresentCapabilitiesKHX DeviceGroupPresentCapabilitiesKHX(
       std::copy(presentMask, presentMask + VK_MAX_DEVICE_GROUP_SIZE_KHX, obj.presentMask);
       obj.modes = modes;
       return obj;
+   }
+
+VkDeviceGroupPresentCapabilitiesKHX getDeviceGroupPresentCapabilitiesKHX(
+        VkDevice device)
+   {
+      if ( nullptr == pfvkGetDeviceGroupPresentCapabilitiesKHX )
+          throw std::runtime_error("Trying to use an unavailable function\n"
+                                   "Review you instance create info\n"
+                                   "and call load_vulkan_fct_ptrs() with the new instance");
+
+      VkDeviceGroupPresentCapabilitiesKHX pDeviceGroupPresentCapabilities; 
+      V( pfvkGetDeviceGroupPresentCapabilitiesKHX(
+          device,
+          &pDeviceGroupPresentCapabilities  ));
+      return pDeviceGroupPresentCapabilities; 
+   }
+
+std::shared_ptr< VkDeviceGroupPresentModeFlagsKHX > getDeviceGroupSurfacePresentModesKHX(
+        VkDevice device,
+        VkSurfaceKHR surface)
+   {
+      if ( nullptr == pfvkGetDeviceGroupSurfacePresentModesKHX )
+          throw std::runtime_error("Trying to use an unavailable function\n"
+                                   "Review you instance create info\n"
+                                   "and call load_vulkan_fct_ptrs() with the new instance");
+
+      std::shared_ptr<VkDeviceGroupPresentModeFlagsKHX> ptrpModes(new VkDeviceGroupPresentModeFlagsKHX); 
+      V( pfvkGetDeviceGroupSurfacePresentModesKHX(
+          device,
+          surface,
+          ptrpModes.get()  ));
+      return ptrpModes; 
+   }
+
+std::vector< VkRect2D > getPhysicalDevicePresentRectanglesKHX(
+        VkPhysicalDevice physicalDevice,
+        VkSurfaceKHR surface)
+   {
+      if ( nullptr == pfvkGetPhysicalDevicePresentRectanglesKHX )
+          throw std::runtime_error("Trying to use an unavailable function\n"
+                                   "Review you instance create info\n"
+                                   "and call load_vulkan_fct_ptrs() with the new instance");
+
+      std::vector<VkRect2D> vecpRects; 
+      uint32_t pRectsCount; 
+      V( pfvkGetPhysicalDevicePresentRectanglesKHX(
+          physicalDevice,
+          surface,
+          &pRectsCount,
+          nullptr  ));
+
+      vecpRects.resize(pRectsCount); 
+
+      V( pfvkGetPhysicalDevicePresentRectanglesKHX(
+          physicalDevice,
+          surface,
+          &pRectsCount,
+          &vecpRects[0]  ));
+      return vecpRects; 
    }
 
 VkImageSwapchainCreateInfoKHX ImageSwapchainCreateInfoKHX(
@@ -16028,103 +17117,6 @@ VkDeviceGroupSwapchainCreateInfoKHX DeviceGroupSwapchainCreateInfoKHX(
       return obj;
    }
 
-std::shared_ptr< VkPeerMemoryFeatureFlagsKHX > getDeviceGroupPeerMemoryFeaturesKHX(
-        VkDevice device,
-        uint32_t heapIndex,
-        uint32_t localDeviceIndex,
-        uint32_t remoteDeviceIndex)
-   {
-      if ( nullptr == pfvkGetDeviceGroupPeerMemoryFeaturesKHX )
-          throw std::runtime_error("Trying to use an unavailable function\n"
-                                   "Review you instance create info\n"
-                                   "and call load_vulkan_fct_ptrs() with the new instance");
-
-      std::shared_ptr<VkPeerMemoryFeatureFlagsKHX> ptrpPeerMemoryFeatures(new VkPeerMemoryFeatureFlagsKHX); 
-      pfvkGetDeviceGroupPeerMemoryFeaturesKHX(
-          device,
-          heapIndex,
-          localDeviceIndex,
-          remoteDeviceIndex,
-          ptrpPeerMemoryFeatures.get()  );
-      return ptrpPeerMemoryFeatures; 
-   }
-
-void  bindBufferMemory2KHX(
-        VkDevice device,
-        const std::vector<VkBindBufferMemoryInfoKHX> & pBindInfos)
-   {
-      if ( nullptr == pfvkBindBufferMemory2KHX )
-          throw std::runtime_error("Trying to use an unavailable function\n"
-                                   "Review you instance create info\n"
-                                   "and call load_vulkan_fct_ptrs() with the new instance");
-
-      V( pfvkBindBufferMemory2KHX(
-          device,
-          static_cast<uint32_t>(pBindInfos.size()),
-          &pBindInfos[0]  ));
-   }
-
-void  bindImageMemory2KHX(
-        VkDevice device,
-        const std::vector<VkBindImageMemoryInfoKHX> & pBindInfos)
-   {
-      if ( nullptr == pfvkBindImageMemory2KHX )
-          throw std::runtime_error("Trying to use an unavailable function\n"
-                                   "Review you instance create info\n"
-                                   "and call load_vulkan_fct_ptrs() with the new instance");
-
-      V( pfvkBindImageMemory2KHX(
-          device,
-          static_cast<uint32_t>(pBindInfos.size()),
-          &pBindInfos[0]  ));
-   }
-
-void  cmdSetDeviceMaskKHX(
-        VkCommandBuffer commandBuffer,
-        uint32_t deviceMask)
-   {
-      if ( nullptr == pfvkCmdSetDeviceMaskKHX )
-          throw std::runtime_error("Trying to use an unavailable function\n"
-                                   "Review you instance create info\n"
-                                   "and call load_vulkan_fct_ptrs() with the new instance");
-
-      pfvkCmdSetDeviceMaskKHX(
-          commandBuffer,
-          deviceMask  );
-   }
-
-VkDeviceGroupPresentCapabilitiesKHX getDeviceGroupPresentCapabilitiesKHX(
-        VkDevice device)
-   {
-      if ( nullptr == pfvkGetDeviceGroupPresentCapabilitiesKHX )
-          throw std::runtime_error("Trying to use an unavailable function\n"
-                                   "Review you instance create info\n"
-                                   "and call load_vulkan_fct_ptrs() with the new instance");
-
-      VkDeviceGroupPresentCapabilitiesKHX pDeviceGroupPresentCapabilities; 
-      V( pfvkGetDeviceGroupPresentCapabilitiesKHX(
-          device,
-          &pDeviceGroupPresentCapabilities  ));
-      return pDeviceGroupPresentCapabilities; 
-   }
-
-std::shared_ptr< VkDeviceGroupPresentModeFlagsKHX > getDeviceGroupSurfacePresentModesKHX(
-        VkDevice device,
-        VkSurfaceKHR surface)
-   {
-      if ( nullptr == pfvkGetDeviceGroupSurfacePresentModesKHX )
-          throw std::runtime_error("Trying to use an unavailable function\n"
-                                   "Review you instance create info\n"
-                                   "and call load_vulkan_fct_ptrs() with the new instance");
-
-      std::shared_ptr<VkDeviceGroupPresentModeFlagsKHX> ptrpModes(new VkDeviceGroupPresentModeFlagsKHX); 
-      V( pfvkGetDeviceGroupSurfacePresentModesKHX(
-          device,
-          surface,
-          ptrpModes.get()  ));
-      return ptrpModes; 
-   }
-
 uint32_t acquireNextImage2KHX(
         VkDevice device,
         const VkAcquireNextImageInfoKHX & pAcquireInfo)
@@ -16140,57 +17132,6 @@ uint32_t acquireNextImage2KHX(
           &pAcquireInfo,
           &pImageIndex  ));
       return pImageIndex; 
-   }
-
-void  cmdDispatchBaseKHX(
-        VkCommandBuffer commandBuffer,
-        uint32_t baseGroupX,
-        uint32_t baseGroupY,
-        uint32_t baseGroupZ,
-        uint32_t groupCountX,
-        uint32_t groupCountY,
-        uint32_t groupCountZ)
-   {
-      if ( nullptr == pfvkCmdDispatchBaseKHX )
-          throw std::runtime_error("Trying to use an unavailable function\n"
-                                   "Review you instance create info\n"
-                                   "and call load_vulkan_fct_ptrs() with the new instance");
-
-      pfvkCmdDispatchBaseKHX(
-          commandBuffer,
-          baseGroupX,
-          baseGroupY,
-          baseGroupZ,
-          groupCountX,
-          groupCountY,
-          groupCountZ  );
-   }
-
-std::vector< VkRect2D > getPhysicalDevicePresentRectanglesKHX(
-        VkPhysicalDevice physicalDevice,
-        VkSurfaceKHR surface)
-   {
-      if ( nullptr == pfvkGetPhysicalDevicePresentRectanglesKHX )
-          throw std::runtime_error("Trying to use an unavailable function\n"
-                                   "Review you instance create info\n"
-                                   "and call load_vulkan_fct_ptrs() with the new instance");
-
-      std::vector<VkRect2D> vecpRects; 
-      uint32_t pRectsCount; 
-      V( pfvkGetPhysicalDevicePresentRectanglesKHX(
-          physicalDevice,
-          surface,
-          &pRectsCount,
-          nullptr  ));
-
-      vecpRects.resize(pRectsCount); 
-
-      V( pfvkGetPhysicalDevicePresentRectanglesKHX(
-          physicalDevice,
-          surface,
-          &pRectsCount,
-          &vecpRects[0]  ));
-      return vecpRects; 
    }
 
 struct VkValidationFlagsEXTRAII {
@@ -16800,7 +17741,7 @@ VkSurfaceCapabilities2EXT SurfaceCapabilities2EXT(
     VkSurfaceCounterFlagsEXT                    supportedSurfaceCounters)
    {
       VkSurfaceCapabilities2EXT obj;
-      obj.sType = VK_STRUCTURE_TYPE_SURFACE_CAPABILITIES2_EXT;
+      obj.sType = VK_STRUCTURE_TYPE_MAX_ENUM;
       obj.pNext = nullptr;
       obj.minImageCount = minImageCount;
       obj.maxImageCount = maxImageCount;
@@ -17292,6 +18233,171 @@ VkPhysicalDeviceSamplerFilterMinmaxPropertiesEXT PhysicalDeviceSamplerFilterMinm
       return obj;
    }
 
+VkSampleLocationEXT SampleLocationEXT(
+    float                                       x,
+    float                                       y)
+   {
+      VkSampleLocationEXT obj;
+      obj.x = x;
+      obj.y = y;
+      return obj;
+   }
+
+struct VkSampleLocationsInfoEXTRAII {
+   VkSampleLocationsInfoEXT nonRaiiObj;
+    std::vector<VkSampleLocationEXT>            vecSampleLocations;
+};
+
+std::shared_ptr<VkSampleLocationsInfoEXTRAII> SampleLocationsInfoEXT(
+    VkSampleCountFlagBits                       sampleLocationsPerPixel,
+    VkExtent2D                                  sampleLocationGridSize,
+    const std::vector<VkSampleLocationEXT> &    vecSampleLocations)
+   {
+      std::shared_ptr<VkSampleLocationsInfoEXTRAII> raii_obj(new VkSampleLocationsInfoEXTRAII);
+      raii_obj->nonRaiiObj.sType = VK_STRUCTURE_TYPE_SAMPLE_LOCATIONS_INFO_EXT;
+      raii_obj->nonRaiiObj.pNext = nullptr;
+      raii_obj->nonRaiiObj.sampleLocationsPerPixel = sampleLocationsPerPixel;
+      raii_obj->nonRaiiObj.sampleLocationGridSize = sampleLocationGridSize;
+      raii_obj->nonRaiiObj.sampleLocationsCount = static_cast<uint32_t>(vecSampleLocations.size());
+      raii_obj->vecSampleLocations = vecSampleLocations;
+      if ( raii_obj->vecSampleLocations.size() > 0)
+      {
+          raii_obj->nonRaiiObj.pSampleLocations = &raii_obj->vecSampleLocations[0];
+      }
+      else
+      {
+          raii_obj->nonRaiiObj.pSampleLocations = nullptr;
+      }
+      return raii_obj;
+   }
+
+VkAttachmentSampleLocationsEXT AttachmentSampleLocationsEXT(
+    uint32_t                                    attachmentIndex,
+    VkSampleLocationsInfoEXT                    sampleLocationsInfo)
+   {
+      VkAttachmentSampleLocationsEXT obj;
+      obj.attachmentIndex = attachmentIndex;
+      obj.sampleLocationsInfo = sampleLocationsInfo;
+      return obj;
+   }
+
+VkSubpassSampleLocationsEXT SubpassSampleLocationsEXT(
+    uint32_t                                    subpassIndex,
+    VkSampleLocationsInfoEXT                    sampleLocationsInfo)
+   {
+      VkSubpassSampleLocationsEXT obj;
+      obj.subpassIndex = subpassIndex;
+      obj.sampleLocationsInfo = sampleLocationsInfo;
+      return obj;
+   }
+
+struct VkRenderPassSampleLocationsBeginInfoEXTRAII {
+   VkRenderPassSampleLocationsBeginInfoEXT nonRaiiObj;
+    std::vector<VkAttachmentSampleLocationsEXT> vecAttachmentInitialSampleLocations;
+    std::vector<VkSubpassSampleLocationsEXT>    vecPostSubpassSampleLocations;
+};
+
+std::shared_ptr<VkRenderPassSampleLocationsBeginInfoEXTRAII> RenderPassSampleLocationsBeginInfoEXT(
+    const std::vector<VkAttachmentSampleLocationsEXT> &vecAttachmentInitialSampleLocations,
+    const std::vector<VkSubpassSampleLocationsEXT> &vecPostSubpassSampleLocations)
+   {
+      std::shared_ptr<VkRenderPassSampleLocationsBeginInfoEXTRAII> raii_obj(new VkRenderPassSampleLocationsBeginInfoEXTRAII);
+      raii_obj->nonRaiiObj.sType = VK_STRUCTURE_TYPE_RENDER_PASS_SAMPLE_LOCATIONS_BEGIN_INFO_EXT;
+      raii_obj->nonRaiiObj.pNext = nullptr;
+      raii_obj->nonRaiiObj.attachmentInitialSampleLocationsCount = static_cast<uint32_t>(vecAttachmentInitialSampleLocations.size());
+      raii_obj->vecAttachmentInitialSampleLocations = vecAttachmentInitialSampleLocations;
+      if ( raii_obj->vecAttachmentInitialSampleLocations.size() > 0)
+      {
+          raii_obj->nonRaiiObj.pAttachmentInitialSampleLocations = &raii_obj->vecAttachmentInitialSampleLocations[0];
+      }
+      else
+      {
+          raii_obj->nonRaiiObj.pAttachmentInitialSampleLocations = nullptr;
+      }
+      raii_obj->nonRaiiObj.postSubpassSampleLocationsCount = static_cast<uint32_t>(vecPostSubpassSampleLocations.size());
+      raii_obj->vecPostSubpassSampleLocations = vecPostSubpassSampleLocations;
+      if ( raii_obj->vecPostSubpassSampleLocations.size() > 0)
+      {
+          raii_obj->nonRaiiObj.pPostSubpassSampleLocations = &raii_obj->vecPostSubpassSampleLocations[0];
+      }
+      else
+      {
+          raii_obj->nonRaiiObj.pPostSubpassSampleLocations = nullptr;
+      }
+      return raii_obj;
+   }
+
+VkPipelineSampleLocationsStateCreateInfoEXT PipelineSampleLocationsStateCreateInfoEXT(
+    VkBool32                                    sampleLocationsEnable,
+    VkSampleLocationsInfoEXT                    sampleLocationsInfo)
+   {
+      VkPipelineSampleLocationsStateCreateInfoEXT obj;
+      obj.sType = VK_STRUCTURE_TYPE_PIPELINE_SAMPLE_LOCATIONS_STATE_CREATE_INFO_EXT;
+      obj.pNext = nullptr;
+      obj.sampleLocationsEnable = sampleLocationsEnable;
+      obj.sampleLocationsInfo = sampleLocationsInfo;
+      return obj;
+   }
+
+VkPhysicalDeviceSampleLocationsPropertiesEXT PhysicalDeviceSampleLocationsPropertiesEXT(
+    VkSampleCountFlags                          sampleLocationSampleCounts,
+    VkExtent2D                                  maxSampleLocationGridSize,
+    float                                       sampleLocationCoordinateRange[2],
+    uint32_t                                    sampleLocationSubPixelBits,
+    VkBool32                                    variableSampleLocations)
+   {
+      VkPhysicalDeviceSampleLocationsPropertiesEXT obj;
+      obj.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SAMPLE_LOCATIONS_PROPERTIES_EXT;
+      obj.pNext = nullptr;
+      obj.sampleLocationSampleCounts = sampleLocationSampleCounts;
+      obj.maxSampleLocationGridSize = maxSampleLocationGridSize;
+      std::copy(sampleLocationCoordinateRange, sampleLocationCoordinateRange + 2, obj.sampleLocationCoordinateRange);
+      obj.sampleLocationSubPixelBits = sampleLocationSubPixelBits;
+      obj.variableSampleLocations = variableSampleLocations;
+      return obj;
+   }
+
+VkMultisamplePropertiesEXT MultisamplePropertiesEXT(
+    VkExtent2D                                  maxSampleLocationGridSize)
+   {
+      VkMultisamplePropertiesEXT obj;
+      obj.sType = VK_STRUCTURE_TYPE_MULTISAMPLE_PROPERTIES_EXT;
+      obj.pNext = nullptr;
+      obj.maxSampleLocationGridSize = maxSampleLocationGridSize;
+      return obj;
+   }
+
+void  cmdSetSampleLocationsEXT(
+        VkCommandBuffer commandBuffer,
+        const VkSampleLocationsInfoEXT & pSampleLocationsInfo)
+   {
+      if ( nullptr == pfvkCmdSetSampleLocationsEXT )
+          throw std::runtime_error("Trying to use an unavailable function\n"
+                                   "Review you instance create info\n"
+                                   "and call load_vulkan_fct_ptrs() with the new instance");
+
+      pfvkCmdSetSampleLocationsEXT(
+          commandBuffer,
+          &pSampleLocationsInfo  );
+   }
+
+VkMultisamplePropertiesEXT getPhysicalDeviceMultisamplePropertiesEXT(
+        VkPhysicalDevice physicalDevice,
+        VkSampleCountFlagBits samples)
+   {
+      if ( nullptr == pfvkGetPhysicalDeviceMultisamplePropertiesEXT )
+          throw std::runtime_error("Trying to use an unavailable function\n"
+                                   "Review you instance create info\n"
+                                   "and call load_vulkan_fct_ptrs() with the new instance");
+
+      VkMultisamplePropertiesEXT pMultisampleProperties; 
+      pfvkGetPhysicalDeviceMultisamplePropertiesEXT(
+          physicalDevice,
+          samples,
+          &pMultisampleProperties  );
+      return pMultisampleProperties; 
+   }
+
 VkPhysicalDeviceBlendOperationAdvancedFeaturesEXT PhysicalDeviceBlendOperationAdvancedFeaturesEXT(
     VkBool32                                    advancedBlendCoherentOperations)
    {
@@ -17379,173 +18485,111 @@ std::shared_ptr<VkPipelineCoverageModulationStateCreateInfoNVRAII> PipelineCover
       }
       return raii_obj;
    }
+
+struct VkValidationCacheCreateInfoEXTRAII {
+   VkValidationCacheCreateInfoEXT nonRaiiObj;
+    std::vector<uint8_t>                        vecInitialData;
+};
+
+std::shared_ptr<VkValidationCacheCreateInfoEXTRAII> ValidationCacheCreateInfoEXT(
+    VkValidationCacheCreateFlagsEXT             flags,
+    const std::vector<uint8_t> &                vecInitialData)
+   {
+      std::shared_ptr<VkValidationCacheCreateInfoEXTRAII> raii_obj(new VkValidationCacheCreateInfoEXTRAII);
+      raii_obj->nonRaiiObj.sType = VK_STRUCTURE_TYPE_VALIDATION_CACHE_CREATE_INFO_EXT;
+      raii_obj->nonRaiiObj.pNext = nullptr;
+      raii_obj->nonRaiiObj.flags = flags;
+      raii_obj->nonRaiiObj.initialDataSize = static_cast<size_t>(vecInitialData.size());
+      raii_obj->vecInitialData = vecInitialData;
+      if ( raii_obj->vecInitialData.size() > 0)
+      {
+          raii_obj->nonRaiiObj.pInitialData = &raii_obj->vecInitialData[0];
+      }
+      else
+      {
+          raii_obj->nonRaiiObj.pInitialData = nullptr;
+      }
+      return raii_obj;
+   }
+
+VkShaderModuleValidationCacheCreateInfoEXT ShaderModuleValidationCacheCreateInfoEXT(
+    VkValidationCacheEXT                        validationCache)
+   {
+      VkShaderModuleValidationCacheCreateInfoEXT obj;
+      obj.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_VALIDATION_CACHE_CREATE_INFO_EXT;
+      obj.pNext = nullptr;
+      obj.validationCache = validationCache;
+      return obj;
+   }
+
+std::shared_ptr<VkValidationCacheEXT_T> createValidationCacheEXT(
+        VkDevice device,
+        const VkValidationCacheCreateInfoEXT & pCreateInfo)
+   {
+      if ( nullptr == pfvkCreateValidationCacheEXT )
+          throw std::runtime_error("Trying to use an unavailable function\n"
+                                   "Review you instance create info\n"
+                                   "and call load_vulkan_fct_ptrs() with the new instance");
+
+      VkValidationCacheEXT hValidationCache; 
+      V( pfvkCreateValidationCacheEXT(
+          device,
+          &pCreateInfo,
+          nullptr,
+          &hValidationCache  ));
+      return std::shared_ptr<VkValidationCacheEXT_T>(hValidationCache, 
+              [=](VkValidationCacheEXT to_free) {pfvkDestroyValidationCacheEXT(device, to_free, nullptr);});
+   }
+
+void  mergeValidationCachesEXT(
+        VkDevice device,
+        VkValidationCacheEXT dstCache,
+        const std::vector<VkValidationCacheEXT> & pSrcCaches)
+   {
+      if ( nullptr == pfvkMergeValidationCachesEXT )
+          throw std::runtime_error("Trying to use an unavailable function\n"
+                                   "Review you instance create info\n"
+                                   "and call load_vulkan_fct_ptrs() with the new instance");
+
+      V( pfvkMergeValidationCachesEXT(
+          device,
+          dstCache,
+          static_cast<uint32_t>(pSrcCaches.size()),
+          &pSrcCaches[0]  ));
+   }
+
+size_t getValidationCacheDataEXT(
+        VkDevice device,
+        VkValidationCacheEXT validationCache)
+   {
+      if ( nullptr == pfvkGetValidationCacheDataEXT )
+          throw std::runtime_error("Trying to use an unavailable function\n"
+                                   "Review you instance create info\n"
+                                   "and call load_vulkan_fct_ptrs() with the new instance");
+
+      size_t pDataSize; 
+      V( pfvkGetValidationCacheDataEXT(
+          device,
+          validationCache,
+          &pDataSize,
+          nullptr  ));
+      return pDataSize; 
+   }
+
+VkDeviceQueueGlobalPriorityCreateInfoEXT DeviceQueueGlobalPriorityCreateInfoEXT(
+    VkQueueGlobalPriorityEXT                    globalPriority)
+   {
+      VkDeviceQueueGlobalPriorityCreateInfoEXT obj;
+      obj.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_GLOBAL_PRIORITY_CREATE_INFO_EXT;
+      obj.pNext = nullptr;
+      obj.globalPriority = globalPriority;
+      return obj;
+   }
 %}
-
-%template (VkPipelineDynamicStateCreateInfoPtr) std::shared_ptr<VkPipelineDynamicStateCreateInfoRAII>;
-
-%template (VkPipelineColorBlendStateCreateInfoPtr) std::shared_ptr<VkPipelineColorBlendStateCreateInfoRAII>;
-
-#ifdef VK_EXT_validation_flags
-
-%template (VkValidationFlagsEXTPtr) std::shared_ptr<VkValidationFlagsEXTRAII>;
-
-#endif
-
-%template (VkImageCreateInfoPtr) std::shared_ptr<VkImageCreateInfoRAII>;
-
-%template (VkSparseImageMemoryBindInfoPtr) std::shared_ptr<VkSparseImageMemoryBindInfoRAII>;
-
-%template (VkDescriptorSetAllocateInfoPtr) std::shared_ptr<VkDescriptorSetAllocateInfoRAII>;
-
-%template (VkSubpassDescriptionPtr) std::shared_ptr<VkSubpassDescriptionRAII>;
-
-%template (VkRenderPassCreateInfoPtr) std::shared_ptr<VkRenderPassCreateInfoRAII>;
-
-#ifdef VK_GOOGLE_display_timing
-
-%template (VkPresentTimesInfoGOOGLEPtr) std::shared_ptr<VkPresentTimesInfoGOOGLERAII>;
-
-#endif
-
-%template (VkDescriptorPoolCreateInfoPtr) std::shared_ptr<VkDescriptorPoolCreateInfoRAII>;
-
-%template (VkDeviceCreateInfoPtr) std::shared_ptr<VkDeviceCreateInfoRAII>;
-
-%template (VkDeviceQueueCreateInfoPtr) std::shared_ptr<VkDeviceQueueCreateInfoRAII>;
-
-#ifdef VK_EXT_discard_rectangles
-
-%template (VkPipelineDiscardRectangleStateCreateInfoEXTPtr) std::shared_ptr<VkPipelineDiscardRectangleStateCreateInfoEXTRAII>;
-
-#endif
-
-%template (VkPipelineViewportStateCreateInfoPtr) std::shared_ptr<VkPipelineViewportStateCreateInfoRAII>;
-
-#ifdef VK_NVX_device_generated_commands
-
-%template (VkObjectTableCreateInfoNVXPtr) std::shared_ptr<VkObjectTableCreateInfoNVXRAII>;
-
-#endif
-
-%template (VkPipelineCacheCreateInfoPtr) std::shared_ptr<VkPipelineCacheCreateInfoRAII>;
-
-%template (VkApplicationInfoPtr) std::shared_ptr<VkApplicationInfoRAII>;
-
-%template (VkDescriptorSetLayoutBindingPtr) std::shared_ptr<VkDescriptorSetLayoutBindingRAII>;
-
-%template (VkRenderPassBeginInfoPtr) std::shared_ptr<VkRenderPassBeginInfoRAII>;
-
-%template (VkFramebufferCreateInfoPtr) std::shared_ptr<VkFramebufferCreateInfoRAII>;
-
-#ifdef VK_KHX_device_group_creation
-
-%template (VkDeviceGroupDeviceCreateInfoKHXPtr) std::shared_ptr<VkDeviceGroupDeviceCreateInfoKHXRAII>;
-
-#endif
-
-#ifdef VK_EXT_debug_marker
-
-%template (VkDebugMarkerMarkerInfoEXTPtr) std::shared_ptr<VkDebugMarkerMarkerInfoEXTRAII>;
-
-#endif
 
 #ifdef VK_NVX_device_generated_commands
 
 %template (VkCmdProcessCommandsInfoNVXPtr) std::shared_ptr<VkCmdProcessCommandsInfoNVXRAII>;
-
-#endif
-
-#ifdef VK_KHR_display
-
-%template (VkDisplayPropertiesKHRPtr) std::shared_ptr<VkDisplayPropertiesKHRRAII>;
-
-#endif
-
-%template (VkWriteDescriptorSetPtr) std::shared_ptr<VkWriteDescriptorSetRAII>;
-
-#ifdef VK_NV_win32_keyed_mutex
-
-%template (VkWin32KeyedMutexAcquireReleaseInfoNVPtr) std::shared_ptr<VkWin32KeyedMutexAcquireReleaseInfoNVRAII>;
-
-#endif
-
-%template (VkInstanceCreateInfoPtr) std::shared_ptr<VkInstanceCreateInfoRAII>;
-
-#ifdef VK_KHR_incremental_present
-
-%template (VkPresentRegionsKHRPtr) std::shared_ptr<VkPresentRegionsKHRRAII>;
-
-#endif
-
-#ifdef VK_NV_framebuffer_mixed_samples
-
-%template (VkPipelineCoverageModulationStateCreateInfoNVPtr) std::shared_ptr<VkPipelineCoverageModulationStateCreateInfoNVRAII>;
-
-#endif
-
-#ifdef VK_KHR_incremental_present
-
-%template (VkPresentRegionKHRPtr) std::shared_ptr<VkPresentRegionKHRRAII>;
-
-#endif
-
-%template (VkDescriptorSetLayoutCreateInfoPtr) std::shared_ptr<VkDescriptorSetLayoutCreateInfoRAII>;
-
-%template (VkPresentInfoKHRPtr) std::shared_ptr<VkPresentInfoKHRRAII>;
-
-%template (VkSubmitInfoPtr) std::shared_ptr<VkSubmitInfoRAII>;
-
-#ifdef VK_KHR_win32_keyed_mutex
-
-%template (VkWin32KeyedMutexAcquireReleaseInfoKHRPtr) std::shared_ptr<VkWin32KeyedMutexAcquireReleaseInfoKHRRAII>;
-
-#endif
-
-#ifdef VK_EXT_debug_marker
-
-%template (VkDebugMarkerObjectTagInfoEXTPtr) std::shared_ptr<VkDebugMarkerObjectTagInfoEXTRAII>;
-
-#endif
-
-%template (VkGraphicsPipelineCreateInfoPtr) std::shared_ptr<VkGraphicsPipelineCreateInfoRAII>;
-
-#ifdef VK_KHX_device_group
-
-%template (VkDeviceGroupSubmitInfoKHXPtr) std::shared_ptr<VkDeviceGroupSubmitInfoKHXRAII>;
-
-#endif
-
-%template (VkSparseImageOpaqueMemoryBindInfoPtr) std::shared_ptr<VkSparseImageOpaqueMemoryBindInfoRAII>;
-
-#ifdef VK_KHX_device_group
-
-%template (VkBindImageMemoryInfoKHXPtr) std::shared_ptr<VkBindImageMemoryInfoKHXRAII>;
-
-#endif
-
-#ifdef VK_KHX_device_group
-
-%template (VkDeviceGroupRenderPassBeginInfoKHXPtr) std::shared_ptr<VkDeviceGroupRenderPassBeginInfoKHXRAII>;
-
-#endif
-
-#ifdef VK_NV_clip_space_w_scaling
-
-%template (VkPipelineViewportWScalingStateCreateInfoNVPtr) std::shared_ptr<VkPipelineViewportWScalingStateCreateInfoNVRAII>;
-
-#endif
-
-#ifdef VK_KHX_device_group
-
-%template (VkBindBufferMemoryInfoKHXPtr) std::shared_ptr<VkBindBufferMemoryInfoKHXRAII>;
-
-#endif
-
-%template (VkShaderModuleCreateInfoPtr) std::shared_ptr<VkShaderModuleCreateInfoRAII>;
-
-#ifdef VK_KHR_descriptor_update_template
-
-%template (VkDescriptorUpdateTemplateCreateInfoKHRPtr) std::shared_ptr<VkDescriptorUpdateTemplateCreateInfoKHRRAII>;
 
 #endif
 
@@ -17555,29 +18599,59 @@ std::shared_ptr<VkPipelineCoverageModulationStateCreateInfoNVRAII> PipelineCover
 
 #endif
 
-%template (VkBufferCreateInfoPtr) std::shared_ptr<VkBufferCreateInfoRAII>;
+#ifdef VK_KHX_device_group
 
-#ifdef VK_NV_external_memory_win32
+%template (VkBindBufferMemoryDeviceGroupInfoKHXPtr) std::shared_ptr<VkBindBufferMemoryDeviceGroupInfoKHXRAII>;
 
-%template (VkExportMemoryWin32HandleInfoNVPtr) std::shared_ptr<VkExportMemoryWin32HandleInfoNVRAII>;
+#endif
+
+#ifdef VK_KHR_incremental_present
+
+%template (VkPresentRegionsKHRPtr) std::shared_ptr<VkPresentRegionsKHRRAII>;
+
+#endif
+
+%template (VkSparseImageMemoryBindInfoPtr) std::shared_ptr<VkSparseImageMemoryBindInfoRAII>;
+
+#ifdef VK_KHR_external_semaphore_win32
+
+%template (VkD3D12FenceSubmitInfoKHRPtr) std::shared_ptr<VkD3D12FenceSubmitInfoKHRRAII>;
+
+#endif
+
+#ifdef VK_EXT_sample_locations
+
+%template (VkSampleLocationsInfoEXTPtr) std::shared_ptr<VkSampleLocationsInfoEXTRAII>;
+
+#endif
+
+%template (VkPipelineColorBlendStateCreateInfoPtr) std::shared_ptr<VkPipelineColorBlendStateCreateInfoRAII>;
+
+#ifdef VK_NVX_device_generated_commands
+
+%template (VkIndirectCommandsLayoutCreateInfoNVXPtr) std::shared_ptr<VkIndirectCommandsLayoutCreateInfoNVXRAII>;
 
 #endif
 
 %template (VkPipelineShaderStageCreateInfoPtr) std::shared_ptr<VkPipelineShaderStageCreateInfoRAII>;
 
-%template (VkSparseBufferMemoryBindInfoPtr) std::shared_ptr<VkSparseBufferMemoryBindInfoRAII>;
+%template (VkPipelineVertexInputStateCreateInfoPtr) std::shared_ptr<VkPipelineVertexInputStateCreateInfoRAII>;
 
-#ifdef VK_KHR_external_fence_win32
+%template (VkFramebufferCreateInfoPtr) std::shared_ptr<VkFramebufferCreateInfoRAII>;
 
-%template (VkExportFenceWin32HandleInfoKHRPtr) std::shared_ptr<VkExportFenceWin32HandleInfoKHRRAII>;
+%template (VkDeviceCreateInfoPtr) std::shared_ptr<VkDeviceCreateInfoRAII>;
+
+%template (VkBindSparseInfoPtr) std::shared_ptr<VkBindSparseInfoRAII>;
+
+%template (VkDeviceQueueCreateInfoPtr) std::shared_ptr<VkDeviceQueueCreateInfoRAII>;
+
+%template (VkImageCreateInfoPtr) std::shared_ptr<VkImageCreateInfoRAII>;
+
+#ifdef VK_KHR_incremental_present
+
+%template (VkPresentRegionKHRPtr) std::shared_ptr<VkPresentRegionKHRRAII>;
 
 #endif
-
-%template (VkPipelineLayoutCreateInfoPtr) std::shared_ptr<VkPipelineLayoutCreateInfoRAII>;
-
-%template (VkSpecializationInfoPtr) std::shared_ptr<VkSpecializationInfoRAII>;
-
-%template (VkCommandBufferBeginInfoPtr) std::shared_ptr<VkCommandBufferBeginInfoRAII>;
 
 #ifdef VK_EXT_debug_marker
 
@@ -17585,13 +18659,41 @@ std::shared_ptr<VkPipelineCoverageModulationStateCreateInfoNVRAII> PipelineCover
 
 #endif
 
-#ifdef VK_KHR_external_semaphore_win32
+%template (VkShaderModuleCreateInfoPtr) std::shared_ptr<VkShaderModuleCreateInfoRAII>;
 
-%template (VkExportSemaphoreWin32HandleInfoKHRPtr) std::shared_ptr<VkExportSemaphoreWin32HandleInfoKHRRAII>;
+%template (VkRenderPassCreateInfoPtr) std::shared_ptr<VkRenderPassCreateInfoRAII>;
+
+#ifdef VK_NV_external_memory_win32
+
+%template (VkExportMemoryWin32HandleInfoNVPtr) std::shared_ptr<VkExportMemoryWin32HandleInfoNVRAII>;
 
 #endif
 
-%template (VkBindSparseInfoPtr) std::shared_ptr<VkBindSparseInfoRAII>;
+%template (VkRenderPassBeginInfoPtr) std::shared_ptr<VkRenderPassBeginInfoRAII>;
+
+%template (VkSpecializationInfoPtr) std::shared_ptr<VkSpecializationInfoRAII>;
+
+#ifdef VK_NVX_device_generated_commands
+
+%template (VkObjectTableCreateInfoNVXPtr) std::shared_ptr<VkObjectTableCreateInfoNVXRAII>;
+
+#endif
+
+#ifdef VK_KHX_device_group_creation
+
+%template (VkDeviceGroupDeviceCreateInfoKHXPtr) std::shared_ptr<VkDeviceGroupDeviceCreateInfoKHXRAII>;
+
+#endif
+
+%template (VkDescriptorSetLayoutBindingPtr) std::shared_ptr<VkDescriptorSetLayoutBindingRAII>;
+
+%template (VkPipelineViewportStateCreateInfoPtr) std::shared_ptr<VkPipelineViewportStateCreateInfoRAII>;
+
+%template (VkSwapchainCreateInfoKHRPtr) std::shared_ptr<VkSwapchainCreateInfoKHRRAII>;
+
+%template (VkGraphicsPipelineCreateInfoPtr) std::shared_ptr<VkGraphicsPipelineCreateInfoRAII>;
+
+%template (VkPipelineLayoutCreateInfoPtr) std::shared_ptr<VkPipelineLayoutCreateInfoRAII>;
 
 #ifdef VK_NV_viewport_swizzle
 
@@ -17599,9 +18701,147 @@ std::shared_ptr<VkPipelineCoverageModulationStateCreateInfoNVRAII> PipelineCover
 
 #endif
 
+#ifdef VK_EXT_sample_locations
+
+%template (VkRenderPassSampleLocationsBeginInfoEXTPtr) std::shared_ptr<VkRenderPassSampleLocationsBeginInfoEXTRAII>;
+
+#endif
+
+%template (VkSparseBufferMemoryBindInfoPtr) std::shared_ptr<VkSparseBufferMemoryBindInfoRAII>;
+
+%template (VkDescriptorPoolCreateInfoPtr) std::shared_ptr<VkDescriptorPoolCreateInfoRAII>;
+
+#ifdef VK_EXT_discard_rectangles
+
+%template (VkPipelineDiscardRectangleStateCreateInfoEXTPtr) std::shared_ptr<VkPipelineDiscardRectangleStateCreateInfoEXTRAII>;
+
+#endif
+
+#ifdef VK_EXT_debug_marker
+
+%template (VkDebugMarkerObjectTagInfoEXTPtr) std::shared_ptr<VkDebugMarkerObjectTagInfoEXTRAII>;
+
+#endif
+
+%template (VkPipelineDynamicStateCreateInfoPtr) std::shared_ptr<VkPipelineDynamicStateCreateInfoRAII>;
+
+#ifdef VK_KHR_maintenance2
+
+%template (VkRenderPassInputAttachmentAspectCreateInfoKHRPtr) std::shared_ptr<VkRenderPassInputAttachmentAspectCreateInfoKHRRAII>;
+
+#endif
+
+#ifdef VK_KHR_win32_keyed_mutex
+
+%template (VkWin32KeyedMutexAcquireReleaseInfoKHRPtr) std::shared_ptr<VkWin32KeyedMutexAcquireReleaseInfoKHRRAII>;
+
+#endif
+
+#ifdef VK_KHR_external_fence_win32
+
+%template (VkExportFenceWin32HandleInfoKHRPtr) std::shared_ptr<VkExportFenceWin32HandleInfoKHRRAII>;
+
+#endif
+
+%template (VkApplicationInfoPtr) std::shared_ptr<VkApplicationInfoRAII>;
+
+%template (VkWriteDescriptorSetPtr) std::shared_ptr<VkWriteDescriptorSetRAII>;
+
+#ifdef VK_EXT_validation_flags
+
+%template (VkValidationFlagsEXTPtr) std::shared_ptr<VkValidationFlagsEXTRAII>;
+
+#endif
+
+%template (VkPresentInfoKHRPtr) std::shared_ptr<VkPresentInfoKHRRAII>;
+
+#ifdef VK_NV_clip_space_w_scaling
+
+%template (VkPipelineViewportWScalingStateCreateInfoNVPtr) std::shared_ptr<VkPipelineViewportWScalingStateCreateInfoNVRAII>;
+
+#endif
+
+%template (VkPipelineCacheCreateInfoPtr) std::shared_ptr<VkPipelineCacheCreateInfoRAII>;
+
 #ifdef VK_KHR_external_semaphore_win32
 
-%template (VkD3D12FenceSubmitInfoKHRPtr) std::shared_ptr<VkD3D12FenceSubmitInfoKHRRAII>;
+%template (VkExportSemaphoreWin32HandleInfoKHRPtr) std::shared_ptr<VkExportSemaphoreWin32HandleInfoKHRRAII>;
+
+#endif
+
+#ifdef VK_KHX_device_group
+
+%template (VkBindImageMemoryDeviceGroupInfoKHXPtr) std::shared_ptr<VkBindImageMemoryDeviceGroupInfoKHXRAII>;
+
+#endif
+
+#ifdef VK_KHX_device_group
+
+%template (VkDeviceGroupRenderPassBeginInfoKHXPtr) std::shared_ptr<VkDeviceGroupRenderPassBeginInfoKHXRAII>;
+
+#endif
+
+#ifdef VK_KHR_descriptor_update_template
+
+%template (VkDescriptorUpdateTemplateCreateInfoKHRPtr) std::shared_ptr<VkDescriptorUpdateTemplateCreateInfoKHRRAII>;
+
+#endif
+
+%template (VkSubmitInfoPtr) std::shared_ptr<VkSubmitInfoRAII>;
+
+#ifdef VK_NV_win32_keyed_mutex
+
+%template (VkWin32KeyedMutexAcquireReleaseInfoNVPtr) std::shared_ptr<VkWin32KeyedMutexAcquireReleaseInfoNVRAII>;
+
+#endif
+
+%template (VkBufferCreateInfoPtr) std::shared_ptr<VkBufferCreateInfoRAII>;
+
+#ifdef VK_NV_framebuffer_mixed_samples
+
+%template (VkPipelineCoverageModulationStateCreateInfoNVPtr) std::shared_ptr<VkPipelineCoverageModulationStateCreateInfoNVRAII>;
+
+#endif
+
+#ifdef VK_GOOGLE_display_timing
+
+%template (VkPresentTimesInfoGOOGLEPtr) std::shared_ptr<VkPresentTimesInfoGOOGLERAII>;
+
+#endif
+
+%template (VkSparseImageOpaqueMemoryBindInfoPtr) std::shared_ptr<VkSparseImageOpaqueMemoryBindInfoRAII>;
+
+%template (VkInstanceCreateInfoPtr) std::shared_ptr<VkInstanceCreateInfoRAII>;
+
+%template (VkDescriptorSetAllocateInfoPtr) std::shared_ptr<VkDescriptorSetAllocateInfoRAII>;
+
+%template (VkCommandBufferBeginInfoPtr) std::shared_ptr<VkCommandBufferBeginInfoRAII>;
+
+#ifdef VK_KHR_image_format_list
+
+%template (VkImageFormatListCreateInfoKHRPtr) std::shared_ptr<VkImageFormatListCreateInfoKHRRAII>;
+
+#endif
+
+%template (VkDescriptorSetLayoutCreateInfoPtr) std::shared_ptr<VkDescriptorSetLayoutCreateInfoRAII>;
+
+%template (VkSubpassDescriptionPtr) std::shared_ptr<VkSubpassDescriptionRAII>;
+
+#ifdef VK_KHX_device_group
+
+%template (VkDeviceGroupPresentInfoKHXPtr) std::shared_ptr<VkDeviceGroupPresentInfoKHXRAII>;
+
+#endif
+
+#ifdef VK_EXT_validation_cache
+
+%template (VkValidationCacheCreateInfoEXTPtr) std::shared_ptr<VkValidationCacheCreateInfoEXTRAII>;
+
+#endif
+
+#ifdef VK_EXT_debug_marker
+
+%template (VkDebugMarkerMarkerInfoEXTPtr) std::shared_ptr<VkDebugMarkerMarkerInfoEXTRAII>;
 
 #endif
 
@@ -17611,159 +18851,35 @@ std::shared_ptr<VkPipelineCoverageModulationStateCreateInfoNVRAII> PipelineCover
 
 #endif
 
-#ifdef VK_NVX_device_generated_commands
-
-%template (VkIndirectCommandsLayoutCreateInfoNVXPtr) std::shared_ptr<VkIndirectCommandsLayoutCreateInfoNVXRAII>;
-
-#endif
-
 #ifdef VK_KHX_device_group
 
-%template (VkDeviceGroupPresentInfoKHXPtr) std::shared_ptr<VkDeviceGroupPresentInfoKHXRAII>;
-
-#endif
-
-%template (VkPipelineVertexInputStateCreateInfoPtr) std::shared_ptr<VkPipelineVertexInputStateCreateInfoRAII>;
-
-%template (VkSwapchainCreateInfoKHRPtr) std::shared_ptr<VkSwapchainCreateInfoKHRRAII>;
-
-%template (uint8Vector) std::vector<uint8_t>;
-
-%template (VkDescriptorImageInfoVector) std::vector<VkDescriptorImageInfo>;
-
-%template (VkExtensionPropertiesVector) std::vector<VkExtensionProperties>;
-
-%template (VkEventVector) std::vector<VkEvent>;
-
-%template (VkVertexInputBindingDescriptionVector) std::vector<VkVertexInputBindingDescription>;
-
-%template (VkVertexInputAttributeDescriptionVector) std::vector<VkVertexInputAttributeDescription>;
-
-%template (VkRect2DVector) std::vector<VkRect2D>;
-
-%template (VkImageViewVector) std::vector<VkImageView>;
-
-%template (VkObjectEntryTypeNVXVector) std::vector<VkObjectEntryTypeNVX>;
-
-%template (VkQueueFamilyPropertiesVector) std::vector<VkQueueFamilyProperties>;
-
-%template (VkLayerPropertiesVector) std::vector<VkLayerProperties>;
-
-#ifdef VK_NV_viewport_swizzle
-
-%template (VkViewportSwizzleNVVector) std::vector<VkViewportSwizzleNV>;
+%template (VkDeviceGroupSubmitInfoKHXPtr) std::shared_ptr<VkDeviceGroupSubmitInfoKHXRAII>;
 
 #endif
 
 #ifdef VK_KHR_display
 
-%template (VkDisplayPropertiesKHRVector) std::vector< std::shared_ptr<VkDisplayPropertiesKHRRAII> >;
+%template (VkDisplayPropertiesKHRPtr) std::shared_ptr<VkDisplayPropertiesKHRRAII>;
 
 #endif
 
-%template (VkDescriptorPoolSizeVector) std::vector<VkDescriptorPoolSize>;
+%template (VkClearAttachmentVector) std::vector<VkClearAttachment>;
 
-#ifdef VK_EXT_hdr_metadata
-
-%template (VkHdrMetadataEXTVector) std::vector<VkHdrMetadataEXT>;
-
-#endif
-
-%template (VkSparseImageFormatPropertiesVector) std::vector<VkSparseImageFormatProperties>;
-
-#ifdef VK_KHR_display
-
-%template (VkDisplayPlanePropertiesKHRVector) std::vector<VkDisplayPlanePropertiesKHR>;
-
-#endif
-
-%template (VkSparseImageOpaqueMemoryBindInfoVector) std::vector< std::shared_ptr<VkSparseImageOpaqueMemoryBindInfoRAII> >;
+%template (VkSparseImageMemoryBindInfoVector) std::vector< std::shared_ptr<VkSparseImageMemoryBindInfoRAII> >;
 
 %template (VkPipelineShaderStageCreateInfoVector) std::vector< std::shared_ptr<VkPipelineShaderStageCreateInfoRAII> >;
 
-%template (VkSparseBufferMemoryBindInfoVector) std::vector< std::shared_ptr<VkSparseBufferMemoryBindInfoRAII> >;
-
-%template (VkDeviceMemoryVector) std::vector<VkDeviceMemory>;
-
-#ifdef VK_KHR_incremental_present
-
-%template (VkRectLayerKHRVector) std::vector<VkRectLayerKHR>;
-
-#endif
-
-%template (VkBufferVector) std::vector<VkBuffer>;
-
-%template (VkImageBlitVector) std::vector<VkImageBlit>;
-
-%template (VkSwapchainCreateInfoKHRVector) std::vector< std::shared_ptr<VkSwapchainCreateInfoKHRRAII> >;
-
-%template (VkFenceVector) std::vector<VkFence>;
-
-%template (VkSubpassDescriptionVector) std::vector< std::shared_ptr<VkSubpassDescriptionRAII> >;
-
-%template (VkPresentModeKHRVector) std::vector<VkPresentModeKHR>;
-
-%template (VkSparseImageMemoryRequirementsVector) std::vector<VkSparseImageMemoryRequirements>;
-
-%template (VkPipelineVector) std::vector<VkPipeline>;
-
-%template (VkClearRectVector) std::vector<VkClearRect>;
-
-%template (VkResultVector) std::vector<VkResult>;
-
-#ifdef VK_KHR_display
-
-%template (VkDisplayModePropertiesKHRVector) std::vector<VkDisplayModePropertiesKHR>;
-
-#endif
-
-%template (VkBufferMemoryBarrierVector) std::vector<VkBufferMemoryBarrier>;
-
-%template (VkSurfaceFormatKHRVector) std::vector<VkSurfaceFormatKHR>;
-
-%template (VkDescriptorBufferInfoVector) std::vector<VkDescriptorBufferInfo>;
-
-%template (VkPipelineCacheVector) std::vector<VkPipelineCache>;
-
-%template (VkImageCopyVector) std::vector<VkImageCopy>;
-
-%template (VkSparseMemoryBindVector) std::vector<VkSparseMemoryBind>;
-
-%template (VkAttachmentDescriptionVector) std::vector<VkAttachmentDescription>;
-
-%template (VkSamplerVector) std::vector<VkSampler>;
-
 %template (VkSwapchainKHRVector) std::vector<VkSwapchainKHR>;
+
+%template (VkVertexInputBindingDescriptionVector) std::vector<VkVertexInputBindingDescription>;
 
 %template (VkImageSubresourceRangeVector) std::vector<VkImageSubresourceRange>;
 
 %template (VkBindSparseInfoVector) std::vector< std::shared_ptr<VkBindSparseInfoRAII> >;
 
-%template (VkImageVector) std::vector<VkImage>;
+%template (VkDynamicStateVector) std::vector<VkDynamicState>;
 
-%template (VkValidationCheckEXTVector) std::vector<VkValidationCheckEXT>;
-
-%template (VkDeviceSizeVector) std::vector<VkDeviceSize>;
-
-%template (VkAttachmentReferenceVector) std::vector<VkAttachmentReference>;
-
-%template (VkCopyDescriptorSetVector) std::vector<VkCopyDescriptorSet>;
-
-%template (VkMemoryBarrierVector) std::vector<VkMemoryBarrier>;
-
-%template (VkDeviceQueueCreateInfoVector) std::vector< std::shared_ptr<VkDeviceQueueCreateInfoRAII> >;
-
-%template (VkMappedMemoryRangeVector) std::vector<VkMappedMemoryRange>;
-
-#ifdef VK_NVX_device_generated_commands
-
-%template (VkIndirectCommandsTokenNVXVector) std::vector<VkIndirectCommandsTokenNVX>;
-
-#endif
-
-%template (VkComputePipelineCreateInfoVector) std::vector<VkComputePipelineCreateInfo>;
-
-%template (VkWriteDescriptorSetVector) std::vector< std::shared_ptr<VkWriteDescriptorSetRAII> >;
+%template (VkSparseMemoryBindVector) std::vector<VkSparseMemoryBind>;
 
 #ifdef VK_KHR_incremental_present
 
@@ -17771,11 +18887,137 @@ std::shared_ptr<VkPipelineCoverageModulationStateCreateInfoNVRAII> PipelineCover
 
 #endif
 
-%template (VkPipelineColorBlendAttachmentStateVector) std::vector<VkPipelineColorBlendAttachmentState>;
+%template (VkDescriptorSetLayoutBindingVector) std::vector< std::shared_ptr<VkDescriptorSetLayoutBindingRAII> >;
+
+%template (VkLayerPropertiesVector) std::vector<VkLayerProperties>;
+
+%template (VkValidationCheckEXTVector) std::vector<VkValidationCheckEXT>;
+
+#ifdef VK_KHR_bind_memory2
+
+%template (VkBindImageMemoryInfoKHRVector) std::vector<VkBindImageMemoryInfoKHR>;
+
+#endif
+
+%template (VkPipelineVector) std::vector<VkPipeline>;
+
+%template (VkWriteDescriptorSetVector) std::vector< std::shared_ptr<VkWriteDescriptorSetRAII> >;
+
+#ifdef VK_KHR_get_physical_device_properties2
+
+%template (VkSparseImageFormatProperties2KHRVector) std::vector<VkSparseImageFormatProperties2KHR>;
+
+#endif
+
+%template (VkSamplerVector) std::vector<VkSampler>;
 
 %template (VkPushConstantRangeVector) std::vector<VkPushConstantRange>;
 
+%template (VkDeviceSizeVector) std::vector<VkDeviceSize>;
+
+#ifdef VK_KHR_get_physical_device_properties2
+
+%template (VkQueueFamilyProperties2KHRVector) std::vector<VkQueueFamilyProperties2KHR>;
+
+#endif
+
+%template (VkDescriptorSetLayoutVector) std::vector<VkDescriptorSetLayout>;
+
+#ifdef VK_KHR_display
+
+%template (VkDisplayPlanePropertiesKHRVector) std::vector<VkDisplayPlanePropertiesKHR>;
+
+#endif
+
+%template (VkDescriptorImageInfoVector) std::vector<VkDescriptorImageInfo>;
+
+#ifdef VK_NV_viewport_swizzle
+
+%template (VkViewportSwizzleNVVector) std::vector<VkViewportSwizzleNV>;
+
+#endif
+
+%template (VkBufferImageCopyVector) std::vector<VkBufferImageCopy>;
+
+%template (VkPresentModeKHRVector) std::vector<VkPresentModeKHR>;
+
+#ifdef VK_KHR_get_surface_capabilities2
+
+%template (VkSurfaceFormat2KHRVector) std::vector<VkSurfaceFormat2KHR>;
+
+#endif
+
+%template (VkDeviceQueueCreateInfoVector) std::vector< std::shared_ptr<VkDeviceQueueCreateInfoRAII> >;
+
+%template (VkPipelineColorBlendAttachmentStateVector) std::vector<VkPipelineColorBlendAttachmentState>;
+
+#ifdef VK_NVX_device_generated_commands
+
+%template (VkIndirectCommandsLayoutTokenNVXVector) std::vector<VkIndirectCommandsLayoutTokenNVX>;
+
+#endif
+
+#ifdef VK_NV_clip_space_w_scaling
+
+%template (VkViewportWScalingNVVector) std::vector<VkViewportWScalingNV>;
+
+#endif
+
+%template (VkAttachmentReferenceVector) std::vector<VkAttachmentReference>;
+
 %template (VkSubpassDependencyVector) std::vector<VkSubpassDependency>;
+
+%template (VkSwapchainCreateInfoKHRVector) std::vector< std::shared_ptr<VkSwapchainCreateInfoKHRRAII> >;
+
+%template (VkGraphicsPipelineCreateInfoVector) std::vector< std::shared_ptr<VkGraphicsPipelineCreateInfoRAII> >;
+
+%template (VkCopyDescriptorSetVector) std::vector<VkCopyDescriptorSet>;
+
+%template (VkClearRectVector) std::vector<VkClearRect>;
+
+%template (VkImageMemoryBarrierVector) std::vector<VkImageMemoryBarrier>;
+
+%template (VkDescriptorBufferInfoVector) std::vector<VkDescriptorBufferInfo>;
+
+%template (VkComputePipelineCreateInfoVector) std::vector<VkComputePipelineCreateInfo>;
+
+%template (floatVector) std::vector<float>;
+
+%template (VkSubpassDescriptionVector) std::vector< std::shared_ptr<VkSubpassDescriptionRAII> >;
+
+%template (VkMappedMemoryRangeVector) std::vector<VkMappedMemoryRange>;
+
+%template (VkBufferCopyVector) std::vector<VkBufferCopy>;
+
+%template (VkVertexInputAttributeDescriptionVector) std::vector<VkVertexInputAttributeDescription>;
+
+#ifdef VK_KHR_display
+
+%template (VkDisplayPropertiesKHRVector) std::vector< std::shared_ptr<VkDisplayPropertiesKHRRAII> >;
+
+#endif
+
+%template (VkObjectEntryTypeNVXVector) std::vector<VkObjectEntryTypeNVX>;
+
+%template (VkAttachmentDescriptionVector) std::vector<VkAttachmentDescription>;
+
+#ifdef VK_EXT_sample_locations
+
+%template (VkAttachmentSampleLocationsEXTVector) std::vector<VkAttachmentSampleLocationsEXT>;
+
+#endif
+
+%template (VkMemoryBarrierVector) std::vector<VkMemoryBarrier>;
+
+%template (VkFenceVector) std::vector<VkFence>;
+
+%template (VkResultVector) std::vector<VkResult>;
+
+#ifdef VK_KHR_maintenance2
+
+%template (VkInputAttachmentAspectReferenceKHRVector) std::vector<VkInputAttachmentAspectReferenceKHR>;
+
+#endif
 
 %template (VkClearValueVector) std::vector<VkClearValue>;
 
@@ -17785,61 +19027,65 @@ std::shared_ptr<VkPipelineCoverageModulationStateCreateInfoNVRAII> PipelineCover
 
 #endif
 
-%template (VkSpecializationMapEntryVector) std::vector<VkSpecializationMapEntry>;
+#ifdef VK_EXT_sample_locations
 
-%template (int32Vector) std::vector<int32_t>;
-
-#ifdef VK_KHR_get_memory_requirements2
-
-%template (VkSparseImageMemoryRequirements2KHRVector) std::vector<VkSparseImageMemoryRequirements2KHR>;
+%template (VkSubpassSampleLocationsEXTVector) std::vector<VkSubpassSampleLocationsEXT>;
 
 #endif
-
-%template (VkClearAttachmentVector) std::vector<VkClearAttachment>;
 
 #ifdef VK_NVX_device_generated_commands
 
-%template (VkIndirectCommandsLayoutTokenNVXVector) std::vector<VkIndirectCommandsLayoutTokenNVX>;
+%template (VkIndirectCommandsTokenNVXVector) std::vector<VkIndirectCommandsTokenNVX>;
 
 #endif
+
+%template (VkImageViewVector) std::vector<VkImageView>;
+
+%template (VkImageVector) std::vector<VkImage>;
 
 %template (VkPhysicalDeviceVector) std::vector<VkPhysicalDevice>;
 
-%template (VkSparseImageMemoryBindInfoVector) std::vector< std::shared_ptr<VkSparseImageMemoryBindInfoRAII> >;
+%template (VkSparseImageMemoryRequirementsVector) std::vector<VkSparseImageMemoryRequirements>;
 
 %template (VkSparseImageMemoryBindVector) std::vector<VkSparseImageMemoryBind>;
 
-%template (VkImageResolveVector) std::vector<VkImageResolve>;
+%template (VkImageCopyVector) std::vector<VkImageCopy>;
 
-#ifdef VK_NV_clip_space_w_scaling
+%template (VkSubmitInfoVector) std::vector< std::shared_ptr<VkSubmitInfoRAII> >;
 
-%template (VkViewportWScalingNVVector) std::vector<VkViewportWScalingNV>;
+#ifdef VK_KHR_bind_memory2
 
-#endif
-
-%template (floatVector) std::vector<float>;
-
-%template (VkDynamicStateVector) std::vector<VkDynamicState>;
-
-#ifdef VK_KHR_descriptor_update_template
-
-%template (VkDescriptorUpdateTemplateEntryKHRVector) std::vector<VkDescriptorUpdateTemplateEntryKHR>;
-
-#endif
-
-%template (VkBufferImageCopyVector) std::vector<VkBufferImageCopy>;
-
-%template (VkDescriptorSetLayoutBindingVector) std::vector< std::shared_ptr<VkDescriptorSetLayoutBindingRAII> >;
-
-%template (VkDescriptorSetLayoutVector) std::vector<VkDescriptorSetLayout>;
-
-#ifdef VK_GOOGLE_display_timing
-
-%template (VkPastPresentationTimingGOOGLEVector) std::vector<VkPastPresentationTimingGOOGLE>;
+%template (VkBindBufferMemoryInfoKHRVector) std::vector<VkBindBufferMemoryInfoKHR>;
 
 #endif
 
 %template (VkSemaphoreVector) std::vector<VkSemaphore>;
+
+%template (VkSpecializationMapEntryVector) std::vector<VkSpecializationMapEntry>;
+
+%template (VkFormatVector) std::vector<VkFormat>;
+
+#ifdef VK_KHR_incremental_present
+
+%template (VkRectLayerKHRVector) std::vector<VkRectLayerKHR>;
+
+#endif
+
+%template (VkSparseImageOpaqueMemoryBindInfoVector) std::vector< std::shared_ptr<VkSparseImageOpaqueMemoryBindInfoRAII> >;
+
+%template (VkSurfaceFormatKHRVector) std::vector<VkSurfaceFormatKHR>;
+
+%template (VkDisplayKHRVector) std::vector<VkDisplayKHR>;
+
+%template (VkEventVector) std::vector<VkEvent>;
+
+#ifdef VK_EXT_sample_locations
+
+%template (VkSampleLocationEXTVector) std::vector<VkSampleLocationEXT>;
+
+#endif
+
+%template (VkSparseImageFormatPropertiesVector) std::vector<VkSparseImageFormatProperties>;
 
 #ifdef VK_GOOGLE_display_timing
 
@@ -17847,53 +19093,71 @@ std::shared_ptr<VkPipelineCoverageModulationStateCreateInfoNVRAII> PipelineCover
 
 #endif
 
-%template (VkImageMemoryBarrierVector) std::vector<VkImageMemoryBarrier>;
+%template (VkExtensionPropertiesVector) std::vector<VkExtensionProperties>;
 
-%template (VkSubmitInfoVector) std::vector< std::shared_ptr<VkSubmitInfoRAII> >;
+%template (VkDeviceMemoryVector) std::vector<VkDeviceMemory>;
 
-%template (VkGraphicsPipelineCreateInfoVector) std::vector< std::shared_ptr<VkGraphicsPipelineCreateInfoRAII> >;
+%template (uint8Vector) std::vector<uint8_t>;
 
-#ifdef VK_KHX_device_group
+%template (int32Vector) std::vector<int32_t>;
 
-%template (VkBindImageMemoryInfoKHXVector) std::vector< std::shared_ptr<VkBindImageMemoryInfoKHXRAII> >;
+%template (VkRect2DVector) std::vector<VkRect2D>;
+
+#ifdef VK_KHR_descriptor_update_template
+
+%template (VkDescriptorUpdateTemplateEntryKHRVector) std::vector<VkDescriptorUpdateTemplateEntryKHR>;
 
 #endif
 
-#ifdef VK_KHX_device_group
+%template (VkBufferMemoryBarrierVector) std::vector<VkBufferMemoryBarrier>;
 
-%template (VkBindBufferMemoryInfoKHXVector) std::vector< std::shared_ptr<VkBindBufferMemoryInfoKHXRAII> >;
+%template (VkPipelineCacheVector) std::vector<VkPipelineCache>;
+
+#ifdef VK_EXT_hdr_metadata
+
+%template (VkHdrMetadataEXTVector) std::vector<VkHdrMetadataEXT>;
+
+#endif
+
+%template (VkSparseBufferMemoryBindInfoVector) std::vector< std::shared_ptr<VkSparseBufferMemoryBindInfoRAII> >;
+
+%template (VkDescriptorPoolSizeVector) std::vector<VkDescriptorPoolSize>;
+
+%template (VkImageResolveVector) std::vector<VkImageResolve>;
+
+%template (VkBufferViewVector) std::vector<VkBufferView>;
+
+%template (VkValidationCacheEXTVector) std::vector<VkValidationCacheEXT>;
+
+%template (VkImageBlitVector) std::vector<VkImageBlit>;
+
+#ifdef VK_GOOGLE_display_timing
+
+%template (VkPastPresentationTimingGOOGLEVector) std::vector<VkPastPresentationTimingGOOGLE>;
+
+#endif
+
+#ifdef VK_KHR_display
+
+%template (VkDisplayModePropertiesKHRVector) std::vector<VkDisplayModePropertiesKHR>;
 
 #endif
 
 %template (VkViewportVector) std::vector<VkViewport>;
 
-%template (VkDisplayKHRVector) std::vector<VkDisplayKHR>;
+%template (VkQueueFamilyPropertiesVector) std::vector<VkQueueFamilyProperties>;
 
-#ifdef VK_KHR_get_surface_capabilities2
+#ifdef VK_KHR_get_memory_requirements2
 
-%template (VkSurfaceFormat2KHRVector) std::vector<VkSurfaceFormat2KHR>;
-
-#endif
-
-#ifdef VK_KHR_get_physical_device_properties2
-
-%template (VkSparseImageFormatProperties2KHRVector) std::vector<VkSparseImageFormatProperties2KHR>;
+%template (VkSparseImageMemoryRequirements2KHRVector) std::vector<VkSparseImageMemoryRequirements2KHR>;
 
 #endif
 
-%template (VkBufferCopyVector) std::vector<VkBufferCopy>;
-
-%template (VkBufferViewVector) std::vector<VkBufferView>;
-
-#ifdef VK_KHR_get_physical_device_properties2
-
-%template (VkQueueFamilyProperties2KHRVector) std::vector<VkQueueFamilyProperties2KHR>;
-
-#endif
-
-%template (VkPipelineHandleVector) std::vector< std::shared_ptr< VkPipeline_T > >;
+%template (VkBufferVector) std::vector<VkBuffer>;
 
 %template (VkSwapchainKHRHandleVector) std::vector< std::shared_ptr< VkSwapchainKHR_T > >;
+
+%template (VkPipelineHandleVector) std::vector< std::shared_ptr< VkPipeline_T > >;
 
 // Skipped commands that must be manually wrapped
 //vkGetInstanceProcAddr

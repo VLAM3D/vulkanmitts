@@ -44,7 +44,7 @@ find_library(NUMPY_LIB NAMES npymath HINTS ${PYTHON_SITE_PACKAGES}/numpy/core/li
 message (STATUS "Numpy include path: " ${NUMPY_INCLUDE_DIR} )
 message (STATUS "Numpy lib: " ${NUMPY_LIB} )
 
-find_library(VULKAN_LIB NAMES vulkan vulkan-1 HINTS ${VULKAN_SDK}/Bin ${VULKAN_SDK}/x86_64/lib)
+find_library(VULKAN_LIB NAMES vulkan vulkan-1 HINTS ${VULKAN_SDK}/Bin ${VULKAN_SDK}/x86_64/lib ${VULKAN_SDK}/Lib)
 message (STATUS "Vulkan lib: " ${VULKAN_LIB} )
 
 ####
@@ -68,8 +68,10 @@ find_library(GLSLANG_LIB NAMES glslang HINTS ${GLSLANG_SEARCH_PATH} )
 find_library(OGLCompiler_LIB NAMES OGLCompiler HINTS ${GLSLANG_SEARCH_PATH} )
 find_library(OSDependent_LIB NAMES OSDependent HINTS ${GLSLANG_SEARCH_PATH} )
 find_library(SPIRV_LIB NAMES SPIRV HINTS ${GLSLANG_SEARCH_PATH} )
+find_library(SPVREMAPPER_LIB NAMES SPVRemapper HINTS ${GLSLANG_SEARCH_PATH} )
 find_library(HLSL_LIB NAMES HLSL HINTS ${GLSLANG_SEARCH_PATH} )
 find_library(SPIRV_TOOLS_LIB NAMES SPIRV-Tools HINTS ${SPIRV_TOOLS_SEARCH_PATH} )
+find_library(SPIRV_TOOLS_OPT_LIB NAMES SPIRV-Tools-opt HINTS "${SPIRVTOOLS_DIR}/source/opt/Release" )
 
 # On Windows, we must pair Debug and Release appropriately
 if (WIN32)
@@ -84,15 +86,19 @@ if (WIN32)
     add_library(OGLCompiler STATIC IMPORTED)
     add_library(OSDependent STATIC IMPORTED)
     add_library(SPIRV       STATIC IMPORTED)
+    add_library(SPVRemapper STATIC IMPORTED)
     add_library(HLSL        STATIC IMPORTED)
-	add_library(SPIRV-Tools STATIC IMPORTED)
+    add_library(SPIRV-Tools STATIC IMPORTED)
+    add_library(SPIRV-Tools-opt STATIC IMPORTED)
 	
     find_library(GLSLANG_DLIB NAMES glslangd HINTS ${GLSLANG_DEBUG_SEARCH_PATH} )
     find_library(OGLCompiler_DLIB NAMES OGLCompilerd HINTS ${GLSLANG_DEBUG_SEARCH_PATH} )
     find_library(OSDependent_DLIB NAMES OSDependentd HINTS ${GLSLANG_DEBUG_SEARCH_PATH} )
     find_library(SPIRV_DLIB NAMES SPIRVd HINTS ${GLSLANG_DEBUG_SEARCH_PATH} )
+    find_library(SPVREMAPPER_DLIB NAMES SPVRemapperd HINTS ${GLSLANG_SEARCH_PATH} )
     find_library(HLSL_DLIB NAMES HLSLd HINTS ${GLSLANG_DEBUG_SEARCH_PATH} )
-	find_library(SPIRV_TOOLS_DLIB NAMES SPIRV-Tools HINTS ${SPIRV_TOOLS_DEBUG_SEARCH_PATH} )	
+    find_library(SPIRV_TOOLS_DLIB NAMES SPIRV-Tools HINTS ${SPIRV_TOOLS_DEBUG_SEARCH_PATH} )
+    find_library(SPIRV_TOOLS_OPT_DLIB NAMES SPIRV-Tools-opt HINTS "${SPIRVTOOLS_DIR}/source/opt/Debug" )
 
     set_target_properties(glslang PROPERTIES
                          IMPORTED_LOCATION       "${GLSLANG_LIB}"
@@ -106,22 +112,27 @@ if (WIN32)
     set_target_properties(SPIRV PROPERTIES
                          IMPORTED_LOCATION       "${SPIRV_LIB}"
                          IMPORTED_LOCATION_DEBUG "${SPIRV_DLIB}")
+    set_target_properties(SPVRemapper PROPERTIES
+                         IMPORTED_LOCATION       "${SPVREMAPPER_LIB}"
+                         IMPORTED_LOCATION_DEBUG "${SPVREMAPPER_DLIB}")                    
 	set_target_properties(HLSL PROPERTIES
                          IMPORTED_LOCATION       "${HLSL_LIB}"
                          IMPORTED_LOCATION_DEBUG "${HLSL_DLIB}")
     set_target_properties(SPIRV-Tools PROPERTIES
                          IMPORTED_LOCATION       "${SPIRV_TOOLS_LIB}"
                          IMPORTED_LOCATION_DEBUG "${SPIRV_TOOLS_DLIB}")
+    set_target_properties(SPIRV-Tools-opt PROPERTIES
+                         IMPORTED_LOCATION       "${SPIRV_TOOLS_OPT_LIB}"
+                         IMPORTED_LOCATION_DEBUG "${SPIRV_TOOLS_OPT_DLIB}")                        
 
-    set (GLSLANG_LIBRARIES glslang OGLCompiler OSDependent SPIRV HLSL)
-    set (SPIRV_TOOLS_LIBRARIES SPIRV-Tools)
+    set (GLSLANG_LIBRARIES glslang OGLCompiler OSDependent SPIRV SPVRemapper HLSL)
+    set (SPIRV_TOOLS_LIBRARIES SPIRV-Tools SPIRV-Tools-opt)
 
-    message (STATUS "GLSLANG_LIBRARIES: " "${GLSLANG_DLIB} ${OGLCompiler_DLIB} ${OSDependent_DLIB} ${SPIRV_DLIB} ${HLSL_DLIB}" )
-    message (STATUS "SPIRV_TOOLS_LIBRARIES: " ${SPIRV_TOOLS_DLIB})
-
+    message (STATUS "GLSLANG_LIBRARIES: " "${GLSLANG_DLIB} ${OGLCompiler_DLIB} ${OSDependent_DLIB} ${SPIRV_DLIB} ${SPVREMAPPER_LIB} ${HLSL_DLIB}" )
+    message (STATUS "SPIRV_TOOLS_LIBRARIES: " ${SPIRV_TOOLS_LIBRARIES})
 
 else ()
-    set (GLSLANG_LIBRARIES ${GLSLANG_LIB} ${OGLCompiler_LIB} ${OSDependent_LIB} ${SPIRV_LIB} ${HLSL_LIB})
+    set (GLSLANG_LIBRARIES ${GLSLANG_LIB} ${OGLCompiler_LIB} ${OSDependent_LIB} ${SPIRV_LIB} ${SPVREMAPPER_LIB} ${HLSL_LIB})
     set (SPIRV_TOOLS_LIBRARIES ${SPIRV_TOOLS_LIB})
 endif()
 
@@ -156,7 +167,7 @@ if(MSVC)
 endif()
 
 set(SWIG_MODULE_pyvulkan_EXTRA_DEPS vulkan.ixx shared_ptrs.ixx)
-swig_add_module(pyvulkan python pyvulkan.i)
+swig_add_library(pyvulkan LANGUAGE python SOURCES pyvulkan.i)
 swig_link_libraries(pyvulkan ${PYTHON_LIBRARIES} ${NUMPY_LIB} ${VULKAN_LIB})
 
 install(TARGETS ${SWIG_MODULE_pyvulkan_REAL_NAME} DESTINATION bin)
@@ -168,7 +179,7 @@ if(MSVC)
     set_target_properties(${SWIG_MODULE_pyvulkan_REAL_NAME} PROPERTIES COMPILE_FLAGS "/bigobj")
 endif()
 
-swig_add_module(pyglslang python pyglslang.i)
+swig_add_library(pyglslang LANGUAGE python SOURCES pyglslang.i)
 swig_link_libraries(pyglslang ${PYTHON_LIBRARIES} ${NUMPY_LIB} ${GLSLANG_LIBRARIES} ${SPIRV_TOOLS_LIBRARIES})
 
 install(TARGETS ${SWIG_MODULE_pyglslang_REAL_NAME} DESTINATION bin)

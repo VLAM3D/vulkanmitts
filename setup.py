@@ -342,7 +342,7 @@ class build(_build):
         cmake_extra += ['-DSWIG_DIR=C:/DEV/swigwin-3.0.12']
         cmake_extra += ['-DSWIG_EXECUTABLE=C:/dev/swigwin-3.0.12/swig.exe']
         cmake_extra += ['-DNUMPY_SWIG_DIR=C:/dev/pyvulkan/numpy_swig/']
-        cmake_extra += ['-DVULKAN_SDK=c:/VulkanSDK/1.0.57.0/']
+        cmake_extra += ['-DVULKAN_SDK=c:/VulkanSDK/1.0.65.0/']
         cmake_extra += ['-DCMAKE_INSTALL_PREFIX=../install']
 
         inc_dir = get_python_inc()
