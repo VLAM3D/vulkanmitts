@@ -22,6 +22,11 @@ if (WIN32)
     set(VULKAN_SDK_SOURCE ${VULKAN_SDK})
     include_directories(${VULKAN_SDK}/Include)    
 else()
+    if (NOT DEFINED VULKAN_SDK)    
+        # setup-env.sh in Lunar Vulkan SDK for Linux sets VULKAN_SDK to the x86_64 folder
+        # we must back track
+        set(VULKAN_SDK $ENV{VULKAN_SDK}/../)
+    endif()
     set(VULKAN_SDK_SOURCE ${VULKAN_SDK}/source)
     include_directories(${VULKAN_SDK}/x86_64/include)
 endif()

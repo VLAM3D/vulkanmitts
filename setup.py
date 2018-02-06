@@ -268,9 +268,9 @@ class build(_build):
         log.info('Populating the distribution directory %s ...' % dist_dir)
 
         copy_file("./install/bin/pyglslang.py", os.path.join(dist_glslang_dir,'pyglslang.py'))
-        copy_file("./install/bin/_pyglslang.pyd", os.path.join(dist_glslang_dir,'_pyglslang.pyd'))
+        copy_file("./install/bin/_pyglslang"+py_module_ext, os.path.join(dist_glslang_dir,'_pyglslang'+py_module_ext))
         copy_file("./install/bin/pyvulkan.py", os.path.join(dist_dir,'pyvulkan.py'))
-        copy_file("./install/bin/_pyvulkan.pyd", os.path.join(dist_dir,'_pyvulkan.pyd'))
+        copy_file("./install/bin/_pyvulkan"+py_module_ext, os.path.join(dist_dir,'_pyvulkan'+py_module_ext))
 
         with open(os.path.join(dist_dir, '__init__.py'), 'w') as f:
             # just so that we can `import pyvulkan` and not `from pyvulkan import pyvulkan`
@@ -302,7 +302,7 @@ class build(_build):
                     if find_executable(manager) is not None:
                         message = msg_pkgmanager.format('OSX', manager)
                         break
-            elif sys.platform.startswith('linux'):
+            elif sys.platform.startswith('linux'):                
                 try:
                     import distro
                 except ImportError as err:
@@ -326,25 +326,33 @@ class build(_build):
                             if find_executable(manager) is not None:
                                 message = msg_pkgmanager.format(
                                     distname.title(), manager)
-                                break
+                                break                
+            
             raise DistutilsSetupError(
                 "Cannot find cmake, ensure it is installed and in the path.\n"
                 + message + "\n"
                 "You can also specify its path with --cmake parameter.")
 
+        cmake_extra = []
+        cmake_gen = []        
+        if sys.platform.startswith('linux'):
+            this_file_dir = os.path.dirname(os.path.realpath(__file__))
+            numpy_swig_inc_path = os.path.join(this_file_dir, 'numpy_swig')
+            cmake_extra += ['-DNUMPY_SWIG_DIR=' + numpy_swig_inc_path]
+            cmake_extra += ['-DCMAKE_BUILD_TYPE=RELEASE']
+        elif sys.platform == "win32":
+            cmake_gen = ['-G','Visual Studio 14 2015 Win64']
+            cmake_extra += ['-DSWIG_DIR=C:/DEV/swigwin-3.0.12']
+            cmake_extra += ['-DSWIG_EXECUTABLE=C:/dev/swigwin-3.0.12/swig.exe']
+            cmake_extra += ['-DNUMPY_SWIG_DIR=C:/dev/pyvulkan/numpy_swig/']
+            cmake_extra += ['-DVULKAN_SDK=c:/VulkanSDK/1.0.65.0/']            
+            if sys.version_info >= (3, 0):
+                cmake_extra += ['-DPYTHON3=yes']
+
         platform_arch = platform.architecture()[0]
         log.info("Detected Python architecture: %s" % platform_arch)
 
-        # make sure build artifacts are generated for the version of Python currently running
-        cmake_gen = ['-G','Visual Studio 14 2015 Win64']
-
-        cmake_extra = []
-        cmake_extra += ['-DSWIG_DIR=C:/DEV/swigwin-3.0.12']
-        cmake_extra += ['-DSWIG_EXECUTABLE=C:/dev/swigwin-3.0.12/swig.exe']
-        cmake_extra += ['-DNUMPY_SWIG_DIR=C:/dev/pyvulkan/numpy_swig/']
-        cmake_extra += ['-DVULKAN_SDK=c:/VulkanSDK/1.0.65.0/']
-        cmake_extra += ['-DCMAKE_INSTALL_PREFIX=../install']
-
+        # make sure build artifacts are generated for the version of Python currently running        
         inc_dir = get_python_inc()
         lib_dir = get_config_var('LIBDIR')
         if (inc_dir != None):
@@ -352,8 +360,7 @@ class build(_build):
         if (lib_dir != None):
             cmake_extra += ['-DCMAKE_LIBRARY_PATH=' + lib_dir]
 
-        if sys.version_info >= (3, 0):
-            cmake_extra += ['-DPYTHON3=yes']
+        cmake_extra += ['-DCMAKE_INSTALL_PREFIX=../install']
 
         log.info("Detected platform: %s" % sys.platform)
  
@@ -424,8 +431,14 @@ class build_ext(_build_ext):
         pass
 
 package_data = {}
-package_data['pyglslang'] = ['_pyglslang.pyd']
-package_data['pyvulkan'] = ['_pyvulkan.pyd']
+if sys.platform.startswith('linux'):
+    package_data['pyglslang'] = ['_pyglslang.so']
+    package_data['pyvulkan'] = ['_pyvulkan.so']
+    py_module_ext = '.so'
+else:
+    package_data['pyglslang'] = ['_pyglslang.pyd']
+    package_data['pyvulkan'] = ['_pyvulkan.pyd']
+    py_module_ext = '.pyd'
 
 setup(
     name='pyvulkan',
