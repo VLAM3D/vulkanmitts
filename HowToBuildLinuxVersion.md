@@ -42,3 +42,9 @@ Here's one way to install the latest Vulkan runtime and validation layers for ev
 sudo rsync --links *.* /usr/local/lib
 sudo ldconfig -v
 ```
+
+## Building using setup.py
+
+* Create and activate a python environment with numpy
+* `source setup-env.sh`
+* `python setup.py bdist_wheel`
