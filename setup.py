@@ -208,7 +208,7 @@ def read_version():
     """Read version information
     """
     major = '0'    
-    minor = '8'
+    minor = '9'
     patch = '0'
     return major + '.' + minor + '.' + patch
 
