@@ -6,6 +6,7 @@ set (CMAKE_CXX_STANDARD 11)
 set (pyvulkan_VERSION_MAJOR 0)
 set (pyvulkan_VERSION_MINOR 1)
 
+find_package(Threads REQUIRED)
 find_package(SWIG REQUIRED)
 include(${SWIG_USE_FILE})
 
@@ -59,9 +60,11 @@ if (WIN32)
                              "${GLSLANG_DIR}/SPIRV/Release"
 							 "${GLSLANG_DIR}/HLSL/Release" )
     set (SPIRV_TOOLS_SEARCH_PATH "${SPIRVTOOLS_DIR}/source/Release")
+    set (SPIRV_TOOLS_OPT_SEARCH_PATH "${SPIRVTOOLS_DIR}/source/opt/Release")
 else()
     set (GLSLANG_SEARCH_PATH "${VULKAN_SDK}/install/lib" "${VULKAN_SDK}/x86_64/lib/glslang" )
     set (SPIRV_TOOLS_SEARCH_PATH "${VULKAN_SDK}" "${VULKAN_SDK}/x86_64/lib/spirv-tools" )
+    set (SPIRV_TOOLS_OPT_SEARCH_PATH ${SPIRV_TOOLS_SEARCH_PATH} )
 endif()
 
 find_library(GLSLANG_LIB NAMES glslang HINTS ${GLSLANG_SEARCH_PATH} )
@@ -71,7 +74,7 @@ find_library(SPIRV_LIB NAMES SPIRV HINTS ${GLSLANG_SEARCH_PATH} )
 find_library(SPVREMAPPER_LIB NAMES SPVRemapper HINTS ${GLSLANG_SEARCH_PATH} )
 find_library(HLSL_LIB NAMES HLSL HINTS ${GLSLANG_SEARCH_PATH} )
 find_library(SPIRV_TOOLS_LIB NAMES SPIRV-Tools HINTS ${SPIRV_TOOLS_SEARCH_PATH} )
-find_library(SPIRV_TOOLS_OPT_LIB NAMES SPIRV-Tools-opt HINTS "${SPIRVTOOLS_DIR}/source/opt/Release" )
+find_library(SPIRV_TOOLS_OPT_LIB NAMES SPIRV-Tools-opt HINTS ${SPIRV_TOOLS_OPT_SEARCH_PATH} )
 
 # On Windows, we must pair Debug and Release appropriately
 if (WIN32)
@@ -133,7 +136,7 @@ if (WIN32)
 
 else ()
     set (GLSLANG_LIBRARIES ${GLSLANG_LIB} ${OGLCompiler_LIB} ${OSDependent_LIB} ${SPIRV_LIB} ${SPVREMAPPER_LIB} ${HLSL_LIB})
-    set (SPIRV_TOOLS_LIBRARIES ${SPIRV_TOOLS_LIB})
+    set (SPIRV_TOOLS_LIBRARIES ${SPIRV_TOOLS_OPT_LIB} ${SPIRV_TOOLS_LIB})
 endif()
 
 ###
@@ -148,10 +151,12 @@ if (WIN32)
 	if (${CMAKE_SIZEOF_VOID_P} EQUAL 8)
 		set_source_files_properties(SOURCE pyvulkan.i PROPERTIES SWIG_FLAGS "-D_WIN32;-D_WIN64;-DVK_USE_PLATFORM_WIN32_KHR")
 		set_source_files_properties(SOURCE pyglslang.i PROPERTIES SWIG_FLAGS "-D_WIN32;-D_WIN64")
-	endif()
+    endif()
+    set(LINK_FLAGS "/ignore:4099 /ignore:4098")
 else()
     set_source_files_properties(SOURCE pyvulkan.i PROPERTIES SWIG_FLAGS "-D__LP64__;-DSWIGWORDSIZE64")
-	set_source_files_properties(SOURCE pyglslang.i PROPERTIES SWIG_FLAGS "-D__LP64__;-DSWIGWORDSIZE64")
+    set_source_files_properties(SOURCE pyglslang.i PROPERTIES SWIG_FLAGS "-D__LP64__;-DSWIGWORDSIZE64")
+    set(LINK_FLAGS "-Wl,--no-undefined")
 endif()
 
 # This preprocessor variable disables the automatic linking of pythonXY_d.lib to use the release version of python.lib
@@ -169,6 +174,7 @@ endif()
 set(SWIG_MODULE_pyvulkan_EXTRA_DEPS vulkan.ixx shared_ptrs.ixx)
 swig_add_library(pyvulkan LANGUAGE python SOURCES pyvulkan.i)
 swig_link_libraries(pyvulkan ${PYTHON_LIBRARIES} ${NUMPY_LIB} ${VULKAN_LIB})
+set_target_properties(${SWIG_MODULE_pyvulkan_REAL_NAME} PROPERTIES LINK_FLAGS ${LINK_FLAGS})
 
 install(TARGETS ${SWIG_MODULE_pyvulkan_REAL_NAME} DESTINATION bin)
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/pyvulkan.py DESTINATION bin)
@@ -180,7 +186,8 @@ if(MSVC)
 endif()
 
 swig_add_library(pyglslang LANGUAGE python SOURCES pyglslang.i)
-swig_link_libraries(pyglslang ${PYTHON_LIBRARIES} ${NUMPY_LIB} ${GLSLANG_LIBRARIES} ${SPIRV_TOOLS_LIBRARIES})
+swig_link_libraries(pyglslang ${PYTHON_LIBRARIES} ${NUMPY_LIB} ${GLSLANG_LIBRARIES} ${SPIRV_TOOLS_LIBRARIES} Threads::Threads)
+set_target_properties(${SWIG_MODULE_pyglslang_REAL_NAME} PROPERTIES LINK_FLAGS ${LINK_FLAGS})
 
 install(TARGETS ${SWIG_MODULE_pyglslang_REAL_NAME} DESTINATION bin)
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/pyglslang.py DESTINATION bin)
