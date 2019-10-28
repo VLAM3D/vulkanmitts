@@ -1,11 +1,11 @@
 #!/usr/bin/env python
-# 
+#
 # Generate the SWIG interface file to generate pythonic bindings for the Vulkan API
-# 
+#
 # Copyright (C) 2016 by VLAM3D Software inc. https://www.vlam3d.com
-# 
+#
 # This code is licensed under the MIT license (MIT) (http://opensource.org/licenses/MIT)
-# 
+#
 from __future__ import print_function
 import argparse
 import sys
@@ -14,17 +14,18 @@ import os
 from reg import *
 from generator import *
 from cgenerator import *
+from vkconventions import VulkanConventions
 
 array_size_re = re.compile('\[(\w+)\]')
 surface_khr_re = re.compile('vkCreate.+SurfaceKHR')
 
 # assume param is lxml element
 def get_param_name(param):
-    param_name = param.find('name')    
+    param_name = param.find('name')
     return noneStr(param_name.text)
 
 def get_param_type(param):
-    param_type = param.find('type')    
+    param_type = param.find('type')
     return noneStr(param_type.text)
 
 def is_param_pointer(param):
@@ -34,7 +35,7 @@ def is_param_pointer(param):
     if paramtype.tail is not None and '*' in paramtype.tail:
         ispointer = True
         ptr_depth = paramtype.tail.count('*')
-    
+
     is_const_ptr = False
     if noneStr(param.text).find('const') != -1:
         is_const_ptr = True
@@ -55,7 +56,7 @@ def is_param_c_array(param):
             if enum is not None and enum.text is not None:
                 iscarray = True
                 num_elem =  enum.text
-    
+
     return iscarray, num_elem
 
 
@@ -91,7 +92,7 @@ def is_param_const(param):
 
 # ex vkGetPipelineCacheData
 # C API would write the cache to a user allocated raw byte buffer
-# the Python API will return a list of bytes 
+# the Python API will return a list of bytes
 def argout_void_to_char(argout_type):
     if argout_type == 'void':
         return 'uint8_t'
@@ -127,8 +128,8 @@ def findAllocatedPtrType(is_alloc, params):
         elif is_ptr and is_const and get_param_type(p) != 'char':
             param_to_const_referentize.add(i)
 
-    assert(allocated_ptr_type is not None and return_ptr_index != -1)   
-    return allocated_ptr_type      
+    assert(allocated_ptr_type is not None and return_ptr_index != -1)
+    return allocated_ptr_type
 
 # CSWIGOutputGenerator - subclass of OutputGenerator.
 # Generates a SWIG interface file
@@ -148,10 +149,12 @@ def findAllocatedPtrType(is_alloc, params):
 # genCmd(cmdinfo)
 class CSWIGOutputGenerator(COutputGenerator):
     def __init__(self,
+                 tree_copy,
                  errFile = sys.stderr,
                  warnFile = sys.stderr,
                  diagFile = sys.stdout):
         COutputGenerator.__init__(self, errFile, warnFile, diagFile)
+        self.tree_copy = tree_copy
         self.shared_ptr_types = set()
         self.std_vector_types = set()
         self.redundant_typedef_types = set(['VkPipelineStageFlags','VkObjectEntryUsageFlagsNVX'])
@@ -167,7 +170,7 @@ class CSWIGOutputGenerator(COutputGenerator):
         # here we map the base type for a x64 architecture to match numpy.i typemaps
         self.arrayBaseTypes = {'size_t':'unsigned long long', 'uint32_t' : 'unsigned int', 'float' : 'float', 'int32_t': 'int', 'int':'int' }
         # the base types that we can encounter in the interface, not the list of a C/C++ base types
-        # they are augmented using the registry info, these types are known to be cheap to copy, so passed and returned by value 
+        # they are augmented using the registry info, these types are known to be cheap to copy, so passed and returned by value
         self.copyableBaseTypes = set(self.arrayBaseTypes.keys())
         self.copyableBaseTypes = self.copyableBaseTypes | set(['uint64_t','HANDLE','Display','xcb_connection_t','wl_display','MirConnection'])
         self.applyARRAY1types = set()
@@ -176,7 +179,7 @@ class CSWIGOutputGenerator(COutputGenerator):
         self.nonRAIIStruct = set()
         self.currentFeature = None
 
-        # list the functions ptrs not loaded by the Lunar Vulkan SDK 
+        # list the functions ptrs not loaded by the Lunar Vulkan SDK
         self.featureNotRequiringGetProcAddr = [ 'VK_VERSION_1_0',
                                                 'VK_KHR_surface',
                                                 'VK_KHR_swapchain',
@@ -186,14 +189,14 @@ class CSWIGOutputGenerator(COutputGenerator):
                                                 'VK_KHR_mir_surface',
                                                 'VK_KHR_android_surface',
                                                 'VK_KHR_win32_surface']
-        
+
         self.commandNotLoadedBySDK = {}
 
         self.crossPlatformFeatures = [  'VK_VERSION_1_0',
                                         'VK_KHR_surface',
                                         'VK_KHR_swapchain']
-        self.platformSpecicTypes = {}                                             
-                                            
+        self.platformSpecicTypes = {}
+
     def findBaseTypes(self):
         all_types = self.registry.reg.findall("types/type")
         for type in all_types:
@@ -218,7 +221,7 @@ class CSWIGOutputGenerator(COutputGenerator):
                 typename = type.get('name')
                 if typename not in self.hideFromSWIGTypes:
                     self.structTypes.add(typename)
-    
+
     def findParamsAndMembersCArray(self):
         all_params = self.registry.reg.findall("commands/command/param")
         all_params.extend(self.registry.reg.findall("types/type/member"))
@@ -232,7 +235,7 @@ class CSWIGOutputGenerator(COutputGenerator):
 
     def findNonRAIIStruct(self):
         all_types = self.registry.reg.findall("types/type")
-        for type in all_types: 
+        for type in all_types:
             if 'category' in type.keys() and 'struct' in type.get('category'):
                 typename = type.get('name')
                 if typename not in self.hideFromSWIGTypes:
@@ -250,10 +253,10 @@ class CSWIGOutputGenerator(COutputGenerator):
                                         break
                         else:
                             member_type_name = get_param_type(m)
-                            is_ptr, is_const, ptr_depth = is_param_pointer(m) 
+                            is_ptr, is_const, ptr_depth = is_param_pointer(m)
                             if  is_ptr and is_const and member_type_name != 'void':
                                 self.nonRAIIStruct.add(typename)
-                                break       
+                                break
 
     def beginFile(self, genOpts):
         self.outdir = genOpts.directory
@@ -261,13 +264,13 @@ class CSWIGOutputGenerator(COutputGenerator):
         if (genOpts.prefixText):
             for s in genOpts.prefixText:
                 write(s, file=self.outFile)
-        write('// Begin content generated by genswigi.py', file=self.outFile)    
-        write('const char* vkGetErrorString(VkResult retval);', file=self.outFile)                
+        write('// Begin content generated by genswigi.py', file=self.outFile)
+        write('const char* vkGetErrorString(VkResult retval);', file=self.outFile)
         self.newline()
         self.findStructTypes()
         self.findHandleTypes()
         self.findBaseTypes()
-        self.getVkStructureTypes()        
+        self.getVkStructureTypes()
         self.findParamsAndMembersCArray()
         self.findNonRAIIStruct()
 
@@ -280,7 +283,18 @@ class CSWIGOutputGenerator(COutputGenerator):
                 for e in enum:
                     enum_string = e.get('name')
                     if enum_string is not None:
-                        self.structure_type_enum_strings.add(enum_string)                        
+                        self.structure_type_enum_strings.add(enum_string)
+
+        # reg.py deletes all the enum with extends attrib for some reason
+        ext_enums = self.tree_copy.findall("extensions/extension/require/enum")
+        for enum in ext_enums:
+            if 'extends' in enum.attrib and enum.attrib['extends'] == 'VkStructureType':
+                enum_string = enum.get('name')
+                if enum_string is not None:
+                    self.structure_type_enum_strings.add(enum_string)
+                enum_string = enum.get('alias')
+                if enum_string is not None:
+                    self.structure_type_enum_strings.add(enum_string)
 
     def writeVkErrorStringImpl(self):
         all_enums = self.registry.reg.findall("enums")
@@ -289,9 +303,9 @@ class CSWIGOutputGenerator(COutputGenerator):
             if 'VkResult' in enum.get('name'):
                 for e in enum:
                     # this is from generator.py it removes the extension enum that won't be in the default vulkan.h header
-                    if (e.get('extname') is None or re.match(self.genOpts.addExtensions, e.get('extname')) is not None 
+                    if (e.get('extname') is None or re.match(self.genOpts.addExtensions, e.get('extname')) is not None
                                                  or self.genOpts.defaultExtensions == e.get('supported')) and e.get('name') is not None:
-                        
+
                         if e.get('comment') is not None:
                             vk_error_code_comments.append( (e.get('name'), ("Vulkan error (%s) : " % e.get('name'))  + e.get('comment') ) )
                         else:
@@ -311,7 +325,7 @@ class CSWIGOutputGenerator(COutputGenerator):
         write('         return nullptr;', file=self.outFile)
         write('     }\n', file=self.outFile)
 
-    def endFile(self): 
+    def endFile(self):
         write("void load_vulkan_fct_ptrs(VkInstance instance);\n", file=self.outFile)
         for command_name in self.commandNotLoadedBySDK:
             feature = self.commandNotLoadedBySDK[command_name]
@@ -340,26 +354,26 @@ class CSWIGOutputGenerator(COutputGenerator):
         write('%{\n', file=self.outFile)
         write('\n'.join(self.swigImpl), end='', file=self.outFile)
         write('%}\n', file=self.outFile)
-       
+
         for type_name in self.nonRAIIStruct:
             feature_name = None
             if type_name in self.platformSpecicTypes:
                 feature_name = self.platformSpecicTypes[type_name]
-                write('#ifdef ' + feature_name + '\n', file=self.outFile)       
+                write('#ifdef ' + feature_name + '\n', file=self.outFile)
             write('%%template (%(type_name)sPtr) std::shared_ptr<%(type_name)sRAII>;\n' % locals(), file=self.outFile)
             if feature_name is not None:
                 write('#endif\n', file=self.outFile)
-            
+
         for type_name in self.std_vector_types:
-            if not type_name in ['void','char','uint32_t','uint64_t'] and not type_name in self.redundant_typedef_types:                
+            if not type_name in ['void','char','uint32_t','uint64_t'] and not type_name in self.redundant_typedef_types:
                 feature_name = None
                 if type_name in self.platformSpecicTypes:
                     feature_name = self.platformSpecicTypes[type_name]
-                    write('#ifdef ' + feature_name + '\n', file=self.outFile)       
+                    write('#ifdef ' + feature_name + '\n', file=self.outFile)
                 if type_name not in self.nonRAIIStruct:
                     nice_type_name = type_name.replace('_t','')
                     write('%%template (%(nice_type_name)sVector) std::vector<%(type_name)s>;\n' % locals(), file=self.outFile)
-                else:                    
+                else:
                     write('%%template (%(type_name)sVector) std::vector< std::shared_ptr<%(type_name)sRAII> >;\n' % locals(), file=self.outFile)
                 if feature_name is not None:
                     write('#endif\n', file=self.outFile)
@@ -373,11 +387,11 @@ class CSWIGOutputGenerator(COutputGenerator):
             if feature_name is not None:
                 write('#endif\n', file=self.outFile)
 
-        write('// Skipped commands that must be manually wrapped', file=self.outFile)        
+        write('// Skipped commands that must be manually wrapped', file=self.outFile)
         write('//' + '\n//'.join(self.skippedCommands), end='\n', file=self.outFile)
-        write('// End content generated by genswigi.py', file=self.outFile)        
+        write('// End content generated by genswigi.py', file=self.outFile)
         # Finish processing in superclass
-        OutputGenerator.endFile(self)        
+        OutputGenerator.endFile(self)
         shared_ptrs_ixx_file = os.path.join(self.outdir, 'shared_ptrs.ixx')
         with open(shared_ptrs_ixx_file, 'w', encoding='utf-8') as file_out:
             file_out.write("%carray_of_float(float)\n")
@@ -385,9 +399,9 @@ class CSWIGOutputGenerator(COutputGenerator):
             file_out.write("%carray_of_long(uint32_t)\n")
             for t in self.structCArrayTypes:
                 file_out.write("%%carray_of_struct(%s)\n" % t)
-            
+
             for t in self.handleTypes:
-                file_out.write("%%ref_counted_handle(%s)\n" % t)            
+                file_out.write("%%ref_counted_handle(%s)\n" % t)
 
             for t in self.shared_ptr_types:
                 if t != 'void':
@@ -401,46 +415,46 @@ class CSWIGOutputGenerator(COutputGenerator):
                 base_type = t[0]
                 typename = t[1]
                 file_out.write("%%apply (%(base_type)s* IN_ARRAY1, int DIM1) {(%(base_type)s* %(typename)s_in_array1, int %(typename)s_dim1)};\n" % locals())
-                
-    
+
+
     def beginFeature(self, interface, emit):
         # Start processing in superclass
-        COutputGenerator.beginFeature(self, interface, emit)   
-        self.swigFeatureImpl = []     
-        self.currentFeature = self.featureName         
+        COutputGenerator.beginFeature(self, interface, emit)
+        self.swigFeatureImpl = []
+        self.currentFeature = self.featureName
 
-    def endFeature(self):        
+    def endFeature(self):
         # Finish processing in superclass
         if (self.genOpts.protectFeature):
             self.swigImpl.append('#ifdef ' + self.featureName)
-        
+
         if (self.featureExtraProtect != None):
             self.swigImpl.append('#ifdef ' + self.featureExtraProtect)
-        
+
         self.swigImpl += self.swigFeatureImpl
 
         if self.featureExtraProtect != None:
             self.swigImpl.append('#endif /* '+ self.featureExtraProtect + '*/')
-                
+
         if (self.genOpts.protectFeature):
             self.swigImpl.append('#endif /* '+ self.featureName + '*/')
 
         COutputGenerator.endFeature(self)
-                        
-        
-    def genType(self, typeinfo, name):
-        if name not in self.hideFromSWIGTypes:
-            COutputGenerator.genType(self, typeinfo, name)
 
-    def genStruct(self, typeinfo, typeName):
-        COutputGenerator.genStruct(self, typeinfo, typeName)
+
+    def genType(self, typeinfo, name, alias):
+        if name not in self.hideFromSWIGTypes:
+            COutputGenerator.genType(self, typeinfo, name, alias)
+
+    def genStruct(self, typeinfo, typeName, alias):
+        COutputGenerator.genStruct(self, typeinfo, typeName, alias)
 
         if self.currentFeature not in self.crossPlatformFeatures:
             self.platformSpecicTypes[typeName] = self.currentFeature
 
-        # don't write constructor for unions 
+        # don't write constructor for unions
         if typeinfo.elem.get('category') != 'struct':
-            return 
+            return
 
         members = typeinfo.elem.findall('.//member')
         n = len(members)
@@ -451,16 +465,16 @@ class CSWIGOutputGenerator(COutputGenerator):
         members_to_shared_ptrize = set()
         count_member_to_vector_member = {}
         structure_type_member_index = -1
-        for i,m in enumerate(members):            
+        for i,m in enumerate(members):
             if 'len' in m.keys():
                 for j, nt_pair in enumerate(members_name_type):
                     if j!=i and nt_pair[0] in m.get('len') and nt_pair[1] in ['uint32_t','size_t']:
                         l_pair = (i, j)
                         if typeName not in ['VkWriteDescriptorSet','VkDescriptorSetLayoutBinding']:
-                            members_to_remove.add(l_pair[1])                       
-                            if l_pair[1] not in count_member_to_vector_member:                            
+                            members_to_remove.add(l_pair[1])
+                            if l_pair[1] not in count_member_to_vector_member:
                                 count_member_to_vector_member[ l_pair[1] ] = l_pair[0]
-                            else:                            
+                            else:
                                 print(typeName, ' member', members_name_type[i][0], ' size is not used ' )
 
                         members_to_vectorize.add(l_pair[0])
@@ -469,13 +483,13 @@ class CSWIGOutputGenerator(COutputGenerator):
                             self.std_vector_types.add( member_type )
             else:
                 member_name,member_type_name = members_name_type[i]
-                is_ptr, is_const, ptr_depth = is_param_pointer(m) 
+                is_ptr, is_const, ptr_depth = is_param_pointer(m)
                 if  is_ptr and is_const and member_type_name != 'char':
                     members_to_shared_ptrize.add(i)
 
         for i,member in enumerate(members):
-            member_type_name = get_param_type(member)         
-            if member_type_name == 'void' and i not in members_to_vectorize:  
+            member_type_name = get_param_type(member)
+            if member_type_name == 'void' and i not in members_to_vectorize:
                 members_to_remove.add(i)
             elif member_type_name == 'VkStructureType':
                 structure_type_member_index = i
@@ -488,18 +502,18 @@ class CSWIGOutputGenerator(COutputGenerator):
                 vkstructureenumstring = enum_string
             else:
                 print('Warning: %s not found in the VkStructure enum elements' % enum_string)
-        
+
         kept_members = len(members) - len(members_to_remove)
 
         swig_maker_name = maker_name(typeName)
         raii_type_name = typeName + 'RAII'
         raii_struct_body = typeinfo.elem.get('category') + ' ' + raii_type_name + ' {\n'
-        raii_struct_body += "   %(typeName)s nonRaiiObj;\n" % locals()        
+        raii_struct_body += "   %(typeName)s nonRaiiObj;\n" % locals()
         raii_struct_req = False
         written_cnt = 0
         if n > 0:
             indentdecl = '(\n'
-            for i in range(0,n):    
+            for i in range(0,n):
                 member_name, member_type_name = members_name_type[i]
                 is_ptr, is_const, ptr_depth = is_param_pointer(members[i])
                 assert(ptr_depth <= 2) # hopefully
@@ -509,7 +523,7 @@ class CSWIGOutputGenerator(COutputGenerator):
                     vec_ele_type_name = argout_void_to_char(member_type_name)
                     if member_type_name == 'char':
                         vec_ele_type_name = 'std::string'
-                    
+
                     if member_type_name in self.arrayBaseTypes:
                         numpy_array_type = self.arrayBaseTypes[member_type_name]
                         self.applyARRAY1types.add((numpy_array_type,member_name))
@@ -540,9 +554,9 @@ class CSWIGOutputGenerator(COutputGenerator):
                     else:
                         paramdecl = '    const %(member_type_name)s *' % locals()
                     paramdecl = paramdecl.rstrip()
-                    paramdecl = paramdecl.ljust(48)                    
+                    paramdecl = paramdecl.ljust(48)
                     paramdecl += member_name
-                    if member_type_name in self.nonRAIIStruct:                        
+                    if member_type_name in self.nonRAIIStruct:
                         memberdecl = '    std::shared_ptr<%(member_type_name)sRAII>'  % locals()
                     else:
                         memberdecl = '    std::shared_ptr<%(member_type_name)s>'  % locals()
@@ -565,7 +579,7 @@ class CSWIGOutputGenerator(COutputGenerator):
                     raii_struct_req = True
                     written_cnt += 1
                 else:
-                    paramdecl = self.makeCParamDecl(members[i], self.genOpts.alignFuncParam)                    
+                    paramdecl = self.makeCParamDecl(members[i], self.genOpts.alignFuncParam)
                     written_cnt += 1
 
                 if (written_cnt < kept_members):
@@ -581,12 +595,12 @@ class CSWIGOutputGenerator(COutputGenerator):
 
         if raii_struct_req:
             assert( typeName in self.nonRAIIStruct )
-            indentdecl = "std::shared_ptr<%(raii_type_name)s> %(swig_maker_name)s" % locals() + indentdecl;
+            indentdecl = "std::shared_ptr<%(raii_type_name)s> %(swig_maker_name)s" % locals() + indentdecl
             self.appendSection('struct', raii_struct_body)
         else:
             if typeName in self.nonRAIIStruct:
                 raise RuntimeError(typeName + ' should NOT be in the non-RAII struct list')
-            indentdecl = "%(typeName)s %(swig_maker_name)s" % locals() + indentdecl;
+            indentdecl = "%(typeName)s %(swig_maker_name)s" % locals() + indentdecl
             self.copyableBaseTypes.add(typeName)
 
         fct_decl = indentdecl + ';\n'
@@ -595,8 +609,8 @@ class CSWIGOutputGenerator(COutputGenerator):
         if raii_struct_req:
             swig_impl += '      std::shared_ptr<%(raii_type_name)s> raii_obj(new %(raii_type_name)s);\n' % locals()
             for i,member in enumerate(members):
-                member_name, member_type_name = members_name_type[i]   
-                is_ptr, is_const, ptr_depth = is_param_pointer(member)             
+                member_name, member_type_name = members_name_type[i]
+                is_ptr, is_const, ptr_depth = is_param_pointer(member)
                 if i in members_to_remove:
                     if i in count_member_to_vector_member:
                         vector_member_index = count_member_to_vector_member[i]
@@ -604,7 +618,7 @@ class CSWIGOutputGenerator(COutputGenerator):
                         param_name = vector_member_name_type[0]
                         vector_member_name = p_name_to_vec(vector_member_name_type[0])
                          # this seems absurd in VkShaderModuleCreateInfo "pCode" is an unsigned int pointer but "codeSize" must still be specified in bytes
-                         # the workaround is implemented here because we still need the ctor to be generated 
+                         # the workaround is implemented here because we still need the ctor to be generated
                         if member_name == 'codeSize':
                             swig_impl += '      raii_obj->nonRaiiObj.%(member_name)s = static_cast<%(member_type_name)s>(%(param_name)s_dim1) * sizeof(unsigned int);\n' % locals()
                         elif vector_member_name_type[1] in self.arrayBaseTypes:
@@ -616,7 +630,7 @@ class CSWIGOutputGenerator(COutputGenerator):
                     else:
                         swig_impl += '      raii_obj->nonRaiiObj.%(member_name)s = nullptr;\n' % locals()
                 elif i in members_to_vectorize:
-                    vec_name = p_name_to_vec(member_name)                    
+                    vec_name = p_name_to_vec(member_name)
                     if member_type_name in self.arrayBaseTypes:
                         swig_impl += '      raii_obj->%(vec_name)s.assign(%(member_name)s_in_array1, %(member_name)s_in_array1 + %(member_name)s_dim1);\n' % locals()
                     else:
@@ -636,7 +650,7 @@ class CSWIGOutputGenerator(COutputGenerator):
                         swig_impl += '      {\n'
                         swig_impl += '          raii_obj->nonRaiiObj.%(member_name)s = nullptr;\n' % locals()
                         swig_impl += '      }\n'
-                elif i in members_to_shared_ptrize:                    
+                elif i in members_to_shared_ptrize:
                     if member_type_name in self.nonRAIIStruct:
                         swig_impl += '      raii_obj->%(member_name)s = %(member_name)s;\n' % locals()
                         swig_impl += '      if ( %(member_name)s ) \n' % locals()
@@ -665,7 +679,7 @@ class CSWIGOutputGenerator(COutputGenerator):
                         swig_impl += '      std::copy(%(member_name)s, %(member_name)s + %(num_elem)s, raii_obj->nonRaiiObj.%(member_name)s);\n' % locals()
                     else:
                         swig_impl += '      raii_obj->nonRaiiObj.%(member_name)s = %(member_name)s;\n' % locals()
-        
+
             swig_impl += '      return raii_obj;\n'
         else:
             swig_impl += '      %(typeName)s obj;\n' % locals()
@@ -680,32 +694,32 @@ class CSWIGOutputGenerator(COutputGenerator):
                 elif member_type_name == "VkStructureType":
                     swig_impl += '      obj.%(member_name)s = %(vkstructureenumstring)s;\n' % locals()
                 elif is_c_array:
-                    swig_impl += '      std::copy(%(member_name)s, %(member_name)s + %(num_elem)s, obj.%(member_name)s);\n' % locals()               
+                    swig_impl += '      std::copy(%(member_name)s, %(member_name)s + %(num_elem)s, obj.%(member_name)s);\n' % locals()
                 else:
                     swig_impl += '      obj.%(member_name)s = %(member_name)s;\n' % locals()
             swig_impl += '      return obj;\n'
         swig_impl += '   }\n'
         self.appendSection('command', fct_decl + '\n')
-        
+
         if raii_struct_req:
             self.swigFeatureImpl.append(raii_struct_body)
 
-        self.swigFeatureImpl.append(swig_impl)        
+        self.swigFeatureImpl.append(swig_impl)
 
-    def genGroup(self, groupinfo, groupName):
-        COutputGenerator.genGroup(self, groupinfo, groupName)
+    def genGroup(self, groupinfo, groupName, alias):
+        COutputGenerator.genGroup(self, groupinfo, groupName, alias)
 
-    def genEnum(self, enuminfo, name):
-        COutputGenerator.genEnum(self, enuminfo, name)
+    def genEnum(self, enuminfo, name, alias):
+        COutputGenerator.genEnum(self, enuminfo, name, alias)
 
     def genNoArgoutCommand(self, return_type_str, command_name, params):
         swig_command_name = remove_vk_prefix(command_name)
 
-    def findFreeCommand(self, is_alloc, command_name):      
+    def findFreeCommand(self, is_alloc, command_name):
         if not is_alloc:
             return None, None
 
-        if command_name == 'vkCreateGraphicsPipelines' or command_name == 'vkCreateComputePipelines' :
+        if command_name in ['vkCreateGraphicsPipelines','vkCreateComputePipelines'] :
             free_command_name = 'vkDestroyPipeline'
         elif surface_khr_re.match(command_name):
             free_command_name = 'vkDestroySurfaceKHR'
@@ -722,10 +736,14 @@ class CSWIGOutputGenerator(COutputGenerator):
         free_command_elem = None
         for cmd in all_commands:
             proto = cmd.find('proto')
-            inner_command_name = proto[1].text
-            if inner_command_name == free_command_name:
-                free_command_elem = cmd
-                break
+            if proto is not None:
+                inner_command_name = proto[1].text
+                if inner_command_name == free_command_name:
+                    free_command_elem = cmd
+                    break
+            else:
+                # alias don't have the proto field
+                assert('alias' in cmd.attrib)
 
         free_command_params_name_type = []
         if free_command_elem is not None:
@@ -733,20 +751,20 @@ class CSWIGOutputGenerator(COutputGenerator):
             free_command_params_name_type = [ (get_param_name(p),get_param_type(p)) for p in free_command_params]
         else:
             return None,None
-            
-        return free_command_name, free_command_params_name_type  
+
+        return free_command_name, free_command_params_name_type
 
     def genCommand(self,
-                   return_type_str, 
-                   command_name, 
+                   return_type_str,
+                   command_name,
                    is_allocation_cmd,
-                   params, 
-                   params_name_type, 
-                   params_to_remove, 
-                   input_params_to_vectorize, 
-                   argout_params_to_vectorize, 
-                   params_to_const_refitize, 
-                   params_to_shared_ptrize, 
+                   params,
+                   params_name_type,
+                   params_to_remove,
+                   input_params_to_vectorize,
+                   argout_params_to_vectorize,
+                   params_to_const_refitize,
+                   params_to_shared_ptrize,
                    params_to_return_as_handle, # in this methods handles are all expected to behave like accessor that don't require special cleanup
                    param_to_return_as_vector_of_handle,
                    params_to_return_by_value,
@@ -754,7 +772,7 @@ class CSWIGOutputGenerator(COutputGenerator):
 
         # don't create explicit bindings for deallocation commands, they are triggered automatically by the wrapper's dtor (RAII)
         if command_name.find('Destroy') != -1 or command_name.find('Free') != -1:
-            return 
+            return
 
         n = len(params)
         n_passed_params = n - len(params_to_remove) - len(argout_params_to_vectorize) - len(params_to_shared_ptrize) - len(params_to_return_by_value) - len(params_to_return_as_handle) - len(param_to_return_as_vector_of_handle)
@@ -762,16 +780,16 @@ class CSWIGOutputGenerator(COutputGenerator):
 
         free_command_name, free_command_params_name_type = self.findFreeCommand(is_allocation_cmd, command_name)
 
-        if is_allocation_cmd and free_command_name is not None:            
+        if is_allocation_cmd and free_command_name is not None:
             if self.currentFeature not in self.featureNotRequiringGetProcAddr:
                 self.commandNotLoadedBySDK[free_command_name] = self.currentFeature
 
         swig_command_name = remove_vk_prefix(command_name)
         tuple_decl = ""
-        
+
         # RETURN TYPE
         if n_argout_params == 0:
-            indentdecl = "void " 
+            indentdecl = "void "
         else:
             if n_argout_params > 1:
                 print('Warning: multiple argout parameter found for command %s - this function is not correctly wrapped' % command_name)
@@ -793,14 +811,14 @@ class CSWIGOutputGenerator(COutputGenerator):
                     assert(len(param_to_return_as_vector_of_handle) == 1)
                     argout_type = params_name_type[ list(param_to_return_as_vector_of_handle)[0] ][1]
                     indentdecl = "std::vector< std::shared_ptr<%(argout_type)s_T> >" % locals()
-            else: 
+            else:
                 argout_type = params_name_type[ list(params_to_return_by_value)[0] ][1]
                 indentdecl = "%(argout_type)s" % locals()
 
         indentdecl += ' %(swig_command_name)s' % locals()
         freeparams = ""
 
-        # C++ FUNCTION PROTOTYPE 
+        # C++ FUNCTION PROTOTYPE
         if n_passed_params == 0:
             indentdecl += '(void)'
         else:
@@ -808,8 +826,8 @@ class CSWIGOutputGenerator(COutputGenerator):
             indentdecl += '(\n'
             for i in range(0,n):
                 input_param_name, input_param_type = params_name_type[i]
-                is_ptr, is_const, ptr_depth = is_param_pointer(params[i]) 
-                is_c_array, num_elem = is_param_c_array(params[i]) 
+                is_ptr, is_const, ptr_depth = is_param_pointer(params[i])
+                is_c_array, num_elem = is_param_c_array(params[i])
                 if i in params_to_remove or i in argout_params_to_vectorize or i in params_to_shared_ptrize or i in params_to_return_by_value or i in params_to_return_as_handle  or i in param_to_return_as_vector_of_handle :
                     continue
                 elif i in input_params_to_vectorize:
@@ -842,15 +860,15 @@ class CSWIGOutputGenerator(COutputGenerator):
 
                 if written_cnt <  n_passed_params:
                     indentdecl += ',\n'
-            
+
             indentdecl += ')'
 
         fct_decl = indentdecl + ';\n'
-        self.appendSection('command', fct_decl)     
-        
+        self.appendSection('command', fct_decl)
+
         swig_impl = indentdecl + '\n'
-        swig_impl += '   {\n'        
-        
+        swig_impl += '   {\n'
+
         # FUNCTION BODY : Validation
         if command_name in self.commandNotLoadedBySDK:
             swig_impl += '      if ( nullptr == pf%(command_name)s )\n' % locals()
@@ -923,10 +941,10 @@ class CSWIGOutputGenerator(COutputGenerator):
                     swig_impl += '          &%(passed_param_name)s' % locals()
                 else:
                     swig_impl += '          %(passed_param_name)s' % locals()
-        
+
                 if i <  n-1:
                     swig_impl += ',\n'
-            
+
             swig_impl += '  )%(cbe)s;\n\n' % locals()
 
             # resize array to get result on next call
@@ -944,7 +962,7 @@ class CSWIGOutputGenerator(COutputGenerator):
                 if vector_param_index in input_params_to_vectorize:
                     if not params_name_type[vector_param_index][1] in self.arrayBaseTypes:
                         swig_impl += '          static_cast<uint32_t>(%(vector_param_name)s.size())' % locals()
-                    else:                        
+                    else:
                         swig_impl += '          static_cast<uint32_t>(%(vector_param_name)s_dim1)' % locals()
                 elif vector_param_index in param_to_return_as_vector_of_handle:
                     for j in input_params_to_vectorize:
@@ -977,10 +995,10 @@ class CSWIGOutputGenerator(COutputGenerator):
                 swig_impl += '          &%(passed_param_name)s' % locals()
             else:
                 swig_impl += '          %(passed_param_name)s' % locals()
-        
+
             if i <  n-1:
                 swig_impl += ',\n'
-            
+
         swig_impl += '  )%(cbe)s;\n' % locals()
 
         allocated_ptr_type = findAllocatedPtrType(is_allocation_cmd, params)
@@ -1028,12 +1046,12 @@ class CSWIGOutputGenerator(COutputGenerator):
             else:
                 argout_param_name = params_name_type[ list(params_to_return_by_value)[0] ][0]
                 swig_impl += '      return %(argout_param_name)s; \n' % locals()
-                    
+
         swig_impl += '   }\n'
         self.swigFeatureImpl.append(swig_impl)
 
-    def genCmd(self, cmdinfo, name):
-        OutputGenerator.genCmd(self, cmdinfo, name)
+    def genCmd(self, cmdinfo, name, alias):
+        OutputGenerator.genCmd(self, cmdinfo, name, alias)
 
         cmd = cmdinfo.elem
         proto = cmd.find('proto')
@@ -1061,10 +1079,10 @@ class CSWIGOutputGenerator(COutputGenerator):
         params_to_shared_ptrize = set()
         params_to_return_as_handle = set() # some are return by allocations function as std::shared_ptr with special deleters, the others are returned like pointers
         param_to_return_as_vector_of_handle = set()
-        count_to_vector_param_map = {}        
+        count_to_vector_param_map = {}
         for i,p in enumerate(params):
             if 'len' in p.keys():
-                len_string = p.get('len')                
+                len_string = p.get('len')
                 if '::' in len_string:
                     # arrays of handle not supported
                     self.skippedCommands.append(command_name)
@@ -1073,22 +1091,22 @@ class CSWIGOutputGenerator(COutputGenerator):
                 for len_param in len_params:
                     for len_type in ['uint32_t', 'VkDeviceSize']:
                         nt_pair = (len_param, len_type)
-                        if nt_pair in params_name_type:  
+                        if nt_pair in params_name_type:
                             count_param_index = params_name_type.index(nt_pair)
                             if is_param_const(p):
                                 input_params_to_vectorize.add(i)
-                            else:                            
+                            else:
                                 argout_params_to_vectorize.add(i)
                             count_to_vector_param_map[ count_param_index ] = i
                             if params_name_type[i][1] not in self.hideFromSWIGTypes:
                                 self.std_vector_types.add( params_name_type[i][1] )
-                            params_to_remove.add(count_param_index)    
-                            break # only one matching type possible                       
-        
+                            params_to_remove.add(count_param_index)
+                            break # only one matching type possible
+
         for i,p in enumerate(params):
             if not i in input_params_to_vectorize and not i in argout_params_to_vectorize and not i in params_to_remove:
                 param_name, param_type_name = params_name_type[i]
-                is_ptr, is_const, ptr_depth = is_param_pointer(p) 
+                is_ptr, is_const, ptr_depth = is_param_pointer(p)
                 if param_type_name == 'VkAllocationCallbacks':
                     allocation_callback_ptr_index = i
                     params_to_remove.add(i)
@@ -1103,37 +1121,37 @@ class CSWIGOutputGenerator(COutputGenerator):
                         params_to_return_as_handle.add(i)
                     else:
                         params_to_shared_ptrize.add(i)
-        
+
         is_alloc = allocation_callback_ptr_index is not None
 
-        # we assume that the only allocation function that have an argout vector params, only have one such param and that it's a vector of handles       
+        # we assume that the only allocation function that have an argout vector params, only have one such param and that it's a vector of handles
         if is_alloc and len(argout_params_to_vectorize) > 0:
             assert(len(argout_params_to_vectorize) == 1)  # only one arg out vector
             assert(len(input_params_to_vectorize) == 1) # mandatory input vector (create infos)
             for i in argout_params_to_vectorize:
                 param_name, param_type_name = params_name_type[i]
                 assert(param_type_name in self.handleTypes)
-                param_to_return_as_vector_of_handle.add(i)   
-                self.vectorOfHandleTypes.add(param_type_name)         
+                param_to_return_as_vector_of_handle.add(i)
+                self.vectorOfHandleTypes.add(param_type_name)
             argout_params_to_vectorize = set()
 
-        self.genCommand(return_type_str, 
-                        command_name, 
-                        is_alloc, 
-                        params, 
-                        params_name_type, 
-                        params_to_remove, 
-                        input_params_to_vectorize, 
-                        argout_params_to_vectorize, 
-                        params_to_const_refitize, 
-                        params_to_shared_ptrize, 
+        self.genCommand(return_type_str,
+                        command_name,
+                        is_alloc,
+                        params,
+                        params_name_type,
+                        params_to_remove,
+                        input_params_to_vectorize,
+                        argout_params_to_vectorize,
+                        params_to_const_refitize,
+                        params_to_shared_ptrize,
                         params_to_return_as_handle,
-                        param_to_return_as_vector_of_handle, 
-                        params_to_return_by_value,                         
+                        param_to_return_as_vector_of_handle,
+                        params_to_return_by_value,
                         count_to_vector_param_map  )
 
         decls = self.makeCDecls(cmdinfo.elem)
-        self.appendSection('commandPointer', decls[1])        
+        self.appendSection('commandPointer', decls[1])
 
 khronosPrefixStrings = [
     '/*',
@@ -1163,17 +1181,17 @@ khronosPrefixStrings = [
 
 vlam3dPrefixString = """
 /*
-* 
-* THIS FILE IS GENERATED BY genswigi.py 
 *
-* pyvulkan SWIG interface description file
+* THIS FILE IS GENERATED BY genswigi.py
+*
+* vulkanmitts SWIG interface description file
 *
 * Copyright (C) 2016 by VLAM3D Software inc. https://www.vlam3d.com
 *
 * This code is licensed under the MIT license (MIT) (http://opensource.org/licenses/MIT)
 */
 """
-   
+
 def genswigi(vkxml, output_folder):
     if not os.path.exists(vkxml):
         raise RuntimeError(vkxml+' not found')
@@ -1186,6 +1204,7 @@ def genswigi(vkxml, output_folder):
 
     reg = Registry()
     tree = etree.parse(regFilename)
+    tree_copy = copy.deepcopy(tree)
     reg.loadElementTree(tree)
 
     allVersions = allExtensions = '.*'
@@ -1194,13 +1213,17 @@ def genswigi(vkxml, output_folder):
     prefix_strs = [vlam3dPrefixString]
     prefix_strs.extend(khronosPrefixStrings)
 
+    # An API style conventions object
+    conventions = VulkanConventions()
+
     genOpts = CGeneratorOptions(
+        conventions       = conventions,
         directory         = output_folder,
         filename          = 'vulkan.ixx',
         apiname           = 'vulkan',
         profile           = None,
-        versions          = allVersions,
-        emitversions      = allVersions,
+        versions          = 'VK_VERSION_1_1',
+        emitversions      = 'VK_VERSION_1_1',
         defaultExtensions = 'vulkan',
         addExtensions     = None,
         removeExtensions  = None,
@@ -1217,7 +1240,7 @@ def genswigi(vkxml, output_folder):
 
     errWarn = sys.stderr
     with open(diagFilename, 'w', encoding='utf-8') as diag:
-        gen = CSWIGOutputGenerator(errFile=errWarn, warnFile=errWarn, diagFile=diag)
+        gen = CSWIGOutputGenerator(tree_copy, errFile=errWarn, warnFile=errWarn, diagFile=diag)
         reg.setGenerator(gen)
         reg.apiGen(genOpts)
 

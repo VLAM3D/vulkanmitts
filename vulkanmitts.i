@@ -1,30 +1,30 @@
 /* -*- C -*-  (not really, but good for syntax highlighting) */
 /*
-* pyvulkan SWIG interface description file
+* vulkanmitts SWIG interface description file
 *
 * Copyright (C) 2016 by VLAM3D Software inc. https://www.vlam3d.com
 *
 * This code is licensed under the MIT license (MIT) (http://opensource.org/licenses/MIT)
-*/  
+*/
 
 %define DOCSTRING
 "PYVULKAN Automatically generated documentation
 
-The source of this text is in pyvulkan.i the main SWIG_ interface file.
+The source of this text is in vulkanmitts.i the main SWIG_ interface file.
 Use %feature(\"autodoc\") in the interface file to improve the documentation.
-Please read SWIG_DOC_ 
+Please read SWIG_DOC_
 
 .. _SWIG: http://www.swig.org/
 .. _SWIG_DOC: http://www.swig.org/Doc1.3/Python.html#Python_nn65
 "
 %enddef
- 
-%module(docstring=DOCSTRING) pyvulkan
+
+%module(docstring=DOCSTRING) vulkanmitts
 
 %feature("autodoc", "3");
 
-%{ 
-#define SWIG_FILE_WITH_INIT  
+%{
+#define SWIG_FILE_WITH_INIT
 %}
 
 %include <numpy.i>
@@ -37,11 +37,11 @@ Please read SWIG_DOC_
 #include <vector>
 #include <numpy/arrayobject.h>
 #include <vulkan/vk_platform.h>
-#include <vulkan/vulkan.h> 
+#include <vulkan/vulkan.h>
 
 %}
-%init 
-%{ 
+%init
+%{
     import_array();
 %}
 
@@ -50,7 +50,7 @@ Please read SWIG_DOC_
     (void *argp, int res = 0)
     {
         res = SWIG_ConvertPtr($input, &argp, $descriptor(HANDLETYPE##_T*), 0 | 0);
-        if (!SWIG_IsOK(res)) 
+        if (!SWIG_IsOK(res))
         {
             int newmem = 0;
             res = SWIG_ConvertPtrAndOwn($input, &argp, $descriptor(std::shared_ptr<HANDLETYPE##_T> *), %convertptr_flags, &newmem);
@@ -81,7 +81,7 @@ Please read SWIG_DOC_
         $1 = SWIG_CheckState(res);
     }
 
-    // need to inform swig that HANDLETYPE is the same as HANDLETYPE_T*     
+    // need to inform swig that HANDLETYPE is the same as HANDLETYPE_T*
     %apply HANDLETYPE { HANDLETYPE##_T* };
 
     %template (HANDLETYPE##RefCounted)std::shared_ptr<HANDLETYPE##_T>;
@@ -91,7 +91,7 @@ Please read SWIG_DOC_
     %typemap(out) TYPE[ANY]
     {
         $result = PyList_New($1_dim0);
-        for (int i = 0; i < $1_dim0; i++) {        
+        for (int i = 0; i < $1_dim0; i++) {
             auto p_obj = SWIG_NewPointerObj(SWIG_as_voidptr(&$1[i]), $descriptor(TYPE*), 0 | 0);
             PyList_SetItem($result, i, p_obj);
         }
@@ -114,7 +114,7 @@ Please read SWIG_DOC_
             if (PyNumber_Check(o)) {
                 temp[i] = static_cast<TYPE>(CONVERT_API_FCT(o));
             } else {
-                PyErr_SetString(PyExc_ValueError,"Sequence elements must be numbers");      
+                PyErr_SetString(PyExc_ValueError,"Sequence elements must be numbers");
                 return NULL;
             }
         }
@@ -132,7 +132,7 @@ Please read SWIG_DOC_
     %typemap(out) TYPE[ANY]
     {
         $result = PyList_New($1_dim0);
-        for (int i = 0; i < $1_dim0; i++) {        
+        for (int i = 0; i < $1_dim0; i++) {
             auto p_obj = CONVERT_API_FCT(static_cast<CPYTHON_API_TYPE>($1[i]));
             PyList_SetItem($result, i, p_obj);
         }
@@ -172,7 +172,7 @@ Please read SWIG_DOC_
         }
     }
 
-    %typemap(in) TYPE 
+    %typemap(in) TYPE
     (void *argp, int res = 0)
     {
         int newmem = 0;
@@ -206,7 +206,7 @@ Please read SWIG_DOC_
             std::transform(vec.begin(), vec.end(), temp_vec.begin(), [](const std::shared_ptr<TYPE##RAII> &ptr)->TYPE {return ptr->nonRaiiObj; });
             $1 = &temp_vec;
         }
-    }      
+    }
 
     %typemap(in) const std::shared_ptr<TYPE##RAII> &
     (void *argp, int res = 0, std::shared_ptr<TYPE##RAII> null_shared_ptr)
@@ -225,7 +225,7 @@ Please read SWIG_DOC_
     }
 %enddef
 
-%include <std_shared_ptr.i>; 
+%include <std_shared_ptr.i>;
 
 // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 // shared_ptr section : all wrapped std::shared_ptr<T>
@@ -245,52 +245,52 @@ Please read SWIG_DOC_
 %include "std_vector.i"
 %include "std_map.i"
 %include "std_string.i"
-%include "std_wstring.i"   
+%include "std_wstring.i"
 %include "std_ios.i"
 %include "typemaps.i"
-%include "cpointer.i" 
+%include "cpointer.i"
 #ifndef _WIN32
 #define SWIGWORDSIZE64
 %include "stdint.i"
 #endif
 
-%exception   
-{ 
-    try  
+%exception
+{
+    try
     {
         $action
     }
-    catch (std::out_of_range& e) 
+    catch (std::out_of_range& e)
     {
         SWIG_exception(SWIG_IndexError,const_cast<char*>(e.what()));
     }
-    catch (const std::exception& e) 
+    catch (const std::exception& e)
     {
         SWIG_exception(SWIG_RuntimeError, e.what());
     }
-} 
+}
 
 // from William S. Fulton answer in http://swig.10945.n7.nabble.com/Properly-wrapping-quot-static-const-char-quot-td11479.html
 // we disable the const char * warning but we put a typemap to trigger a run-time error when trying to set it
 #pragma SWIG nowarn=-451
-%typemap(varin) const char * 
+%typemap(varin) const char *
 {
    SWIG_Error(SWIG_AttributeError,"Variable $symname is read-only.");
    SWIG_fail;
-}  
-   
-%{     
+}
+
+%{
     void ThrowOnVkError(VkResult res, const char* statement, const char* file, long line);
 
     #define V(x) do{   \
         auto res = x;\
         ThrowOnVkError(res, #x, __FILE__, __LINE__);\
     }while(0)
-%} 
- 
+%}
+
 
 %template (StringVector) std::vector<std::string>;
- 
+
 #define VKAPI_PTR
 
 #ifdef _WIN32
@@ -325,7 +325,7 @@ typedef HINSTANCE__* HINSTANCE;
 %#endif
 	if (!long_obj)
 	{
-		$1 = reinterpret_cast<HWND>(PyLong_AsVoidPtr($input));				
+		$1 = reinterpret_cast<HWND>(PyLong_AsVoidPtr($input));
 	}
 	else
 	{
@@ -364,7 +364,7 @@ typedef HINSTANCE__* HINSTANCE;
 }
 
 #ifdef _WIN32
-%inline 
+%inline
 %{
     HINSTANCE GetThisEXEModuleHandle()
     {
@@ -399,7 +399,7 @@ uint32_t makeVersion(uint32_t major, uint32_t minor, uint32_t patch);
     uint32_t makeVersion(uint32_t major, uint32_t minor, uint32_t patch)
     {
         return (((major) << 22) | ((minor) << 12) | (patch));
-    } 
+    }
 %}
 
 std::shared_ptr< std::vector<VkDescriptorSet> > allocateDescriptorSets(VkDevice device, const VkDescriptorSetAllocateInfo& allocateInfo, bool freeDescriptorSetAllowed);
@@ -420,11 +420,11 @@ std::shared_ptr< std::vector<VkDescriptorSet> > allocateDescriptorSets(VkDevice 
     std::shared_ptr< std::vector<VkDescriptorSet> > allocateDescriptorSets(VkDevice device, const VkDescriptorSetAllocateInfo& allocateInfo, bool freeDescriptorSetAllowed)
     {
 		// freeDescriptorSetAllowed must be true only when VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT is set
-		// in this case we call must call vkFreeDescriptorSets 
+		// in this case we call must call vkFreeDescriptorSets
 		if (freeDescriptorSetAllowed)
 		{
 			VkDescriptorPool descriptorPool = allocateInfo.descriptorPool;
-			std::shared_ptr< std::vector<VkDescriptorSet> > descriptor_sets(new std::vector<VkDescriptorSet>(allocateInfo.descriptorSetCount, nullptr), 
+			std::shared_ptr< std::vector<VkDescriptorSet> > descriptor_sets(new std::vector<VkDescriptorSet>(allocateInfo.descriptorSetCount, nullptr),
 				[device, descriptorPool](std::vector<VkDescriptorSet> *p_to_delete)
 				{
 					assert(p_to_delete != nullptr);
@@ -441,12 +441,12 @@ std::shared_ptr< std::vector<VkDescriptorSet> > allocateDescriptorSets(VkDevice 
 			return descriptor_sets;
 		}
 
-		// if VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT is NOT SET then the descriptor set is owned byt the descriptor pool 
+		// if VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT is NOT SET then the descriptor set is owned byt the descriptor pool
 		// it will be freed by vkResetDescriptorPool, so we don't need a custom deleter
 		auto descriptor_sets = std::make_shared< std::vector<VkDescriptorSet> >(allocateInfo.descriptorSetCount, nullptr);
 		V(vkAllocateDescriptorSets(device, &allocateInfo, &descriptor_sets->front() ));
 		return descriptor_sets;
-    } 
+    }
 %}
 
 %template (VkDescriptorSetVector)std::vector<VkDescriptorSet>;
@@ -485,9 +485,9 @@ std::shared_ptr< std::vector<VkCommandBuffer> > allocateCommandBuffers(VkDevice 
 // --  Typemap suite only for vkMapMemory --
 // Note that the following typemaps are only applicable to vkMapMemory and won't produce working code on any other interface
 // That's why they are defined at the end to reduce the chance that they will match some other signature
-%fragment("pyvulkan_mapmemory", "header")
+%fragment("vulkanmitts_mapmemory", "header")
 {
-    %#define PYVULKAN_MAPPEDMEMORY_CAPSULE_NAME "pyvulkan_mapped_memory_capsule"
+    %#define PYVULKAN_MAPPEDMEMORY_CAPSULE_NAME "vulkanmitts_mapped_memory_capsule"
 
     struct VkMapMemoryCapsule
     {
@@ -515,14 +515,14 @@ std::shared_ptr< std::vector<VkCommandBuffer> > allocateCommandBuffers(VkDevice 
     $2 = &dim_temp;
 }
 
-%typemap(argout, fragment = "NumPy_Backward_Compatibility,NumPy_Utilities,pyvulkan_mapmemory")
+%typemap(argout, fragment = "NumPy_Backward_Compatibility,NumPy_Utilities,vulkanmitts_mapmemory")
 (void** ppData_contiguous, VkDeviceSize* buffer_size)
 {
     npy_intp dims[1] = { static_cast<npy_intp>(*$2) };
     PyObject* obj = PyArray_SimpleNewFromData(1, dims, NPY_UBYTE, (void*)(*$1));
     PyArrayObject* array = (PyArrayObject*)obj;
 
-    if (!array) 
+    if (!array)
         SWIG_fail;
 
     VkMapMemoryCapsule *p_cap = new VkMapMemoryCapsule;
@@ -549,7 +549,7 @@ std::shared_ptr< std::vector<VkCommandBuffer> > allocateCommandBuffers(VkDevice 
         {
             throw std::runtime_error("VK_WHOLE_SIZE not supported; Please compute the size");
         }
-        
+
         V(vkMapMemory(device, memory, offset, size, flags, ppData_contiguous));
         *buffer_size = size;
     }
@@ -567,7 +567,7 @@ std::shared_ptr< std::vector<VkCommandBuffer> > allocateCommandBuffers(VkDevice 
 
 // the arg# correspond to the argument order in the mapMemory2D function below (1-based) e.g. arg1 is device, ... arg9 is ppData_strided_2D
 // this only works because this is the only function that matches this typemap
-%typemap(argout, fragment = "NumPy_Backward_Compatibility,NumPy_Utilities,pyvulkan_mapmemory")
+%typemap(argout, fragment = "NumPy_Backward_Compatibility,NumPy_Utilities,vulkanmitts_mapmemory")
 (void** ppData_strided_2D)
 {
     auto pyarray_descr = PyArray_DescrFromType(arg5);
@@ -587,7 +587,7 @@ std::shared_ptr< std::vector<VkCommandBuffer> > allocateCommandBuffers(VkDevice 
     PyArray_SetBaseObject(array, cap);
 
     $result = SWIG_Python_AppendOutput($result, obj);
-} 
+}
 
 %inline %{
     void mapMemory2D(
@@ -598,7 +598,7 @@ std::shared_ptr< std::vector<VkCommandBuffer> > allocateCommandBuffers(VkDevice 
         int                                         numpy_typenum,
         unsigned int                                width,
         unsigned int                                height,
-        unsigned int                                row_pitch_bytes,        
+        unsigned int                                row_pitch_bytes,
         void**                                      ppData_strided_2D)
     {
         V(vkMapMemory(device, memory, offset, static_cast<VkDeviceSize>(height)*static_cast<VkDeviceSize>(row_pitch_bytes), flags, ppData_strided_2D));
@@ -607,7 +607,7 @@ std::shared_ptr< std::vector<VkCommandBuffer> > allocateCommandBuffers(VkDevice 
 
 %include "message_callback.ixx"
 
-%inline 
+%inline
 %{
 	std::shared_ptr<VkDebugReportCallbackEXT_T> install_stdout_error_reporting(VkInstance instance, VkDebugReportFlagsEXT flags)
 	{

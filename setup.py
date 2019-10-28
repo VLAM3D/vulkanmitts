@@ -1,15 +1,15 @@
-"""setup for the pyvulkan project
- 
+"""setup for the vulkanmitts project
+
  Based on this file:
  https://github.com/davisking/dlib/blob/master/setup.py
 
  Copyright (C) 2015  Ehsan Azar (dashesy@linux.com)
  License: Boost Software License   See LICENSE.txt for the full license.
 
-This file basically just uses CMake to compile the pyvulkan and then puts the outputs into standard
+This file basically just uses CMake to compile the vulkanmitts and then puts the outputs into standard
 python packages.
 
-To build the pyvulkan:
+To build the vulkanmitts:
     python setup.py build
 To build and install:
     python setup.py install
@@ -23,8 +23,8 @@ To install a develop version (egg with symbolic link):
     python setup.py develop
 To exclude/include certain options in the cmake config use --yes and --no:
     for example:
-    --yes pyvulkan_NO_GUI_SUPPORT: will set -Dpyvulkan_NO_GUI_SUPPORT=yes
-    --no pyvulkan_NO_GUI_SUPPORT: will set -Dpyvulkan_NO_GUI_SUPPORT=no
+    --yes vulkanmitts_NO_GUI_SUPPORT: will set -Dvulkanmitts_NO_GUI_SUPPORT=yes
+    --no vulkanmitts_NO_GUI_SUPPORT: will set -Dvulkanmitts_NO_GUI_SUPPORT=no
 Additional options:
     --compiler-flags: pass flags onto the compiler, e.g. --compiler-flag "-Os -Wall" passes -Os -Wall onto GCC.
     --debug: makes a debug build
@@ -85,7 +85,7 @@ def _get_options():
             continue
 
         opt = arg[2:].lower()
-        
+
         custom_arg = True
         if opt == 'debug':
             _cmake_config = 'Debug'
@@ -207,7 +207,7 @@ def readme(fname):
 def read_version():
     """Read version information
     """
-    major = '0'    
+    major = '0'
     minor = '9'
     patch = '0'
     return major + '.' + minor + '.' + patch
@@ -241,7 +241,7 @@ def clean_dist():
         log.info('Removing distribution directory %s' % dist_dir)
         rmtree(dist_dir)
 
-    dist_dir = os.path.join(script_dir, "./dist/pyvulkan")
+    dist_dir = os.path.join(script_dir, "./dist/vulkanmitts")
     try:
         os.makedirs(dist_dir)
     except OSError:
@@ -256,7 +256,7 @@ class build(_build):
     def run(self):
         repackage = 'repackage' in options
         if not repackage:
-            self.build_pyvulkan()
+            self.build_vulkanmitts()
 
         dist_glslang_dir = os.path.join(script_dir, "./dist/pyglslang")
         try:
@@ -264,17 +264,17 @@ class build(_build):
         except OSError:
             pass
 
-        dist_dir = os.path.join(script_dir, "./dist/pyvulkan")
+        dist_dir = os.path.join(script_dir, "./dist/vulkanmitts")
         log.info('Populating the distribution directory %s ...' % dist_dir)
 
         copy_file("./install/bin/pyglslang.py", os.path.join(dist_glslang_dir,'pyglslang.py'))
         copy_file("./install/bin/_pyglslang"+py_module_ext, os.path.join(dist_glslang_dir,'_pyglslang'+py_module_ext))
-        copy_file("./install/bin/pyvulkan.py", os.path.join(dist_dir,'pyvulkan.py'))
-        copy_file("./install/bin/_pyvulkan"+py_module_ext, os.path.join(dist_dir,'_pyvulkan'+py_module_ext))
+        copy_file("./install/bin/vulkanmitts.py", os.path.join(dist_dir,'vulkanmitts.py'))
+        copy_file("./install/bin/_vulkanmitts"+py_module_ext, os.path.join(dist_dir,'_vulkanmitts'+py_module_ext))
 
         with open(os.path.join(dist_dir, '__init__.py'), 'w') as f:
-            # just so that we can `import pyvulkan` and not `from pyvulkan import pyvulkan`
-            f.write('from .pyvulkan import *\n')
+            # just so that we can `import vulkanmitts` and not `from vulkanmitts import vulkanmitts`
+            f.write('from .vulkanmitts import *\n')
             # add version here
             f.write('__version__ = "{ver}"\n'.format(ver=read_version()))
 
@@ -283,11 +283,11 @@ class build(_build):
             f.write('from .pyglslang import *\n')
             # add version here
             f.write('__version__ = "{ver}"\n'.format(ver=read_version()))
-        
+
         return _build.run(self)
 
     @staticmethod
-    def build_pyvulkan():
+    def build_vulkanmitts():
         """use cmake to build and install the extension
         """
         if cmake_path is None:
@@ -302,7 +302,7 @@ class build(_build):
                     if find_executable(manager) is not None:
                         message = msg_pkgmanager.format('OSX', manager)
                         break
-            elif sys.platform.startswith('linux'):                
+            elif sys.platform.startswith('linux'):
                 try:
                     import distro
                 except ImportError as err:
@@ -326,15 +326,15 @@ class build(_build):
                             if find_executable(manager) is not None:
                                 message = msg_pkgmanager.format(
                                     distname.title(), manager)
-                                break                
-            
+                                break
+
             raise DistutilsSetupError(
                 "Cannot find cmake, ensure it is installed and in the path.\n"
                 + message + "\n"
                 "You can also specify its path with --cmake parameter.")
 
         cmake_extra = []
-        cmake_gen = []        
+        cmake_gen = []
         if sys.platform.startswith('linux'):
             this_file_dir = os.path.dirname(os.path.realpath(__file__))
             numpy_swig_inc_path = os.path.join(this_file_dir, 'numpy_swig')
@@ -344,15 +344,15 @@ class build(_build):
             cmake_gen = ['-G','Visual Studio 14 2015 Win64']
             cmake_extra += ['-DSWIG_DIR=C:/DEV/swigwin-3.0.12']
             cmake_extra += ['-DSWIG_EXECUTABLE=C:/dev/swigwin-3.0.12/swig.exe']
-            cmake_extra += ['-DNUMPY_SWIG_DIR=C:/dev/pyvulkan/numpy_swig/']
-            cmake_extra += ['-DVULKAN_SDK=c:/VulkanSDK/1.0.65.0/']            
+            cmake_extra += ['-DNUMPY_SWIG_DIR=C:/dev/vulkanmitts/numpy_swig/']
+            cmake_extra += ['-DVULKAN_SDK=c:/VulkanSDK/1.0.65.0/']
             if sys.version_info >= (3, 0):
                 cmake_extra += ['-DPYTHON3=yes']
 
         platform_arch = platform.architecture()[0]
         log.info("Detected Python architecture: %s" % platform_arch)
 
-        # make sure build artifacts are generated for the version of Python currently running        
+        # make sure build artifacts are generated for the version of Python currently running
         inc_dir = get_python_inc()
         lib_dir = get_config_var('LIBDIR')
         if (inc_dir != None):
@@ -363,7 +363,7 @@ class build(_build):
         cmake_extra += ['-DCMAKE_INSTALL_PREFIX=../install']
 
         log.info("Detected platform: %s" % sys.platform)
- 
+
         build_dir = os.path.join(script_dir, "./build")
         if os.path.exists(build_dir):
             log.info('Removing build directory %s' % build_dir)
@@ -380,7 +380,7 @@ class build(_build):
         cmake_cmd = [
             cmake_path,
             "..",
-        ] + cmake_gen + cmake_extra 
+        ] + cmake_gen + cmake_extra
         if run_process(cmake_cmd):
             raise DistutilsSetupError("cmake configuration failed!")
 
@@ -433,24 +433,24 @@ class build_ext(_build_ext):
 package_data = {}
 if sys.platform.startswith('linux'):
     package_data['pyglslang'] = ['_pyglslang.so']
-    package_data['pyvulkan'] = ['_pyvulkan.so']
+    package_data['vulkanmitts'] = ['_vulkanmitts.so']
     py_module_ext = '.so'
 else:
     package_data['pyglslang'] = ['_pyglslang.pyd']
-    package_data['pyvulkan'] = ['_pyvulkan.pyd']
+    package_data['vulkanmitts'] = ['_vulkanmitts.pyd']
     py_module_ext = '.pyd'
 
 setup(
-    name='pyvulkan',
+    name='vulkanmitts',
     version=read_version(),
     keywords=['Vulkan'],
     description='Khronos Vulkan Pythonic Wrapper',
     long_description=readme('README.md'),
     author='Mathieu Lamarre',
     author_email='mathieu@vlam3d.com',
-    url='https://github.com/VLAM3D/pyvulkan',
+    url='https://github.com/VLAM3D/vulkanmitts',
     license='MIT',
-    packages=['pyglslang','pyvulkan'],
+    packages=['pyglslang','vulkanmitts'],
     package_dir={'': 'dist'},
     package_data=package_data,
     include_package_data=True,
@@ -461,8 +461,8 @@ setup(
         'develop': develop,
     },
     zip_safe=False,
-    ext_modules=[Extension('pyvulkan', [])],
-    ext_package='pyvulkan',
+    ext_modules=[Extension('vulkanmitts', [])],
+    ext_package='vulkanmitts',
     classifiers=[
         'Development Status :: 5 - Production/Stable',
         'Intended Audience :: Science/Research',

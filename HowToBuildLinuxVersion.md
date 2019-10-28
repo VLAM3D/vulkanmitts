@@ -10,24 +10,24 @@
 * Manual build with CMake & make command similar to the one below
 * To create wheel files use setup.py bdist_wheel
 
-## Manual build 
+## Manual build
 
 ```
 mkdir build
 cd build
 mkdir py27
-cd py27 
-cmake ../.. -DVULKAN_SDK=~/VulkanSDK/1.0.65.0 -DCMAKE_INSTALL_PREFIX=~/dev/pyvulkan/build/py27 -DNUMPY_SWIG_DIR=~/dev/pyvulkan/numpy_swig
+cd py27
+cmake ../.. -DVULKAN_SDK=~/VulkanSDK/1.0.65.0 -DCMAKE_INSTALL_PREFIX=~/dev/vulkanmitts/build/py27 -DNUMPY_SWIG_DIR=~/dev/vulkanmitts/numpy_swig
 make -j$(nproc) install
 ```
-# Running tests with manual build and Lunar validation layers 
+# Running tests with manual build and Lunar validation layers
 
 ```
 cd ~/VulkanSDK/1.0.65.0
 source setup-env.sh
-export PYTHONPATH=~/dev/pyvulkan/build/py27/bin
-cd ~/dev/pyvulkan
-python test_pyvulkan_no_window.py
+export PYTHONPATH=~/dev/vulkanmitts/build/py27/bin
+cd ~/dev/vulkanmitts
+python test_vulkanmitts_no_window.py
 ```
 
 Every test should be ok and no warning from Lunar SDK.

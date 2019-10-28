@@ -1,10 +1,10 @@
 package:
-  name: pyvulkan
+  name: vulkanmitts
   version: "0.9"
 
 source:
-  git_url: https://github.com/VLAM3D/pyvulkan.git
-  
+  git_url: https://github.com/VLAM3D/vulkanmitts.git
+
 requirements:
   build:
     - python
@@ -17,9 +17,9 @@ requirements:
 test:
   # Python imports
   imports:
-    - pyvulkan
+    - vulkanmitts
 
 about:
-  home: https://github.com/VLAM3D/pyvulkan
+  home: https://github.com/VLAM3D/vulkanmitts
   license: MIT License
   summary: "Khronos Vulkan API Python Bindings"

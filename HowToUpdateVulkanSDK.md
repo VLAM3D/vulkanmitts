@@ -1,4 +1,4 @@
-[![Anaconda-Server Badge](https://anaconda.org/mlamarre/pyvulkan/badges/installer/conda.svg)](https://conda.anaconda.org/mlamarre)
+[![Anaconda-Server Badge](https://anaconda.org/mlamarre/vulkanmitts/badges/installer/conda.svg)](https://conda.anaconda.org/mlamarre)
 
 * Download and install latest Vulkan SDK release
 * Change four CMakeLists.txt : glslang, spirv-tools, Samples and Samples/Sample-Programs/Hologram
@@ -11,9 +11,9 @@
 ~~~~
 git checkout -b v1.0.65-core v1.0.65-core
 ~~~~
-* Add Vulkan-Docs\src\spec to PYTHONPATH 
+* Add Vulkan-Docs\src\spec to PYTHONPATH
 ~~~
-set PYTHONPATH=c:\build\pyvulkan36\bin;C:\dev\Vulkan-Docs\src\spec
+set PYTHONPATH=c:\build\vulkanmitts36\bin;C:\dev\Vulkan-Docs\src\spec
 ~~~
 * Run genswiggi.py to generate the SWIG interface file
 ~~~~

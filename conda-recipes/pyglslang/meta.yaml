@@ -3,8 +3,8 @@ package:
   version: "0.9"
 
 source:
-  git_url: https://github.com/VLAM3D/pyvulkan.git
-  
+  git_url: https://github.com/VLAM3D/vulkanmitts.git
+
 requirements:
   build:
     - python
@@ -20,6 +20,6 @@ test:
     - pyglslang
 
 about:
-  home: https://github.com/VLAM3D/pyvulkan
+  home: https://github.com/VLAM3D/vulkanmitts
   license: MIT License
   summary: "Khronos Vulkan API Python Bindings"

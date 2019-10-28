@@ -1,16 +1,16 @@
-# pyvulkan unit test
+# vulkanmitts unit test
 # Copyright (C) 2016 by VLAM3D Software inc. https://www.vlam3d.com
 # This code is licensed under the MIT license (MIT) (http://opensource.org/licenses/MIT)
 import sys
 import unittest
-import pyvulkan as vk
+import vulkanmitts as vk
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 from vkcontextmanager import VkContextManager, memory_type_from_properties
 from contextlib import contextmanager
-from hello_pyvulkan import render_textured_cube
+from hello_vulkanmitts import render_textured_cube
 from cube_data import *
-from test_pyvulkan_no_window import *
+from test_vulkanmitts_no_window import *
 
 class SwapChainTestCase(unittest.TestCase):
     def setUp(self):
@@ -31,16 +31,16 @@ class SwapChainTestCase(unittest.TestCase):
         self.assertIsNotNone(self.device)
 
     def __del__(self):
-        self.device = None        
+        self.device = None
 
     def test_create_win32_swap_chain(self):
         widget = QWidget()
         widget.resize(640, 480)
-        surface_ci = vk.Win32SurfaceCreateInfoKHR(0, vk.GetThisEXEModuleHandle(), widget.winId())       
-        self.assertIsNotNone(surface_ci)        
+        surface_ci = vk.Win32SurfaceCreateInfoKHR(0, vk.GetThisEXEModuleHandle(), widget.winId())
+        self.assertIsNotNone(surface_ci)
         surface = vk.createWin32SurfaceKHR(self.instance, surface_ci)
         self.assertIsNotNone(surface)
-        
+
         # test that we can find a queue with the graphics bit and that can present
         queue_props = vk.getPhysicalDeviceQueueFamilyProperties(self.physical_devices[0])
         support_present = []
@@ -85,18 +85,18 @@ class SwapChainTestCase(unittest.TestCase):
         if surface_caps.supportedTransforms & vk.VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR:
             pre_transform = vk.VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR
 
-        swp_ci = vk.SwapchainCreateInfoKHR(0, 
-                                           surface, 
-                                           req_image_count, 
-                                           format, 
-                                           color_space, 
+        swp_ci = vk.SwapchainCreateInfoKHR(0,
+                                           surface,
+                                           req_image_count,
+                                           format,
+                                           color_space,
                                            surface_caps.currentExtent, # image extent
                                            1, # image array layers
                                            vk.VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, # image usage
-                                           vk.VK_SHARING_MODE_EXCLUSIVE, # image sharing mode, 
-                                           [], 
-                                           pre_transform, 
-                                           vk.VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR, # composite  alpha, 
+                                           vk.VK_SHARING_MODE_EXCLUSIVE, # image sharing mode,
+                                           [],
+                                           pre_transform,
+                                           vk.VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR, # composite  alpha,
                                            present_modes[0], # present mode
                                            True, # clipped
                                            None) # old_swp_chain
@@ -105,7 +105,7 @@ class SwapChainTestCase(unittest.TestCase):
         self.assertIsNotNone(swap_chain)
 
         images = vk.getSwapchainImagesKHR(self.device, swap_chain)
-        self.assertIsNotNone(images)        
+        self.assertIsNotNone(images)
         components = vk.ComponentMapping(vk.VK_COMPONENT_SWIZZLE_R, vk.VK_COMPONENT_SWIZZLE_G, vk.VK_COMPONENT_SWIZZLE_B, vk.VK_COMPONENT_SWIZZLE_A)
         subresource_range = vk.ImageSubresourceRange(vk.VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1)
         image_views = []
@@ -116,12 +116,12 @@ class SwapChainTestCase(unittest.TestCase):
             image_views.append(iv)
 
 class TestRenderCube(unittest.TestCase):
-    def test_render_colored_cube(self):        
+    def test_render_colored_cube(self):
         cube_coords = get_xyzw_uv_cube_coords()
-        with VkContextManager(vertex_data = cube_coords, surface_type = VkContextManager.VKC_WIN32) as vkc: 
-            self.assertIsNotNone(vkc)            
+        with VkContextManager(vertex_data = cube_coords, surface_type = VkContextManager.VKC_WIN32) as vkc:
+            self.assertIsNotNone(vkc)
             render_textured_cube(vkc,cube_coords,[1])
-      
+
 if __name__ == '__main__':
     app = QApplication(sys.argv) # the QApplication must be at this scope to avoid a crash in QT when some test case fails
     # set defaultTest to invoke a specific test case
