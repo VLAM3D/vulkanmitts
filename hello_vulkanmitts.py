@@ -11,11 +11,11 @@ from vkcontextmanager import vkreleasing, vkunmapping
 from transforms import *
 
 def animate_cube(vkc, frame_no):
-    P = np.matrix( perspective(45.0, 1.0, 0.1, 100.0) )
-    V = np.matrix( look_at( np.array([5, 3, 10]), np.array([0, 0, 0]), np.array([0, -1, 0]) ) )
+    P = perspective(45.0, 1.0, 0.1, 100.0)
+    V = look_at( np.array([5, 3, 10]), np.array([0, 0, 0]), np.array([0, -1, 0]) )
     M = np.eye(4)
     yrotate(M, float(frame_no[0] % 7200) / 20.0 )
-    MVP = (M * V * P).astype(np.single)
+    MVP = M.dot(V.dot(P)).astype(np.single)
 
     with vkunmapping( vk.mapMemory(vkc.device, vkc.uniform_buffer_mem , 0, MVP.nbytes, 0) ) as mapped_array:
         np.copyto(np.frombuffer(mapped_array.mem, dtype=np.single, count=len(MVP.flat)), MVP.flat)

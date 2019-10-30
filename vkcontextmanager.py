@@ -115,7 +115,7 @@ class VkContextManager:
         self.widget = None
 
     def init_window(self):
-        from PyQt4.QtGui import QWidget
+        from PyQt5.QtWidgets import QWidget
         self.widget = QWidget()
         self.widget.resize(self.output_size[0], self.output_size[1])
         self.stack.callback(self.delete_window)
@@ -486,10 +486,10 @@ class VkContextManager:
                                                                                     False)))
 
     def init_uniform_buffer(self):
-        P = np.matrix( perspective(45.0, 1.0, 0.1, 100.0) )
-        V = np.matrix( look_at( np.array([5, 3, 10]), np.array([0, 0, 0]), np.array([0, -1, 0]) ) )
-        M = np.matrix( np.eye(4) )
-        MVP = (M * V * P).astype(np.single)
+        P = perspective(45.0, 1.0, 0.1, 100.0)
+        V = look_at( np.array([5, 3, 10]), np.array([0, 0, 0]), np.array([0, -1, 0]) )
+        M = np.eye(4)
+        MVP = M.dot(V.dot(P)).astype(np.single)
 
         self.uniform_buffer = self.ESP( vk.createBuffer(self.device, vk.BufferCreateInfo(0, MVP.nbytes, vk.VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, vk.VK_SHARING_MODE_EXCLUSIVE, [])) )
         self.uniform_buffer_bytes = MVP.nbytes

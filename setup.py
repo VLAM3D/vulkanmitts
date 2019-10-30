@@ -49,7 +49,7 @@ import os
 import sys
 from setuptools import Extension, setup
 import platform
-from subprocess import Popen, PIPE, STDOUT
+import subprocess
 import signal
 from threading import Thread
 import time
@@ -104,111 +104,18 @@ def _get_options():
 options, cmake_config = _get_options()
 cmake_path = find_executable("cmake")
 
-try:
-    from Queue import Queue, Empty
-except ImportError:
-    # noinspection PyUnresolvedReferences
-    from queue import Queue, Empty  # python 3.x
-
-
 _ON_POSIX = 'posix' in sys.builtin_module_names
-
-
-def enqueue_output(out, queue):
-    for line in iter(out.readline, b''):
-        queue.put(line)
-
-
-def _log_buf(buf):
-    if not buf:
-        return
-    if sys.stdout.encoding:
-        buf = buf.decode(sys.stdout.encoding)
-    buf = buf.rstrip()
-    lines = buf.splitlines()
-    for line in lines:
-        log.info(line)
-
-
-def run_process(cmds, timeout=None):
-    """run a process asynchronously
-    :param cmds: list of commands to invoke on a shell e.g. ['make', 'install']
-    :param timeout: timeout in seconds (optional)
-    """
-
-    # open process as its own session, and with no stdout buffering
-    p = Popen(cmds,
-              stdout=PIPE, stderr=STDOUT,
-              bufsize=1,
-              close_fds=_ON_POSIX, preexec_fn=os.setsid if _ON_POSIX else None)
-
-    q = Queue()
-    t = Thread(target=enqueue_output, args=(p.stdout, q))
-    t.daemon = True  # thread dies with the program
-    t.start()
-
-    _time = time.time()
-    e = None
-    try:
-        while t.isAlive():
-            try:
-                buf = q.get(timeout=.1)
-            except Empty:
-                buf = b''
-            _log_buf(buf)
-            elapsed = time.time() - _time
-            if timeout and elapsed > timeout:
-                break
-        # Make sure we print all the output from the process.
-        if p.stdout:
-            for line in p.stdout:
-                _log_buf(line)
-            p.wait()
-    except (KeyboardInterrupt, SystemExit) as e:
-        # if user interrupted
-        pass
-
-    # noinspection PyBroadException
-    try:
-        os.kill(p.pid, signal.SIGINT)
-    except (KeyboardInterrupt, SystemExit) as e:
-        pass
-    except:
-        pass
-
-    # noinspection PyBroadException
-    try:
-        if e:
-            os.kill(p.pid, signal.SIGKILL)
-        else:
-            p.wait()
-    except (KeyboardInterrupt, SystemExit) as e:
-        # noinspection PyBroadException
-        try:
-            os.kill(p.pid, signal.SIGKILL)
-        except:
-            pass
-    except:
-        pass
-
-    t.join(timeout=0.1)
-    if e:
-        raise e
-
-    return p.returncode
-
 
 def readme(fname):
     """Read text out of a file relative to setup.py.
     """
     return open(os.path.join(script_dir, fname)).read()
 
-
 def read_version():
     """Read version information
     """
     major = '0'
-    minor = '9'
+    minor = '10'
     patch = '0'
     return major + '.' + minor + '.' + patch
 
@@ -341,13 +248,7 @@ class build(_build):
             cmake_extra += ['-DNUMPY_SWIG_DIR=' + numpy_swig_inc_path]
             cmake_extra += ['-DCMAKE_BUILD_TYPE=RELEASE']
         elif sys.platform == "win32":
-            cmake_gen = ['-G','Visual Studio 14 2015 Win64']
-            cmake_extra += ['-DSWIG_DIR=C:/DEV/swigwin-3.0.12']
-            cmake_extra += ['-DSWIG_EXECUTABLE=C:/dev/swigwin-3.0.12/swig.exe']
-            cmake_extra += ['-DNUMPY_SWIG_DIR=C:/dev/vulkanmitts/numpy_swig/']
-            cmake_extra += ['-DVULKAN_SDK=c:/VulkanSDK/1.0.65.0/']
-            if sys.version_info >= (3, 0):
-                cmake_extra += ['-DPYTHON3=yes']
+            cmake_gen = ['-G','Visual Studio 15 2017 Win64']
 
         platform_arch = platform.architecture()[0]
         log.info("Detected Python architecture: %s" % platform_arch)
@@ -361,14 +262,11 @@ class build(_build):
             cmake_extra += ['-DCMAKE_LIBRARY_PATH=' + lib_dir]
 
         cmake_extra += ['-DCMAKE_INSTALL_PREFIX=../install']
+        cmake_extra += ['-Wno-dev']
 
         log.info("Detected platform: %s" % sys.platform)
 
         build_dir = os.path.join(script_dir, "./build")
-        if os.path.exists(build_dir):
-            log.info('Removing build directory %s' % build_dir)
-            rmtree(build_dir)
-
         try:
             os.makedirs(build_dir)
         except OSError:
@@ -381,8 +279,7 @@ class build(_build):
             cmake_path,
             "..",
         ] + cmake_gen + cmake_extra
-        if run_process(cmake_cmd):
-            raise DistutilsSetupError("cmake configuration failed!")
+        subprocess.check_call(cmake_cmd)
 
         log.info('Build using cmake ...')
 
@@ -393,8 +290,7 @@ class build(_build):
             "--target", "install",
         ]
 
-        if run_process(cmake_cmd):
-            raise DistutilsSetupError("cmake build failed!")
+        subprocess.check_call(cmake_cmd)
 
         # cd back where setup awaits
         os.chdir(script_dir)

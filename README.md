@@ -28,7 +28,7 @@ After cloning this repository:
 
 ```
 python test_vulkanmitts_no_window.py
-python hello_pyvkoffscreen.py
+python hello_vulkanmittsoffscreen.py
 ```
 
 If you are running on a Linux headless server with NVIDIA cards you still need to install Xorg and set this environment variable:

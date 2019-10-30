@@ -197,7 +197,7 @@ class TestDepthStencil(unittest.TestCase):
 
 class TestRenderCube(unittest.TestCase):
     def test_render_colored_cube(self):
-        from hello_pyvkoffscreen import render_textured_cube
+        from hello_vulkanmittsoffscreen import render_textured_cube
         cube_coords = get_xyzw_uv_cube_coords()
         with VkContextManager(vertex_data = cube_coords, surface_type = VkContextManager.VKC_OFFSCREEN) as vkc:
             self.assertIsNotNone(vkc)

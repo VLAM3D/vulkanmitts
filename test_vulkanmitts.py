@@ -4,8 +4,7 @@
 import sys
 import unittest
 import vulkanmitts as vk
-from PyQt4.QtGui import *
-from PyQt4.QtCore import *
+from PyQt5.QtWidgets import QApplication, QWidget
 from vkcontextmanager import VkContextManager, memory_type_from_properties
 from contextlib import contextmanager
 from hello_vulkanmitts import render_textured_cube

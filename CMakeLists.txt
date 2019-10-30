@@ -18,7 +18,13 @@ include_directories(${PYTHON_INCLUDE_PATH})
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
 find_package(Vulkan REQUIRED)
+get_filename_component(VULKAN_SDK ${Vulkan_INCLUDE_DIR} DIRECTORY)
+message(STATUS "Found Vulkan SDK: " ${VULKAN_SDK})
 
+if (WIN32)
+  include_directories(${Vulkan_INCLUDE_DIR})
+  get_filename_component(Vulkan_INCLUDE_DIR ${Vulkan_INCLUDE_DIR} DIRECTORY)
+endif()
 include_directories(${Vulkan_INCLUDE_DIR}/glslang/glslang/Include)
 include_directories(${Vulkan_INCLUDE_DIR}/glslang/glslang/Public)
 include_directories(${Vulkan_INCLUDE_DIR}/glslang/SPIRV)
@@ -37,6 +43,10 @@ set(NUMPY_INCLUDE_DIR ${PYTHON_SITE_PACKAGES}/numpy/core/include)
 find_library(NUMPY_LIB NAMES npymath HINTS ${PYTHON_SITE_PACKAGES}/numpy/core/lib)
 message (STATUS "Numpy include path: " ${NUMPY_INCLUDE_DIR} )
 message (STATUS "Numpy lib: " ${NUMPY_LIB} )
+if (NOT NUMPY_SWIG_DIR)
+  set(NUMPY_SWIG_DIR ${CMAKE_CURRENT_SOURCE_DIR}/numpy_swig)
+endif()
+message (STATUS "Numpy SWIG file: " ${NUMPY_SWIG_DIR})
 
 ####
 # GLSLANG DEPENDENCIES
@@ -135,7 +145,7 @@ if (WIN32)
     set_target_properties(SPVRemapper PROPERTIES
                          IMPORTED_LOCATION       "${SPVREMAPPER_LIB}"
                          IMPORTED_LOCATION_DEBUG "${SPVREMAPPER_DLIB}")
-	set_target_properties(HLSL PROPERTIES
+	  set_target_properties(HLSL PROPERTIES
                          IMPORTED_LOCATION       "${HLSL_LIB}"
                          IMPORTED_LOCATION_DEBUG "${HLSL_DLIB}")
     set_target_properties(SPIRV-Tools PROPERTIES
@@ -148,9 +158,10 @@ if (WIN32)
     set (GLSLANG_LIBRARIES glslang OGLCompiler OSDependent SPIRV SPVRemapper HLSL)
     set (SPIRV_TOOLS_LIBRARIES SPIRV-Tools SPIRV-Tools-opt)
 
-    message (STATUS "GLSLANG_LIBRARIES: " "${GLSLANG_DLIB} ${OGLCompiler_DLIB} ${OSDependent_DLIB} ${SPIRV_DLIB} ${SPVREMAPPER_LIB} ${HLSL_DLIB}" )
-    message (STATUS "SPIRV_TOOLS_LIBRARIES: " ${SPIRV_TOOLS_LIBRARIES})
-
+    message (STATUS "GLSLANG DEBUG LIBRARIES: " "${GLSLANG_DLIB} ${OGLCompiler_DLIB} ${OSDependent_DLIB} ${SPIRV_DLIB} ${SPVREMAPPER_DLIB} ${HLSL_DLIB}" )
+    message (STATUS "GLSLANG RELEASE LIBRARIES: " "${GLSLANG_LIB} ${OGLCompiler_LIB} ${OSDependent_LIB} ${SPIRV_LIB} ${SPVREMAPPER_LIB} ${HLSL_LIB}" )
+    message (STATUS "SPIRV TOOLS DEBUG LIBRARIES: " "${SPIRV_TOOLS_DLIB} ${SPIRV_TOOLS_OPT_DLIB}" )
+    message (STATUS "SPIRV TOOLS RELEASE LIBRARIES: " "${SPIRV_TOOLS_LIB} ${SPIRV_TOOLS_OPT_LIB}" )
 else ()
     set (GLSLANG_LIBRARIES ${GLSLANG_LIB} ${OGLCompiler_LIB} ${OSDependent_LIB} ${SPIRV_LIB} ${SPVREMAPPER_LIB} ${HLSL_LIB})
     set (SPIRV_TOOLS_LIBRARIES ${SPIRV_TOOLS_OPT_LIB} ${SPIRV_TOOLS_LIB})
@@ -190,7 +201,7 @@ endif()
 
 set(SWIG_MODULE_vulkanmitts_EXTRA_DEPS vulkan.ixx shared_ptrs.ixx)
 swig_add_library(vulkanmitts LANGUAGE python SOURCES vulkanmitts.i)
-swig_link_libraries(vulkanmitts ${PYTHON_LIBRARIES} ${NUMPY_LIB} ${VULKAN_LIB})
+swig_link_libraries(vulkanmitts ${PYTHON_LIBRARIES} ${NUMPY_LIB} Vulkan::Vulkan)
 set_target_properties(${SWIG_MODULE_vulkanmitts_REAL_NAME} PROPERTIES LINK_FLAGS ${LINK_FLAGS})
 
 install(TARGETS ${SWIG_MODULE_vulkanmitts_REAL_NAME} DESTINATION bin)
