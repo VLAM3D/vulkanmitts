@@ -34,7 +34,6 @@ def render_textured_cube(vkc, cube_coords, frame_no):
     vkc.init_scissors()
     vk.cmdDraw(vkc.command_buffers[0], cube_coords.shape[0], 1, 0, 0)
     vk.cmdEndRenderPass(vkc.command_buffers[0])
-    vkc.execute_pre_present_barrier()
     vk.endCommandBuffer(vkc.command_buffers[0])
 
     with vkreleasing( vk.createFence(vkc.device, vk.FenceCreateInfo(0)) ) as draw_fence:
@@ -61,4 +60,4 @@ if __name__ == '__main__':
     frame_no = [0] # using a list in the closure because Int is immutable
     def render_textured_cube_closure(vkc):
         render_textured_cube(vkc, cube_coords, frame_no)
-    win32_vk_main(render_textured_cube_closure, 8)
+    win32_vk_main(render_textured_cube_closure, 16)

@@ -68,14 +68,14 @@ class Win32Window:
 
     def winId(self):
         return self.hWnd
-  
+
 def win32_vk_main(vulkan_render_fct, redraw_interval_ms):
 
     WndProc = WNDPROCTYPE(PyWndProcedure)
     hInst = windll.kernel32.GetModuleHandleW(0)
     wclassName = u'Hello Vulkan Win32 Class'
     wname = u'Hello Vulkan Win32 Window'
-    
+
     wndClass = WNDCLASSEX()
     wndClass.cbSize = sizeof(WNDCLASSEX)
     wndClass.style = CS_HREDRAW | CS_VREDRAW
@@ -84,16 +84,16 @@ def win32_vk_main(vulkan_render_fct, redraw_interval_ms):
     wndClass.cbWndExtra = 0
     wndClass.hInstance = hInst
     wndClass.hIcon = 0
-    wndClass.hCursor = windll.user32.LoadCursorW(0, IDC_ARROW);
+    wndClass.hCursor = windll.user32.LoadCursorW(0, IDC_ARROW)
     wndClass.lpszMenuName = 0
     wndClass.hbrBackground = windll.gdi32.GetStockObject(WHITE_BRUSH)
     wndClass.lpszClassName = wclassName
-    wndClass.hIconSm = windll.user32.LoadIconW(0, IDI_WINLOGO);
-    
+    wndClass.hIconSm = windll.user32.LoadIconW(0, IDI_WINLOGO)
+
     regRes = windll.user32.RegisterClassExW(byref(wndClass))
-    windll.user32.AdjustWindowRect( RECT(0,0,640,480), WS_OVERLAPPEDWINDOW, 0) 
+    windll.user32.AdjustWindowRect( RECT(0,0,640,480), WS_OVERLAPPEDWINDOW, 0)
     hWnd = windll.user32.CreateWindowExW(0,wclassName,wname, WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_VISIBLE | WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, 640, 480,0,0,hInst,0)
-    
+
     if not hWnd:
         print('Failed to create window')
         exit(0)
@@ -104,12 +104,12 @@ def win32_vk_main(vulkan_render_fct, redraw_interval_ms):
     lpmsg = pointer(msg)
 
     print('Creating Vulkan Context')
-    with VkContextManager(VkContextManager.VKC_INIT_PIPELINE, surface_type = VkContextManager.VKC_WIN32, widget=Win32Window(hWnd)) as vkc: 
+    with VkContextManager(VkContextManager.VKC_INIT_PIPELINE, surface_type = VkContextManager.VKC_WIN32, widget=Win32Window(hWnd)) as vkc:
         print('Entering message loop')
         set_timer = True
-        redraw = True         
+        redraw = True
         while True:
-            quit = False               
+            quit = False
             while windll.user32.PeekMessageW(lpmsg, 0, 0, 0, PM_REMOVE) != 0:
                 if msg.message == WM_QUIT:
                     quit = True
@@ -117,23 +117,23 @@ def win32_vk_main(vulkan_render_fct, redraw_interval_ms):
 
                 if msg.message == WM_TIMER and msg.wParam == 1:
                     redraw = True
-            
+
                 windll.user32.TranslateMessage(lpmsg)
                 windll.user32.DispatchMessageW(lpmsg)
 
             if quit:
                 break
-            
+
             if redraw:
                 vulkan_render_fct(vkc)
-                redraw = False 
+                redraw = False
 
             if set_timer:
                 success = windll.user32.SetTimer(hWnd, 1, redraw_interval_ms, 0)
                 set_timer = False
-    
+
         print('done.')
-    
+
 if __name__ == "__main__":
     print("Win32 Application in python")
     def no_render(vkc):

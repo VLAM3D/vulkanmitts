@@ -230,8 +230,8 @@ class VkContextManager:
                                     [],
                                     vk.VK_IMAGE_LAYOUT_UNDEFINED)
 
-        self.offscreen_output_image =  self.ESP( vk.createImage(self.device, ici) )
-        mem_reqs = vk.getImageMemoryRequirements(self.device, self.offscreen_output_image);
+        self.offscreen_output_image = self.ESP( vk.createImage(self.device, ici) )
+        mem_reqs = vk.getImageMemoryRequirements(self.device, self.offscreen_output_image)
 
         mem_type_index = memory_type_from_properties(self.physical_devices[0], mem_reqs.memoryTypeBits, 0)
         assert(mem_type_index is not None)
@@ -517,8 +517,10 @@ class VkContextManager:
 
         if self.surface_type == VkContextManager.VKC_OFFSCREEN:
             initial_layout = vk.VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL
+            final_layout = vk.VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL
         else:
             initial_layout = vk.VK_IMAGE_LAYOUT_UNDEFINED
+            final_layout = vk.VK_IMAGE_LAYOUT_PRESENT_SRC_KHR
 
         attachments = vk.VkAttachmentDescriptionVector()
         attachments.append( vk.AttachmentDescription(0, self.format,
@@ -528,7 +530,7 @@ class VkContextManager:
                                                         vk.VK_ATTACHMENT_LOAD_OP_DONT_CARE,
                                                         vk.VK_ATTACHMENT_STORE_OP_DONT_CARE,
                                                         initial_layout,
-                                                        vk.VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL) )
+                                                        final_layout) )
 
         attachments.append( vk.AttachmentDescription(0, self.depth_format,
                                                         vk.VK_SAMPLE_COUNT_1_BIT,
@@ -539,12 +541,22 @@ class VkContextManager:
                                                         vk.VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
                                                         vk.VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL) )
 
+        dependencies = vk.VkSubpassDependencyVector()
+        dependencies.append(vk.SubpassDependency(
+            vk.VK_SUBPASS_EXTERNAL,
+            0,
+            vk.VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
+            vk.VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
+            0,
+            vk.VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | vk.VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
+            vk.VK_DEPENDENCY_BY_REGION_BIT))
+
         color_attachments = vk.VkAttachmentReferenceVector(1,vk.AttachmentReference(0,vk.VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL))
         depth_attachment = vk.AttachmentReference(1,vk.VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL)
 
         subpasses = vk.VkSubpassDescriptionVector()
         subpasses.append(  vk.SubpassDescription(0, vk.VK_PIPELINE_BIND_POINT_GRAPHICS, vk.VkAttachmentReferenceVector(), color_attachments, vk.VkAttachmentReferenceVector(), depth_attachment, []) )
-        self.render_pass = self.ESP( vk.createRenderPass(self.device, vk.RenderPassCreateInfo(0, attachments, subpasses, vk.VkSubpassDependencyVector())) )
+        self.render_pass = self.ESP( vk.createRenderPass(self.device, vk.RenderPassCreateInfo(0, attachments, subpasses, dependencies)) )
 
     def init_shaders(self, vertex_shader_text, frag_shader_text):
         if vertex_shader_text is not None and len(vertex_shader_text) > 0:
@@ -678,28 +690,6 @@ class VkContextManager:
     def init_scissors(self):
         w,h = self.get_surface_extent()
         vk.cmdSetScissor(self.command_buffers[0], 0, vk.VkRect2DVector(1, vk.Rect2D(vk.Offset2D(0,0), vk.Extent2D(w,h))))
-
-    # http://stackoverflow.com/questions/37524032/how-to-deal-with-the-layouts-of-presentable-images
-    # Here's the mandatory explicit transition from VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL to VK_IMAGE_LAYOUT_PRESENT_SRC_KHR
-    # to avoid any validation error after queuePresentKHR - note that we don't need an explicit transition back to VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL
-    # because we specified this transition in the render pass
-    def execute_pre_present_barrier(self):
-        pre_present_barrier = vk.ImageMemoryBarrier(vk.VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
-                                                    vk.VK_ACCESS_MEMORY_READ_BIT,
-                                                    vk.VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
-                                                    vk.VK_IMAGE_LAYOUT_PRESENT_SRC_KHR,
-                                                    vk.VK_QUEUE_FAMILY_IGNORED,
-                                                    vk.VK_QUEUE_FAMILY_IGNORED,
-                                                    self.images[self.current_buffer],
-                                                    vk.ImageSubresourceRange(vk.VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1))
-
-        vk.cmdPipelineBarrier(self.command_buffers[0],
-                              vk.VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
-                              vk.VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT,
-                              0,
-                              vk.VkMemoryBarrierVector(),
-                              vk.VkBufferMemoryBarrierVector(),
-                              vk.VkImageMemoryBarrierVector(1,pre_present_barrier))
 
     def init_readback_image(self):
         w,h = self.get_surface_extent()
