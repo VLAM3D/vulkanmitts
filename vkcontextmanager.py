@@ -710,7 +710,7 @@ class VkContextManager:
                                     vk.VK_IMAGE_LAYOUT_UNDEFINED)
 
         self.readback_image =  self.ESP( vk.createImage(self.device, ici) )
-        mem_reqs = vk.getImageMemoryRequirements(self.device, self.readback_image);
+        mem_reqs = vk.getImageMemoryRequirements(self.device, self.readback_image)
 
         mem_type_index = memory_type_from_properties(self.physical_devices[0], mem_reqs.memoryTypeBits, vk.VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT)
         assert(mem_type_index is not None)

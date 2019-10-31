@@ -115,7 +115,7 @@ def read_version():
     """Read version information
     """
     major = '0'
-    minor = '10'
+    minor = '11'
     patch = '0'
     return major + '.' + minor + '.' + patch
 
@@ -370,11 +370,10 @@ setup(
         'Operating System :: Microsoft :: Windows',
         'Programming Language :: C++',
         'Programming Language :: Python',
-        'Programming Language :: Python :: 2',
-        'Programming Language :: Python :: 2.6',
-        'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.4',
+        'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
         'Topic :: Scientific/Engineering',
         'Topic :: Scientific/Engineering :: Artificial Intelligence',
         'Topic :: Scientific/Engineering :: Image Recognition',

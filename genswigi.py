@@ -1233,7 +1233,9 @@ def genswigi(vkxml, output_folder):
     conventions = VulkanConventions()
 
     if sys.platform == 'win32':
-        emitExtensionsPat = 'VK_.*_win32(|_.*)|VK_EXT_debug_report|VK_KHR_surface|VK_KHR_swapchain'
+        emitExtensionsPat = 'VK_.*_win32(|_.*)|'
+
+    emitExtensionsPat += 'VK_EXT_debug_report|VK_KHR_surface|VK_KHR_swapchain|VK_KHR_display|VK_KHR_external_memory|VK_KHR_external_semaphore'
 
     genOpts = CGeneratorOptions(
         conventions       = conventions,
