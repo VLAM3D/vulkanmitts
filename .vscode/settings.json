@@ -103,6 +103,5 @@
         "latex",
         "plaintext",
         "python"
-    ],
-    "C_Cpp.default.configurationProvider": "vector-of-bool.cmake-tools"
+    ]
 }

@@ -1234,8 +1234,12 @@ def genswigi(vkxml, output_folder):
 
     if sys.platform == 'win32':
         emitExtensionsPat = 'VK_.*_win32(|_.*)|'
+    elif sys.platform == 'linux':
+        emitExtensionsPat = ''
+    else:
+        raise RuntimeError('Unsupported platform')
 
-    emitExtensionsPat += 'VK_EXT_debug_report|VK_KHR_surface|VK_KHR_swapchain|VK_KHR_display|VK_KHR_external_memory|VK_KHR_external_semaphore'
+    emitExtensionsPat += r'VK_EXT_debug_report|VK_KHR_surface|VK_KHR_swapchain|VK_KHR_display|VK_KHR_external_memory(?!_win32)|VK_KHR_external_semaphore(?!_win32)'
 
     genOpts = CGeneratorOptions(
         conventions       = conventions,
