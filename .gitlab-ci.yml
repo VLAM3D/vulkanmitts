@@ -27,3 +27,6 @@ build_vulkan_mitts:
   script:
   - PYTHONPATH=/usr/share/vulkan/registry python genswigi.py /usr/share/vulkan/registry/vk.xml .
   - python setup.py bdist_wheel
+  artifacts:
+    paths:
+    - dist/*.whl
