@@ -1,0 +1,29 @@
+stages:
+  - build_container
+  - build
+
+build_ubuntu18.04_cuda_10.1_vulkan:
+  stage: build_container
+  image: docker
+  services:
+  - docker:stable-dind
+  variables:
+    DOCKER_DRIVER: overlay2
+    DOCKER_TLS_CERTDIR: "/certs"
+    DOCKER_REGISTRY: registry.gitlab.com
+    IMAGE_PATH: ${DOCKER_REGISTRY}/vlam3d/vulkanmitts/ubuntu-dev
+    IMAGE_VERSION: $CI_COMMIT_REF_SLUG-$CI_COMMIT_SHA
+  script:
+  - cd docker/ubuntu-dev
+  - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN ${DOCKER_REGISTRY}
+  - docker build --network=host -t $IMAGE_PATH:$IMAGE_VERSION .
+  - docker push $IMAGE_PATH:$IMAGE_VERSION
+  - docker tag $IMAGE_PATH:$IMAGE_VERSION $IMAGE_PATH:latest
+  - docker push $IMAGE_PATH:latest
+
+build_vulkan_mitts:
+  stage: build_container
+  image: registry.gitlab.com/vlam3d/vulkanmitts/ubuntu-dev
+  script:
+  - PYTHONPATH=/usr/share/vulkan/registry python genswigi.py /usr/share/vulkan/registry/vk.xml .
+  - python setup.py bdist_wheel
