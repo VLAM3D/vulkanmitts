@@ -22,7 +22,7 @@ build_ubuntu18.04_cuda_10.1_vulkan:
   - docker push $IMAGE_PATH:latest
 
 build_vulkan_mitts:
-  stage: build_container
+  stage: build
   image: registry.gitlab.com/vlam3d/vulkanmitts/ubuntu-dev
   script:
   - PYTHONPATH=/usr/share/vulkan/registry python genswigi.py /usr/share/vulkan/registry/vk.xml .
