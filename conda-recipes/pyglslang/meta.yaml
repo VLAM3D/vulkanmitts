@@ -10,13 +10,13 @@ requirements:
     - python
     - numpy
     - swig
-    - vs2015_runtime
+    - vs2015_runtime # [win]
 
   run:
     - python
     - numpy
     - swig
-    - vs2015_runtime
+    - vs2015_runtime # [win]
 
 test:
   # Python imports
