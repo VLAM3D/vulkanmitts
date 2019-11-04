@@ -6,18 +6,43 @@ source:
   git_url: https://gitlab.com/vlam3d/vulkanmitts.git
 
 requirements:
+  run:
+    - pyglslang
   build:
     - python
     - numpy
+    - swig
+    - vs2015_runtime
 
   run:
     - python
     - numpy
+    - swig
+    - vs2015_runtime
 
 test:
   # Python imports
   imports:
     - vulkanmitts
+  requires:
+    - contextlib2
+    - pillow
+    - pyglslang
+  source_files:
+    - test_vulkanmitts_no_window.py
+    - vkcontextmanager.py
+    - transforms.py
+    - hello_vulkanmitts.py
+    - hello_vulkanmittsoffscreen.py
+    - cube_data.py
+    - glsl_to_spv.py
+    - winapp.py
+    - vertex_shader.glsl
+    - fragment_shader.glsl
+    - lena_std.png
+  commands:
+    - python test_vulkanmitts_no_window.py
+
 
 about:
   home: https://gitlab.com/vlam3d/vulkanmitts.git

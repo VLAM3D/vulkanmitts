@@ -9,15 +9,28 @@ requirements:
   build:
     - python
     - numpy
+    - swig
+    - vs2015_runtime
 
   run:
     - python
     - numpy
+    - swig
+    - vs2015_runtime
 
 test:
   # Python imports
   imports:
     - pyglslang
+  requires:
+    - contextlib2
+  source_files:
+    - test_pyglslang.py
+    - glsl_to_spv.py
+    - vertex_shader.glsl
+    - fragment_shader.glsl
+  commands:
+    - python test_pyglslang.py
 
 about:
   home: https://github.com/VLAM3D/vulkanmitts

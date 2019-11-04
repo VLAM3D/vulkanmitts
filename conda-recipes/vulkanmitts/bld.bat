@@ -1,22 +1,22 @@
-mkdir build
-cd build
-
 if "%PY_VER%"=="2.7" (
-   set MSVC_VER=14.0
-   set VS_VERSION="14.0"
-   set VS_MAJOR="14"
-   set VS_YEAR="2015"
+   echo "Python 2.7 not supported"
+   exit /b -1
 )
 
-set CMAKE_GENERATOR="Visual Studio 14 2015 Win64"
-set CMAKE_FLAGS=-DCMAKE_INSTALL_PREFIX=%PREFIX%
-set CMAKE_FLAGS=%CMAKE_FLAGS% -DSWIG_DIR=C:\DEV\swigwin-3.0.12
-set CMAKE_FLAGS=%CMAKE_FLAGS% -DSWIG_EXECUTABLE=C:\dev\swigwin-3.0.12\swig.exe
-set CMAKE_FLAGS=%CMAKE_FLAGS% -DNUMPY_SWIG_DIR=C:\dev\vulkanmitts\numpy_swig\
-set CMAKE_FLAGS=%CMAKE_FLAGS% -DCMAKE_BUILD_TYPE=Release
-set CMAKE_FLAGS=%CMAKE_FLAGS% -DVULKAN_SDK=c:/VulkanSDK/1.0.65.0
+git clone https://github.com/KhronosGroup/Vulkan-Docs.git
+pushd Vulkan-Docs
+git checkout v1.1.121
+popd
+set PYTHONPATH=.\Vulkan-Docs\scripts
+python genswigi.py .\Vulkan-Docs\xml\vk.xml .
 
-cmake -G %CMAKE_GENERATOR% %CMAKE_FLAGS% ..
+mkdir -p build
+cd build
+set CMAKE_GENERATOR="Visual Studio 15 2017 Win64"
+set CMAKE_FLAGS=-DCMAKE_INSTALL_PREFIX=%PREFIX%
+set CMAKE_FLAGS=%CMAKE_FLAGS% -DCMAKE_BUILD_TYPE=Release
+
+cmake -G %CMAKE_GENERATOR% %CMAKE_FLAGS% .. -Wno-dev
 
 set CMAKE_CONFIG="Release"
 cmake --build . --config %CMAKE_CONFIG% --target _vulkanmitts
