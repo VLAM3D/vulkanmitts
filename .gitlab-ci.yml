@@ -40,25 +40,6 @@ build_ubuntu18.04_cuda_10.1_vulkan_py37:
   - docker tag $IMAGE_PATH:$IMAGE_VERSION $IMAGE_PATH:latest
   - docker push $IMAGE_PATH:latest
 
-build_ubuntu18.04_cuda_10.1_vulkan_py38:
-  stage: build_container
-  image: docker
-  services:
-  - docker:stable-dind
-  variables:
-    DOCKER_DRIVER: overlay2
-    DOCKER_TLS_CERTDIR: "/certs"
-    DOCKER_REGISTRY: registry.gitlab.com
-    IMAGE_PATH: ${DOCKER_REGISTRY}/vlam3d/vulkanmitts/ubuntu-dev-py38
-    IMAGE_VERSION: $CI_COMMIT_REF_SLUG-$CI_COMMIT_SHA
-  script:
-  - cd docker/ubuntu-dev
-  - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN ${DOCKER_REGISTRY}
-  - docker build --network=host --build-arg PYTHON_VERSION=3.8 -t $IMAGE_PATH:$IMAGE_VERSION .
-  - docker push $IMAGE_PATH:$IMAGE_VERSION
-  - docker tag $IMAGE_PATH:$IMAGE_VERSION $IMAGE_PATH:latest
-  - docker push $IMAGE_PATH:latest
-
 build_vulkan_mitts_py36:
   stage: build
   image: registry.gitlab.com/vlam3d/vulkanmitts/ubuntu-dev-py36
@@ -72,16 +53,6 @@ build_vulkan_mitts_py36:
 build_vulkan_mitts_py37:
   stage: build
   image: registry.gitlab.com/vlam3d/vulkanmitts/ubuntu-dev-py37
-  script:
-  - PYTHONPATH=/usr/share/vulkan/registry python genswigi.py /usr/share/vulkan/registry/vk.xml .
-  - python setup.py bdist_wheel
-  artifacts:
-    paths:
-    - dist/*.whl
-
-build_vulkan_mitts_py38:
-  stage: build
-  image: registry.gitlab.com/vlam3d/vulkanmitts/ubuntu-dev-py38
   script:
   - PYTHONPATH=/usr/share/vulkan/registry python genswigi.py /usr/share/vulkan/registry/vk.xml .
   - python setup.py bdist_wheel
