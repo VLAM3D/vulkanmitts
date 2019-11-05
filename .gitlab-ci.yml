@@ -16,7 +16,7 @@ build_ubuntu18.04_cuda_10.1_vulkan_py36:
   script:
   - cd docker/ubuntu-dev
   - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN ${DOCKER_REGISTRY}
-  - docker build --network=host --build-arg job_client_version=3.6 -t $IMAGE_PATH:$IMAGE_VERSION .
+  - docker build --network=host --build-arg PYTHON_VERSION=3.6 -t $IMAGE_PATH:$IMAGE_VERSION .
   - docker push $IMAGE_PATH:$IMAGE_VERSION
   - docker tag $IMAGE_PATH:$IMAGE_VERSION $IMAGE_PATH:latest
   - docker push $IMAGE_PATH:latest
@@ -35,7 +35,7 @@ build_ubuntu18.04_cuda_10.1_vulkan_py37:
   script:
   - cd docker/ubuntu-dev
   - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN ${DOCKER_REGISTRY}
-  - docker build --network=host --build-arg job_client_version=3.7 -t $IMAGE_PATH:$IMAGE_VERSION .
+  - docker build --network=host --build-arg PYTHON_VERSION=3.7 -t $IMAGE_PATH:$IMAGE_VERSION .
   - docker push $IMAGE_PATH:$IMAGE_VERSION
   - docker tag $IMAGE_PATH:$IMAGE_VERSION $IMAGE_PATH:latest
   - docker push $IMAGE_PATH:latest
@@ -54,7 +54,7 @@ build_ubuntu18.04_cuda_10.1_vulkan_py38:
   script:
   - cd docker/ubuntu-dev
   - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN ${DOCKER_REGISTRY}
-  - docker build --network=host --build-arg job_client_version=3.8 -t $IMAGE_PATH:$IMAGE_VERSION .
+  - docker build --network=host --build-arg PYTHON_VERSION=3.8 -t $IMAGE_PATH:$IMAGE_VERSION .
   - docker push $IMAGE_PATH:$IMAGE_VERSION
   - docker tag $IMAGE_PATH:$IMAGE_VERSION $IMAGE_PATH:latest
   - docker push $IMAGE_PATH:latest
