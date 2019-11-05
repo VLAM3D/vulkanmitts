@@ -1,17 +1,39 @@
-[![Anaconda-Server Badge](https://anaconda.org/mlamarre/vulkanmitts/badges/installer/conda.svg)](https://conda.anaconda.org/mlamarre)
-
 # Vulkan Python Bindings
 
 ## How to install
 
-vulkanmitts and pyglslang depends on Numpy, therefore they are distributed with the [conda tool](https://www.continuum.io/downloads).
+I didn't try to do a manylinux build so binaries will only work on the same distribution of linux that they were build with.
+The only binary version available are wheel files for Ubuntu 18.04 for a few python version.
+They are available as gitlab pipeline artefacts.
 
-First install Anaconda or Miniconda then do:
+## How to build the WHL
+
+### Linux
+
+Check this [dockerfile](docker/ubuntu-dev/Dockerfile) for an example how to setup the environment to build.
 
 ```
-conda install --channel mlamarre pyglslang
-conda install --channel mlamarre vulkanmitts
+PYTHONPATH=/usr/share/vulkan/registry python genswigi.py /usr/share/vulkan/registry/vk.xml .
+python setup.py bdist_wheel
 ```
+
+### Windows
+
+* Install the VulkanSDK.
+* Do the manual hack detailed in [How To Update VulkanSDK](HowToUpdateVulkanSDK.md)
+* Install CMake
+* Clone [Vulkan-Docs](https://github.com/KhronosGroup/Vulkan-Docs)
+* Install a tool chain like Visual Studio
+
+Do something like this:
+
+```
+set PYTHONPATH=.\Vulkan-Docs\scripts
+python genswigi.py .\Vulkan-Docs\xml\vk.xml .
+python setup.py bdist_wheel
+```
+
+The current setup.py looks for Visual Studio 2017, you can hack this.
 
 ### Tests
 
@@ -43,70 +65,7 @@ These python bindings are for the most part generated from vk.xml in [Vulkan-Doc
 * genswigi.py generates two SWIG interfaces files vulkan.ixx and shared_ptr.ixx;
 * swig.exe generates the actual bindings from vulkanmitts.i which includes these generated interface files.
 
-Because of they are generated from the spec, the bindings are 100% complete, but not 100% tested.
+Because of they are generated from the spec, the bindings are complete, excluding some extensions, but not tested.
 
 Also included is pyglslang, Python binding for the glslang library that implements GLSL to SPIR-V compilation.
-
-## How to build
-
-The build is based on CMake but currently it only works on Windows with Python x64 (2.7 and 3.5), other variants should be relatively easy to add, but 32bit variants will be tricky to implement because Vulkan's handle types are not uniform on 32bit architecture.
-
-Conda recipes are available in the conda-recipes subfolder but they rely on some absolute path right now for the dependencies.
-
-### Dependencies
-
-* Numpy
-* [Vulkan-Docs](https://github.com/KhronosGroup/Vulkan-Docs)
-* [SWIG](https://github.com/swig/swig)
-* Lunar Vulkan SDK (tested with 1.0.65.0)
-
-The Lunar Vulkan SDK glslang and spirv-tools libraries are required to build pyglslang which is required to compile GLSL to bytecode.
-
-To build these libraries, follow the instruction in C:\VulkanSDK\<version>\Samples\README.md
-
-**However**, on Windows, it's mandatory to add the following line to every CMakeList.txt
-
-```
-add_definitions(-D_ITERATOR_DEBUG_LEVEL=0)
-```
-
-With MSVS the same value for _ITERATOR_DEBUG_LEVEL must be shared between all compilation units which includes all static libs.
-
-vulkanmitts must link with some static libraries built with _ITERATOR_DEBUG_LEVEL=0 so this forces all other static libraries to do use this value.
-
-### Command line
-
-Example for a cloned repo in c:\dev\vulkanmitts using Visual Studio 2015, this is for an out of source CMake build, in a empty folder c:\build\vulkanmitts
-
-```
-cd c:\build\vulkanmitts
-cmake ..\..\dev\vulkanmitts -G "Visual Studio 14 2015 Win64" -DSWIG_DIR=C:\DEV\swigwin-3.0.12 -DSWIG_EXECUTABLE=C:\dev\swigwin-3.0.12\swig.exe -DNUMPY_SWIG_DIR=C:\dev\vulkanmitts\numpy_swig\ -DCMAKE_INSTALL_PREFIX=c:\build\vulkanmitts  -DVULKAN_SDK=c:/VulkanSDK/1.0.65.0
-cmake --build . --target INSTALL --config Release -- -m:12
-```
-
-### Conda build commands
-
-If you forked the project to make your own conda package, edit the *bld.bat* and *meta.yaml* files under *conda-recipes* subfolders with you local path and forked github URL.
-
-### Installing conda build and anaconda client
-
-From the main conda environment, i.e. right after starting an Anaconda Prompt
-```
-conda install conda-build
-conda install anaconda
-```
-### Building one Python version
-
-Still from the main environment prompt, use something like this:
-
-```
-cd c:\dev\vulkanmitts\conda-recipes
-conda build pyglslang --python 2.7
-conda build vulkanmitts --python 2.7
-```
-
-Repeat for other versions.
-
-
-
 
