@@ -4,7 +4,7 @@ stages:
 
 .build_image_script: &build_image_script
   - cd docker/ubuntu-dev
-  - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN ${DOCKER_REGISTRY}
+  - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
   - docker build --build-arg PYTHON_VERSION=$PYTHON_VERSION --network=host -t $IMAGE_PATH:$IMAGE_VERSION .
   - docker push $IMAGE_PATH:$IMAGE_VERSION
   - docker tag $IMAGE_PATH:$IMAGE_VERSION $IMAGE_PATH:latest
