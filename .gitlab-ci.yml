@@ -2,59 +2,84 @@ stages:
   - build_container
   - build
 
-build_ubuntu18.04_cuda_10.1_vulkan_py36:
-  stage: build_container
-  image: docker
-  services:
-  - docker:stable-dind
-  variables:
-    DOCKER_DRIVER: overlay2
-    DOCKER_TLS_CERTDIR: "/certs"
-    DOCKER_REGISTRY: registry.gitlab.com
-    IMAGE_PATH: ${DOCKER_REGISTRY}/vlam3d/vulkanmitts/ubuntu-dev-py36
-    IMAGE_VERSION: $CI_COMMIT_REF_SLUG-$CI_COMMIT_SHA
-  script:
+.build_image_script: &build_image_script
   - cd docker/ubuntu-dev
   - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN ${DOCKER_REGISTRY}
-  - docker build --network=host --build-arg PYTHON_VERSION=3.6 -t $IMAGE_PATH:$IMAGE_VERSION .
+  - docker build --build-arg PYTHON_VERSION=$PYTHON_VERSION --network=host -t $IMAGE_PATH:$IMAGE_VERSION .
   - docker push $IMAGE_PATH:$IMAGE_VERSION
   - docker tag $IMAGE_PATH:$IMAGE_VERSION $IMAGE_PATH:latest
   - docker push $IMAGE_PATH:latest
 
-build_ubuntu18.04_cuda_10.1_vulkan_py37:
+build_ubuntu_vulkan_py37:
   stage: build_container
   image: docker
   services:
   - docker:stable-dind
   variables:
+    PYTHON_VERSION: "3.7"
     DOCKER_DRIVER: overlay2
     DOCKER_TLS_CERTDIR: "/certs"
     DOCKER_REGISTRY: registry.gitlab.com
     IMAGE_PATH: ${DOCKER_REGISTRY}/vlam3d/vulkanmitts/ubuntu-dev-py37
     IMAGE_VERSION: $CI_COMMIT_REF_SLUG-$CI_COMMIT_SHA
   script:
-  - cd docker/ubuntu-dev
-  - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN ${DOCKER_REGISTRY}
-  - docker build --network=host --build-arg PYTHON_VERSION=3.7 -t $IMAGE_PATH:$IMAGE_VERSION .
-  - docker push $IMAGE_PATH:$IMAGE_VERSION
-  - docker tag $IMAGE_PATH:$IMAGE_VERSION $IMAGE_PATH:latest
-  - docker push $IMAGE_PATH:latest
+  - *build_image_script
 
-build_vulkan_mitts_py36:
-  stage: build
-  image: registry.gitlab.com/vlam3d/vulkanmitts/ubuntu-dev-py36
+build_ubuntu_vulkan_py39:
+  stage: build_container
+  image: docker
+  services:
+  - docker:stable-dind
+  variables:
+    PYTHON_VERSION: "3.9"
+    DOCKER_DRIVER: overlay2
+    DOCKER_TLS_CERTDIR: "/certs"
+    DOCKER_REGISTRY: registry.gitlab.com
+    IMAGE_PATH: ${DOCKER_REGISTRY}/vlam3d/vulkanmitts/ubuntu-dev-py39
+    IMAGE_VERSION: $CI_COMMIT_REF_SLUG-$CI_COMMIT_SHA
   script:
-  - PYTHONPATH=/usr/share/vulkan/registry python genswigi.py /usr/share/vulkan/registry/vk.xml .
-  - python setup.py bdist_wheel
-  artifacts:
-    paths:
-    - dist/*.whl
+  - *build_image_script
+
+build_ubuntu_vulkan_py310:
+  stage: build_container
+  image: docker
+  services:
+  - docker:stable-dind
+  variables:
+    PYTHON_VERSION: "3.10"
+    DOCKER_DRIVER: overlay2
+    DOCKER_TLS_CERTDIR: "/certs"
+    DOCKER_REGISTRY: registry.gitlab.com
+    IMAGE_PATH: ${DOCKER_REGISTRY}/vlam3d/vulkanmitts/ubuntu-dev-py310
+    IMAGE_VERSION: $CI_COMMIT_REF_SLUG-$CI_COMMIT_SHA
+  script:
+  - *build_image_script
 
 build_vulkan_mitts_py37:
   stage: build
   image: registry.gitlab.com/vlam3d/vulkanmitts/ubuntu-dev-py37
   script:
-  - PYTHONPATH=/usr/share/vulkan/registry python genswigi.py /usr/share/vulkan/registry/vk.xml .
+  - PYTHONPATH=/usr/local/share/vulkan/registry python genswigi.py /usr/local/share/vulkan/registry/vk.xml .
+  - python setup.py bdist_wheel
+  artifacts:
+    paths:
+    - dist/*.whl
+
+build_vulkan_mitts_py39:
+  stage: build
+  image: registry.gitlab.com/vlam3d/vulkanmitts/ubuntu-dev-py39
+  script:
+  - PYTHONPATH=/usr/local/share/vulkan/registry python genswigi.py /usr/local/share/vulkan/registry/vk.xml .
+  - python setup.py bdist_wheel
+  artifacts:
+    paths:
+    - dist/*.whl
+
+build_vulkan_mitts_py310:
+  stage: build
+  image: registry.gitlab.com/vlam3d/vulkanmitts/ubuntu-dev-py310
+  script:
+  - PYTHONPATH=/usr/local/share/vulkan/registry python genswigi.py /usr/local/share/vulkan/registry/vk.xml .
   - python setup.py bdist_wheel
   artifacts:
     paths:

@@ -114,7 +114,7 @@ def readme(fname):
 def read_version():
     """Read version information
     """
-    return '1.1.121'
+    return '1.3.243'
 
 
 def rmtree(name):

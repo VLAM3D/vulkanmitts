@@ -12,19 +12,19 @@
 
 The source of this text is in pyglslang.i the main SWIG_ interface file.
 Use %feature(\"autodoc\") in the interface file to improve the documentation.
-Please read SWIG_DOC_ 
+Please read SWIG_DOC_
 
 .. _SWIG: http://www.swig.org/
 .. _SWIG_DOC: http://www.swig.org/Doc1.3/Python.html#Python_nn65
 "
-%enddef 
- 
+%enddef
+
 %module(docstring=DOCSTRING) pyglslang
- 
+
 %feature("autodoc", "3");
 
 %{
-#define SWIG_FILE_WITH_INIT  
+#define SWIG_FILE_WITH_INIT
 %}
 
 %include <numpy.i>
@@ -79,11 +79,11 @@ Please read SWIG_DOC_
 // from William S. Fulton answer in http://swig.10945.n7.nabble.com/Properly-wrapping-quot-static-const-char-quot-td11479.html
 // we disable the const char * warning but we put a typemap to trigger a run-time error when trying to set it
 #pragma SWIG nowarn=-451
-%typemap(varin) const char * 
+%typemap(varin) const char *
 {
    SWIG_Error(SWIG_AttributeError,"Variable $symname is read-only.");
    SWIG_fail;
-}  
+}
 
 
 %include <ResourceLimits.h>
@@ -129,12 +129,12 @@ enum EShMessages {
     EShMsgOnlyPreprocessor = (1 << 5),  // only print out errors produced by the preprocessor
 };
 
-namespace glslang 
+namespace glslang
 {
     const char* StageName(EShLanguage);
     const char* GetEsslVersionString();
     const char* GetGlslVersionString();
-    int GetKhronosToolId();    
+    int GetKhronosToolId();
     bool InitializeProcess();
     void FinalizeProcess();
 
@@ -188,17 +188,17 @@ namespace glslang
         const char* getInfoDebugLog();
 
         // Reflection Interface
-        bool buildReflection();                          
-        int getNumLiveUniformVariables();                
-        int getNumLiveUniformBlocks();                   
-        const char* getUniformName(int index);           
-        const char* getUniformBlockName(int blockIndex); 
-        int getUniformBlockSize(int blockIndex);         
-        int getUniformIndex(const char* name);           
-        int getUniformBlockIndex(int index);             
-        int getUniformType(int index);                   
-        int getUniformBufferOffset(int index);           
-        int getUniformArraySize(int index);              
+        bool buildReflection();
+        int getNumLiveUniformVariables();
+        int getNumLiveUniformBlocks();
+        const char* getUniformName(int index);
+        const char* getUniformBlockName(int blockIndex);
+        int getUniformBlockSize(int blockIndex);
+        int getUniformIndex(const char* name);
+        int getUniformBlockIndex(int index);
+        int getUniformType(int index);
+        int getUniformBufferOffset(int index);
+        int getUniformArraySize(int index);
         void dumpReflection();
 
         %extend
@@ -213,7 +213,7 @@ namespace glslang
     };
 }
 
-%inline 
+%inline
 %{
 	void disassemble_stdout(const std::vector<unsigned int> &spirv_code)
 	{

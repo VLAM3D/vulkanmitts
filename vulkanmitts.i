@@ -25,6 +25,7 @@ Please read SWIG_DOC_
 
 %{
 #define SWIG_FILE_WITH_INIT
+#define VK_ENABLE_BETA_EXTENSIONS
 %}
 
 %include <numpy.i>
@@ -250,7 +251,6 @@ Please read SWIG_DOC_
 %include "typemaps.i"
 %include "cpointer.i"
 #ifndef _WIN32
-#define SWIGWORDSIZE64
 %include "stdint.i"
 #endif
 

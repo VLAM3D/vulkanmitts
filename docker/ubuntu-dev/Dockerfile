@@ -1,6 +1,6 @@
-FROM registry.gitlab.com/mlamarre/vulkan
-LABEL MAINTAINER mlamarre@vlam3d.com
+FROM registry.gitlab.com/mlamarre/vulkan/vulkan:1.3.243.0
 
+ARG DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && apt-get install -y --no-install-recommends \
 software-properties-common \
 build-essential \
@@ -18,32 +18,41 @@ python3-distutils \
 libx11-xcb-dev \
 libegl1-mesa-dev
 
-# Install cmake version 3.15
-RUN wget https://github.com/Kitware/CMake/releases/download/v3.15.2/cmake-3.15.2-Linux-x86_64.tar.gz && \
-    tar -xvf cmake-3.15.2-Linux-x86_64.tar.gz && cp cmake-3.15.2-Linux-x86_64/bin/cmake /usr/local/bin && \
-    mkdir -p /usr/local/share/cmake-3.15 && \
-    cp -r cmake-3.15.2-Linux-x86_64/share/cmake-3.15/* /usr/local/share/cmake-3.15 && \
-    rm -rf cmake-3.15.2-Linux-x86_64*
+ENV CMAKE_VERSION=3.26
+ENV CMAKE_BUILD=3
+RUN wget https://github.com/Kitware/CMake/releases/download/v${CMAKE_VERSION}.${CMAKE_BUILD}/cmake-${CMAKE_VERSION}.${CMAKE_BUILD}-Linux-x86_64.sh \
+      -q -O /tmp/cmake-install.sh \
+      && chmod u+x /tmp/cmake-install.sh \
+      && mkdir /usr/bin/cmake \
+      && /tmp/cmake-install.sh --skip-license --prefix=/usr/local \
+      && rm /tmp/cmake-install.sh
 
 WORKDIR /tmp
+ARG MAMBAFORGE_NAME=Mambaforge
+ARG MAMBAFORGE_VERSION=23.1.0-1
+ENV CONDA_DIR=/opt/conda
+ENV LANG=C.UTF-8 LC_ALL=C.UTF-8
+ENV PATH=${CONDA_DIR}/bin:${PATH}
 RUN mkdir -p /root/.conda && \
-    wget --quiet https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O ~/miniconda.sh && \
-    /bin/bash ~/miniconda.sh -b -p /opt/conda && \
-    rm ~/miniconda.sh && \
-    /opt/conda/bin/conda clean -tipsy && \
+    wget --no-hsts --quiet https://github.com/conda-forge/miniforge/releases/download/${MAMBAFORGE_VERSION}/${MAMBAFORGE_NAME}-${MAMBAFORGE_VERSION}-Linux-$(uname -m).sh -O ~/mambaforge.sh && \
+    /bin/bash ~/mambaforge.sh -b -p /opt/conda && \
+    rm ~/mambaforge.sh && \
+    /opt/conda/bin/conda clean --tarballs --index-cache --packages --yes && \
     ln -s /opt/conda/etc/profile.d/conda.sh /etc/profile.d/conda.sh && \
     echo ". /opt/conda/etc/profile.d/conda.sh" >> ~/.bashrc && \
     echo "conda activate base" >> ~/.bashrc && \
     find /opt/conda/ -follow -type f -name '*.a' -delete && \
-    find /opt/conda/ -follow -type f -name '*.js.map' -delete
+    find /opt/conda/ -follow -type f -name '*.pyc' -delete && \
+    /opt/conda/bin/conda clean --force-pkgs-dirs --all --yes  && \
+    echo ". ${CONDA_DIR}/etc/profile.d/conda.sh && conda activate base" >> /etc/skel/.bashrc && \
+    echo ". ${CONDA_DIR}/etc/profile.d/conda.sh && conda activate base" >> ~/.bashrc
 
-ENV PATH /opt/conda/bin:$PATH
 WORKDIR /
 
-ARG PYTHON_VERSION=3.7
-RUN conda install -y python=$PYTHON_VERSION
-RUN conda update -n base conda
-RUN conda install -y numpy pillow pyqt contextlib2 swig
+ARG PYTHON_VERSION=3.10
+RUN mamba install -y python=$PYTHON_VERSION
+RUN mamba config --set channel_priority strict
+RUN mamba install -y numpy pillow pyqt contextlib2 swig -c conda-forge
 RUN pip install pypicloud[server] twine
 
 # When running with --user 1000, 1001, 1002

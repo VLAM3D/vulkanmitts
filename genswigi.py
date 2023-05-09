@@ -145,13 +145,18 @@ class CSWIGOutputGenerator(COutputGenerator):
         self.redundant_typedef_types = set(['VkPipelineStageFlags','VkObjectEntryUsageFlagsNVX'])
         self.swigImpl = []
         self.fctPtrDecl = []
-        self.skippedCommands = []
+        self.skippedCommands = ['vkAllocateCommandBuffers','vkAllocateDescriptorSets']
         self.handleTypes = set()
         self.vectorOfHandleTypes = set()
         # types that must not be in the generated interface file because their SWIG generate wrappers are not what we want
         # they are handle arrays where all handles are allocated and deallocated in batch
         # via SWIG standard library typemaps we can either have an array of dumb handles or an array of shared_ptr, so we have to make some customization
-        self.hideFromSWIGTypes = set(['VkCommandBuffer', 'VkDescriptorSet', 'VkBaseOutStructure', 'VkBaseInStructure'])
+        self.hideFromSWIGTypes = set(['VkCommandBuffer',
+                                      'VkDescriptorSet',
+                                      'VkBaseOutStructure',
+                                      'VkBaseInStructure',
+                                      'VkBufferCollectionFUCHSIA',
+                                      'VkSemaphoreSciSyncPoolNV'])
         # here we map the base type for a x64 architecture to match numpy.i typemaps
         self.arrayBaseTypes = {'size_t':'unsigned long long', 'uint32_t' : 'unsigned int', 'float' : 'float', 'int32_t': 'int', 'int':'int' }
         # the base types that we can encounter in the interface, not the list of a C/C++ base types
@@ -789,6 +794,10 @@ class CSWIGOutputGenerator(COutputGenerator):
         if command_name.find('Destroy') != -1 or command_name.find('Free') != -1:
             return
 
+        if command_name in self.skippedCommands:
+            print(f'Skipping command {command_name} - this command has a special wrapper in vulkanmitts.i')
+            return
+
         n = len(params)
         n_passed_params = n - len(params_to_remove) - len(argout_params_to_vectorize) - len(params_to_shared_ptrize) - len(params_to_return_by_value) - len(params_to_return_as_handle) - len(param_to_return_as_vector_of_handle)
         n_argout_params = len(argout_params_to_vectorize) + len(params_to_shared_ptrize) + len(params_to_return_by_value) + len(params_to_return_as_handle) + len(param_to_return_as_vector_of_handle)
@@ -1218,11 +1227,6 @@ def genswigi(vkxml, output_folder):
     regFilename = vkxml
     diagFilename = os.path.join(output_folder,'diag.txt')
 
-    reg = Registry()
-    tree = etree.parse(regFilename)
-    tree_copy = copy.deepcopy(tree)
-    reg.loadElementTree(tree)
-
     allVersions = allExtensions = '.*'
     noVersions = noExtensions = None
 
@@ -1264,11 +1268,17 @@ def genswigi(vkxml, output_folder):
         apientryp         = 'VKAPI_PTR *',
         alignFuncParam    = 48)
 
+    reg = Registry(genOpts=genOpts)
+    tree = etree.parse(regFilename)
+    tree_copy = copy.deepcopy(tree)
+    reg.loadElementTree(tree)
+
     errWarn = sys.stderr
+    print(f'Writing SWIG interface to {output_folder}/vulkan.ixx')
     with open(diagFilename, 'w', encoding='utf-8') as diag:
         gen = CSWIGOutputGenerator(tree_copy, errFile=errWarn, warnFile=errWarn, diagFile=diag)
         reg.setGenerator(gen)
-        reg.apiGen(genOpts)
+        reg.apiGen()
 
 if __name__ == '__main__':
     # ex: C:\dev\Vulkan-Docs\src\spec\vk.xml .
