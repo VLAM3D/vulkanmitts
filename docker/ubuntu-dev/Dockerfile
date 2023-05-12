@@ -1,4 +1,4 @@
-FROM registry.gitlab.com/mlamarre/vulkan/vulkan:1.3.243.0
+FROM registry.gitlab.com/mlamarre/vulkan/vulkan:1.3.243
 
 ARG DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -52,7 +52,7 @@ WORKDIR /
 ARG PYTHON_VERSION=3.10
 RUN mamba install -y python=$PYTHON_VERSION
 RUN mamba config --set channel_priority strict
-RUN mamba install -y numpy pillow pyqt contextlib2 swig -c conda-forge
+RUN mamba install -y numpy pillow pyqt contextlib2 swig==4.0.0 -c conda-forge
 RUN pip install pypicloud[server] twine
 
 # When running with --user 1000, 1001, 1002
