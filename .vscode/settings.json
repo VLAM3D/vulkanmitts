@@ -91,7 +91,15 @@
         "slist": "cpp",
         "regex": "cpp",
         "cinttypes": "cpp",
-        "*.ixx": "cpp"
+        "*.ixx": "cpp",
+        "bit": "c",
+        "compare": "c",
+        "concepts": "c",
+        "numbers": "c",
+        "ranges": "c",
+        "stop_token": "c",
+        "cfenv": "c",
+        "semaphore": "c"
     },
     "python.pythonPath": "${env:PYTHON_EXECUTABLE}",
     "cmake.configureOnOpen": true,
