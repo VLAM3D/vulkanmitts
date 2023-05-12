@@ -55,7 +55,8 @@ def memory_type_from_properties(physicalDevice, memoryTypeBits, properties):
     return None
 
 def delete_this(obj):
-    del obj.this
+    if hasattr(obj,'this'):
+        del obj.this
 
 class VkContextManager:
     # Acronym for ExitStack Push to reduce the clutter
@@ -82,9 +83,9 @@ class VkContextManager:
         self.instance_ext_names = [vk.VK_KHR_SURFACE_EXTENSION_NAME, vk.VK_EXT_DEBUG_REPORT_EXTENSION_NAME]
         if self.surface_type == VkContextManager.VKC_WIN32:
             self.instance_ext_names.append(vk.VK_KHR_WIN32_SURFACE_EXTENSION_NAME)
-        app = vk.ApplicationInfo("foo", 1, "bar", 1, vk.makeVersion(1,0,3))
+        app = vk.ApplicationInfo("foo", 1, "bar", 1, vk.makeVersion(1,1,0))
         assert(app is not None)
-        instance_create_info = vk.InstanceCreateInfo(0, app, ['VK_LAYER_LUNARG_standard_validation'], self.instance_ext_names)
+        instance_create_info = vk.InstanceCreateInfo(0, app, ['VK_LAYER_KHRONOS_validation'], self.instance_ext_names)
         self.instance = self.ESP( vk.createInstance(instance_create_info) )
         vk.load_vulkan_fct_ptrs(self.instance)
         full_degug = vk.VK_DEBUG_REPORT_ERROR_BIT_EXT | vk.VK_DEBUG_REPORT_WARNING_BIT_EXT | vk.VK_DEBUG_REPORT_PERFORMANCE_WARNING_BIT_EXT
@@ -354,7 +355,7 @@ class VkContextManager:
                                     vk.VK_IMAGE_LAYOUT_UNDEFINED)
 
         self.tex_image =  self.ESP( vk.createImage(self.device, ici) )
-        mem_reqs = vk.getImageMemoryRequirements(self.device, self.tex_image);
+        mem_reqs = vk.getImageMemoryRequirements(self.device, self.tex_image)
 
         mem_type_index = memory_type_from_properties(self.physical_devices[0], mem_reqs.memoryTypeBits, vk.VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT)
         assert(mem_type_index is not None)
@@ -397,7 +398,7 @@ class VkContextManager:
             assert(mapped_array.mem.strides[0] == layout.rowPitch)
             np.copyto(mapped_array.mem, self.img_array)
 
-        vk.resetCommandBuffer(self.command_buffers[0], 0);
+        vk.resetCommandBuffer(self.command_buffers[0], 0)
         vk.beginCommandBuffer(self.command_buffers[0], vk.CommandBufferBeginInfo(0,None))
 
         if not need_staging:

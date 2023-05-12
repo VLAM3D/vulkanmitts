@@ -232,8 +232,10 @@ Please read SWIG_DOC_
 // shared_ptr section : all wrapped std::shared_ptr<T>
 // must be declared here first
 
-%shared_ptr(std::vector<VkCommandBuffer>)
-%shared_ptr(std::vector<VkDescriptorSet>)
+%ref_counted_handle(VkCommandBuffer)
+%ref_counted_handle(VkDescriptorSet)
+%shared_ptr(VkCommandBufferVector)
+%shared_ptr(VkDescriptorSetVector)
 %include "shared_ptrs.ixx"
 %apply(int DIM1, unsigned int* IN_ARRAY1) { (size_t codeSize, const uint32_t* pCode) };
 
@@ -286,8 +288,10 @@ Please read SWIG_DOC_
         auto res = x;\
         ThrowOnVkError(res, #x, __FILE__, __LINE__);\
     }while(0)
-%}
 
+    typedef std::vector<VkDescriptorSet> VkDescriptorSetVector;
+    typedef std::vector<VkCommandBuffer> VkCommandBufferVector;
+%}
 
 %template (StringVector) std::vector<std::string>;
 
@@ -375,6 +379,9 @@ typedef HINSTANCE__* HINSTANCE;
 
 %include "vulkan.ixx"
 
+VK_DEFINE_HANDLE(VkCommandBuffer)
+VK_DEFINE_NON_DISPATCHABLE_HANDLE(VkDescriptorSet)
+
 uint32_t makeVersion(uint32_t major, uint32_t minor, uint32_t patch);
 
 %{
@@ -402,21 +409,28 @@ uint32_t makeVersion(uint32_t major, uint32_t minor, uint32_t patch);
     }
 %}
 
-std::shared_ptr< std::vector<VkDescriptorSet> > allocateDescriptorSets(VkDevice device, const VkDescriptorSetAllocateInfo& allocateInfo, bool freeDescriptorSetAllowed);
+class VkDescriptorSetVector
+{
+public:
+    VkDescriptorSetVector();
+    VkDescriptorSetVector(size_t size, VkDescriptorSet value);
+    ~VkDescriptorSetVector();
+    size_t size() const;
+    VkDescriptorSet at(size_t index);
+
+    %pythoncode
+    %{
+        def __len__(self):
+            return self.size()
+
+        def __getitem__(self, index):
+            return self.at(index)
+    %}
+};
+
+std::shared_ptr< VkDescriptorSetVector > allocateDescriptorSets(VkDevice device, const VkDescriptorSetAllocateInfo& allocateInfo, bool freeDescriptorSetAllowed);
 
 %{
-    struct VkDescriptorSet_T;
-    typedef VkDescriptorSet_T* VkDescriptorSet;
-
-    namespace swig
-    {
-        template <>  struct traits< VkDescriptorSet_T >
-        {
-            typedef pointer_category category;
-            static const char* type_name() { return"VkDescriptorSet_T"; }
-        };
-    }
-
     std::shared_ptr< std::vector<VkDescriptorSet> > allocateDescriptorSets(VkDevice device, const VkDescriptorSetAllocateInfo& allocateInfo, bool freeDescriptorSetAllowed)
     {
 		// freeDescriptorSetAllowed must be true only when VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT is set
@@ -449,22 +463,27 @@ std::shared_ptr< std::vector<VkDescriptorSet> > allocateDescriptorSets(VkDevice 
     }
 %}
 
-%template (VkDescriptorSetVector)std::vector<VkDescriptorSet>;
+class VkCommandBufferVector
+{
+public:
+    VkCommandBufferVector();
+    VkCommandBufferVector(size_t size, VkCommandBuffer value);
+    ~VkCommandBufferVector();
+    size_t size() const;
+    VkCommandBuffer at(size_t index);
 
-std::shared_ptr< std::vector<VkCommandBuffer> > allocateCommandBuffers(VkDevice device, const VkCommandBufferAllocateInfo& allocateInfo);
+    %pythoncode
+    %{
+        def __len__(self):
+            return self.size()
+
+        def __getitem__(self, index):
+            return self.at(index)
+    %}
+};
+
+std::shared_ptr< VkCommandBufferVector > allocateCommandBuffers(VkDevice device, const VkCommandBufferAllocateInfo& allocateInfo);
 %{
-    struct VkCommandBuffer_T;
-    typedef VkCommandBuffer_T* VkCommandBuffer;
-
-    namespace swig
-    {
-        template <>  struct traits< VkCommandBuffer_T >
-        {
-            typedef pointer_category category;
-            static const char* type_name() { return"VkCommandBuffer_T"; }
-        };
-    }
-
     std::shared_ptr< std::vector<VkCommandBuffer> > allocateCommandBuffers(VkDevice device, const VkCommandBufferAllocateInfo& allocateInfo)
     {
         VkCommandPool commandPool = allocateInfo.commandPool;
@@ -479,8 +498,6 @@ std::shared_ptr< std::vector<VkCommandBuffer> > allocateCommandBuffers(VkDevice 
         return command_buffers;
     }
 %}
-
-%template (VkCommandBufferVector)std::vector<VkCommandBuffer>;
 
 // --  Typemap suite only for vkMapMemory --
 // Note that the following typemaps are only applicable to vkMapMemory and won't produce working code on any other interface

@@ -1,0 +1,15 @@
+Writing SWIG interface to ./vulkan.ixx
+VkSubmitInfo  member pWaitDstStageMask  size is not used
+Skipping command vkAllocateDescriptorSets - this command has a special wrapper in vulkanmitts.i
+VkSubpassDescription  member pResolveAttachments  size is not used
+Skipping command vkAllocateCommandBuffers - this command has a special wrapper in vulkanmitts.i
+VkSubpassDescription2  member pResolveAttachments  size is not used
+VkSemaphoreWaitInfo  member pValues  size is not used
+VkPresentInfoKHR  member pImageIndices  size is not used
+VkPresentInfoKHR  member pResults  size is not used
+VkWin32KeyedMutexAcquireReleaseInfoKHR  member pAcquireKeys  size is not used
+VkWin32KeyedMutexAcquireReleaseInfoKHR  member pAcquireTimeouts  size is not used
+VkWin32KeyedMutexAcquireReleaseInfoKHR  member pReleaseKeys  size is not used
+VkWin32KeyedMutexAcquireReleaseInfoNV  member pAcquireKeys  size is not used
+VkWin32KeyedMutexAcquireReleaseInfoNV  member pAcquireTimeoutMilliseconds  size is not used
+VkWin32KeyedMutexAcquireReleaseInfoNV  member pReleaseKeys  size is not used

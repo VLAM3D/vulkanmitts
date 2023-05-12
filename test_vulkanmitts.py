@@ -6,7 +6,7 @@ import unittest
 import vulkanmitts as vk
 from PyQt5.QtWidgets import QApplication, QWidget
 from vkcontextmanager import VkContextManager, memory_type_from_properties
-from contextlib import contextmanager
+from contextlib import contextmanager, ExitStack
 from hello_vulkanmitts import render_textured_cube
 from cube_data import *
 from test_vulkanmitts_no_window import *
@@ -33,86 +33,103 @@ class SwapChainTestCase(unittest.TestCase):
         self.device = None
 
     def test_create_win32_swap_chain(self):
-        widget = QWidget()
-        widget.resize(640, 480)
-        surface_ci = vk.Win32SurfaceCreateInfoKHR(0, vk.GetThisEXEModuleHandle(), widget.winId())
-        self.assertIsNotNone(surface_ci)
-        surface = vk.createWin32SurfaceKHR(self.instance, surface_ci)
-        self.assertIsNotNone(surface)
+        # vulkanmitts object are refcounted but python doesn't garantee the order of destruction of objects
+        # so a ExitStack is used to control the order of destruction in reverse order of creation
+        with ExitStack() as stack:
+            def delete_this(obj):
+                if hasattr(obj,'this'):
+                    del obj.this
+            # Acronym for ExitStack Push to reduce the clutter
+            # push a destructor for the refcounted handle wrapper on the ExitStack that will be called in unwinding order in __exit__
+            def ESP(obj):
+                try:
+                    stack.callback(delete_this, obj)
+                except IndexError as e:
+                    print(e.message)
+                except:
+                    pass
+                return obj
 
-        # test that we can find a queue with the graphics bit and that can present
-        queue_props = vk.getPhysicalDeviceQueueFamilyProperties(self.physical_devices[0])
-        support_present = []
-        for i in range(0,len(queue_props)):
-            support_present.append( vk.getPhysicalDeviceSurfaceSupportKHR(self.physical_devices[0], i, surface) != 0)
+            widget = QWidget()
+            widget.resize(640, 480)
+            surface_ci = vk.Win32SurfaceCreateInfoKHR(0, vk.GetThisEXEModuleHandle(), widget.winId())
+            self.assertIsNotNone(surface_ci)
+            surface = ESP(vk.createWin32SurfaceKHR(self.instance, surface_ci))
+            self.assertIsNotNone(surface)
 
-        graphic_queues_indices = [ i for i,qp in enumerate(queue_props) if qp.queueFlags & vk.VK_QUEUE_GRAPHICS_BIT and support_present[i] ]
-        self.assertTrue(len(graphic_queues_indices)>=1)
+            # test that we can find a queue with the graphics bit and that can present
+            queue_props = vk.getPhysicalDeviceQueueFamilyProperties(self.physical_devices[0])
+            support_present = []
+            for i in range(0,len(queue_props)):
+                support_present.append( vk.getPhysicalDeviceSurfaceSupportKHR(self.physical_devices[0], i, surface) != 0)
 
-        surface_formats = vk.getPhysicalDeviceSurfaceFormatsKHR(self.physical_devices[0], surface)
-        self.assertIsNotNone(surface_formats)
-        B8G8R8A8_format_found = False
-        format = None
-        color_space = None
-        for f in surface_formats:
-            self.assertIsNotNone(f.format)
-            self.assertIsNotNone(f.colorSpace)
-            # from LunarSDK samples and Sascha Willems samples this format seems to be a good default
-            if f.format == vk.VK_FORMAT_B8G8R8A8_UNORM:
-                B8G8R8A8_format_found = True
-                format = f.format
-                color_space = f.colorSpace
+            graphic_queues_indices = [ i for i,qp in enumerate(queue_props) if qp.queueFlags & vk.VK_QUEUE_GRAPHICS_BIT and support_present[i] ]
+            self.assertTrue(len(graphic_queues_indices)>=1)
 
-        self.assertTrue(B8G8R8A8_format_found)
+            surface_formats = vk.getPhysicalDeviceSurfaceFormatsKHR(self.physical_devices[0], surface)
+            self.assertIsNotNone(surface_formats)
+            B8G8R8A8_format_found = False
+            format = None
+            color_space = None
+            for f in surface_formats:
+                self.assertIsNotNone(f.format)
+                self.assertIsNotNone(f.colorSpace)
+                # from LunarSDK samples and Sascha Willems samples this format seems to be a good default
+                if f.format == vk.VK_FORMAT_B8G8R8A8_UNORM:
+                    B8G8R8A8_format_found = True
+                    format = f.format
+                    color_space = f.colorSpace
 
-        present_modes = vk.getPhysicalDeviceSurfacePresentModesKHR(self.physical_devices[0], surface)
-        self.assertIsNotNone(present_modes)
-        present_mode_lut = {vk.VK_PRESENT_MODE_MAILBOX_KHR : 'VK_PRESENT_MODE_MAILBOX_KHR',
-                            vk.VK_PRESENT_MODE_FIFO_KHR : 'VK_PRESENT_MODE_FIFO_KHR',
-                            vk.VK_PRESENT_MODE_IMMEDIATE_KHR : 'VK_PRESENT_MODE_IMMEDIATE_KHR',
-                            vk.VK_PRESENT_MODE_FIFO_RELAXED_KHR : 'VK_PRESENT_MODE_FIFO_RELAXED_KHR'}
-        for p in present_modes:
-            self.assertTrue( p in present_mode_lut.keys() )
+            self.assertTrue(B8G8R8A8_format_found)
 
-        surface_caps = vk.getPhysicalDeviceSurfaceCapabilitiesKHR(self.physical_devices[0], surface)
-        self.assertIsNotNone(surface_caps)
-        req_image_count = surface_caps.minImageCount + 1
-        if surface_caps.maxImageCount > 0 and req_image_count > surface_caps.maxImageCount:
-            req_image_count = surface_caps.maxImageCount
+            present_modes = vk.getPhysicalDeviceSurfacePresentModesKHR(self.physical_devices[0], surface)
+            self.assertIsNotNone(present_modes)
+            present_mode_lut = {vk.VK_PRESENT_MODE_MAILBOX_KHR : 'VK_PRESENT_MODE_MAILBOX_KHR',
+                                vk.VK_PRESENT_MODE_FIFO_KHR : 'VK_PRESENT_MODE_FIFO_KHR',
+                                vk.VK_PRESENT_MODE_IMMEDIATE_KHR : 'VK_PRESENT_MODE_IMMEDIATE_KHR',
+                                vk.VK_PRESENT_MODE_FIFO_RELAXED_KHR : 'VK_PRESENT_MODE_FIFO_RELAXED_KHR'}
+            for p in present_modes:
+                self.assertTrue( p in present_mode_lut.keys() )
 
-        pre_transform = surface_caps.currentTransform
-        if surface_caps.supportedTransforms & vk.VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR:
-            pre_transform = vk.VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR
+            surface_caps = vk.getPhysicalDeviceSurfaceCapabilitiesKHR(self.physical_devices[0], surface)
+            self.assertIsNotNone(surface_caps)
+            req_image_count = surface_caps.minImageCount + 1
+            if surface_caps.maxImageCount > 0 and req_image_count > surface_caps.maxImageCount:
+                req_image_count = surface_caps.maxImageCount
 
-        swp_ci = vk.SwapchainCreateInfoKHR(0,
-                                           surface,
-                                           req_image_count,
-                                           format,
-                                           color_space,
-                                           surface_caps.currentExtent, # image extent
-                                           1, # image array layers
-                                           vk.VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, # image usage
-                                           vk.VK_SHARING_MODE_EXCLUSIVE, # image sharing mode,
-                                           [],
-                                           pre_transform,
-                                           vk.VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR, # composite  alpha,
-                                           present_modes[0], # present mode
-                                           True, # clipped
-                                           None) # old_swp_chain
-        self.assertIsNotNone(swp_ci)
-        swap_chain = vk.createSwapchainKHR(self.device, swp_ci)
-        self.assertIsNotNone(swap_chain)
+            pre_transform = surface_caps.currentTransform
+            if surface_caps.supportedTransforms & vk.VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR:
+                pre_transform = vk.VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR
 
-        images = vk.getSwapchainImagesKHR(self.device, swap_chain)
-        self.assertIsNotNone(images)
-        components = vk.ComponentMapping(vk.VK_COMPONENT_SWIZZLE_R, vk.VK_COMPONENT_SWIZZLE_G, vk.VK_COMPONENT_SWIZZLE_B, vk.VK_COMPONENT_SWIZZLE_A)
-        subresource_range = vk.ImageSubresourceRange(vk.VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1)
-        image_views = []
-        for img in images:
-            ivci = vk.ImageViewCreateInfo(0, img, vk.VK_IMAGE_VIEW_TYPE_2D, format, components, subresource_range)
-            iv = vk.createImageView(self.device, ivci)
-            self.assertIsNotNone(iv)
-            image_views.append(iv)
+            swp_ci = vk.SwapchainCreateInfoKHR(0,
+                                            surface,
+                                            req_image_count,
+                                            format,
+                                            color_space,
+                                            surface_caps.currentExtent, # image extent
+                                            1, # image array layers
+                                            vk.VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, # image usage
+                                            vk.VK_SHARING_MODE_EXCLUSIVE, # image sharing mode,
+                                            [],
+                                            pre_transform,
+                                            vk.VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR, # composite  alpha,
+                                            present_modes[0], # present mode
+                                            True, # clipped
+                                            None) # old_swp_chain
+            self.assertIsNotNone(swp_ci)
+            swap_chain = ESP(vk.createSwapchainKHR(self.device, swp_ci))
+            self.assertIsNotNone(swap_chain)
+
+            images = vk.getSwapchainImagesKHR(self.device, swap_chain)
+            self.assertIsNotNone(images)
+            components = vk.ComponentMapping(vk.VK_COMPONENT_SWIZZLE_R, vk.VK_COMPONENT_SWIZZLE_G, vk.VK_COMPONENT_SWIZZLE_B, vk.VK_COMPONENT_SWIZZLE_A)
+            subresource_range = vk.ImageSubresourceRange(vk.VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1)
+            image_views = []
+            for img in images:
+                ivci = vk.ImageViewCreateInfo(0, img, vk.VK_IMAGE_VIEW_TYPE_2D, format, components, subresource_range)
+                iv = ESP(vk.createImageView(self.device, ivci))
+                self.assertIsNotNone(iv)
+                image_views.append(iv)
 
 class TestRenderCube(unittest.TestCase):
     def test_render_colored_cube(self):

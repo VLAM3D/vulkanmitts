@@ -10,7 +10,7 @@
             "request": "launch",
             "program": "${workspaceRoot}/setup.py",
             "args": [
-                "develop"
+                "develop","--relwithdebinfo"
             ],
             "console": "integratedTerminal"
         },
@@ -19,9 +19,7 @@
             "type": "python",
             "request": "launch",
             "program": "${workspaceRoot}/test_vulkanmitts.py",
-            "args": [
-                "TestRenderCube"
-            ],
+            "args": [],
             "console": "integratedTerminal",
             "env": {
                 "PYTHONPATH": "${workspaceRoot}"
@@ -34,14 +32,26 @@
             "request": "launch",
             "program": "${workspaceRoot}/genswigi.py",
             "args": [
-                "../Vulkan-Docs/xml/vk.xml",
+                "${env:USERPROFILE}/dev/Vulkan-Docs/xml/vk.xml",
                 "."
             ],
             "console": "integratedTerminal",
             "env": {
-                "PYTHONPATH": "c:/dev/Vulkan-Docs/scripts"
+                "PYTHONPATH": "${env:USERPROFILE}/dev/Vulkan-Docs/scripts"
             },
             "justMyCode":false
-        }
+        },
+        {
+            "name": "C++ Launch (Windows)",
+            "type": "cppvsdbg",
+            "request": "launch",
+            "program": "${env:USERPROFILE}/mambaforge/envs/vk_3.10/python.exe",
+            "console": "integratedTerminal",
+            "args": [
+                "${workspaceRoot}/test_vulkanmitts_no_window.py",
+                "TestRenderCube"
+            ],
+            "symbolSearchPath": "${workspaceFolder}/build/RelWithDebInfo",
+          }
     ]
 }

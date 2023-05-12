@@ -90,7 +90,8 @@
         "*.tcc": "cpp",
         "slist": "cpp",
         "regex": "cpp",
-        "cinttypes": "cpp"
+        "cinttypes": "cpp",
+        "*.ixx": "cpp"
     },
     "python.pythonPath": "${env:PYTHON_EXECUTABLE}",
     "cmake.configureOnOpen": true,

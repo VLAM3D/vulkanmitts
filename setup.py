@@ -32,7 +32,6 @@ Additional options:
     --G or -G: name of a build system generator (equivalent of passing -G "name" to cmake)
 """
 
-from __future__ import print_function
 import shutil
 import stat
 import errno
@@ -43,17 +42,13 @@ from distutils.command.build_ext import build_ext as _build_ext
 from distutils.command.build import build as _build
 from distutils.errors import DistutilsSetupError
 from distutils.spawn import find_executable
-from distutils.sysconfig import get_python_inc, get_python_version, get_config_var
+from distutils.sysconfig import get_python_inc, get_config_var
 from distutils import log
 import os
 import sys
 from setuptools import Extension, setup
 import platform
 import subprocess
-import signal
-from threading import Thread
-import time
-import re
 
 
 # change directory to this module path
@@ -75,7 +70,7 @@ def _get_options():
 
     argv = [arg for arg in sys.argv]  # take a copy
     # parse commandline options and consume those we care about
-    for opt_idx, arg in enumerate(argv):
+    for _, arg in enumerate(argv):
         if opt_key:
             sys.argv.remove(arg)
             opt_key = None
@@ -91,6 +86,8 @@ def _get_options():
             _cmake_config = 'Debug'
         elif opt == 'release':
             _cmake_config = 'Release'
+        elif opt == 'relwithdebinfo':
+            _cmake_config = 'RelWithDebInfo'
         elif opt in ['repackage']:
             _options.append(opt)
         else:
@@ -245,7 +242,7 @@ class build(_build):
             cmake_extra += ['-DNUMPY_SWIG_DIR=' + numpy_swig_inc_path]
             cmake_extra += ['-DCMAKE_BUILD_TYPE=RELEASE']
         elif sys.platform == "win32":
-            cmake_gen = ['-G','Visual Studio 15 2017 Win64']
+            cmake_gen = ['-G','Visual Studio 16 2019','-A','x64']
 
         platform_arch = platform.architecture()[0]
         log.info("Detected Python architecture: %s" % platform_arch)

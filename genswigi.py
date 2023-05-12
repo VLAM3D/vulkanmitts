@@ -549,12 +549,19 @@ class CSWIGOutputGenerator(COutputGenerator):
                         self.applyARRAY1types.add((numpy_array_type,member_name))
                         paramdecl = '    %(numpy_array_type)s* %(member_name)s_in_array1, int %(member_name)s_dim1' % locals()
                     else:
-                        paramdecl = '    const std::vector<%(vec_ele_type_name)s> &' % locals()
+                        if vec_ele_type_name in self.hideFromSWIGTypes:
+                            # types hidden from SWIG also have opaque vector container
+                            paramdecl = '    const %(vec_ele_type_name)sVector &' % locals()
+                        else:
+                            paramdecl = '    const std::vector<%(vec_ele_type_name)s> &' % locals()
                         paramdecl = paramdecl.rstrip()
                         paramdecl = paramdecl.ljust(48)
                         paramdecl += p_name_to_vec(member_name)
 
-                    memberdecl = '    std::vector<%(vec_ele_type_name)s>'  % locals()
+                    if vec_ele_type_name in self.hideFromSWIGTypes:
+                        memberdecl = '    %(vec_ele_type_name)sVector'  % locals()
+                    else:
+                        memberdecl = '    std::vector<%(vec_ele_type_name)s>'  % locals()
                     memberdecl = memberdecl.rstrip()
                     memberdecl = memberdecl.ljust(48)
                     memberdecl += p_name_to_vec(member_name)
@@ -820,7 +827,10 @@ class CSWIGOutputGenerator(COutputGenerator):
 
             if len(argout_params_to_vectorize) == 1:
                 argout_type = params_name_type[ list(argout_params_to_vectorize)[0] ][1]
-                indentdecl = "std::vector< %(argout_type)s >" % locals()
+                if argout_type in self.hideFromSWIGTypes:
+                    indentdecl = argout_type + 'Vector'
+                else:
+                    indentdecl = "std::vector< %(argout_type)s >" % locals()
             elif len(params_to_shared_ptrize) == 1:
                 argout_type = params_name_type[ list(params_to_shared_ptrize)[0] ][1]
                 indentdecl = "std::shared_ptr< %(argout_type)s >" % locals()
@@ -857,7 +867,10 @@ class CSWIGOutputGenerator(COutputGenerator):
                 elif i in input_params_to_vectorize:
                     if input_param_type != 'void':
                         if not input_param_type in self.arrayBaseTypes:
-                            indentdecl += '        const std::vector<%(input_param_type)s> & %(input_param_name)s' % locals()
+                            if input_param_type in self.hideFromSWIGTypes:
+                                indentdecl += '        const %(input_param_type)sVector & %(input_param_name)s' % locals()
+                            else:
+                                indentdecl += '        const std::vector<%(input_param_type)s> & %(input_param_name)s' % locals()
                         else:
                             numpy_array_type = self.arrayBaseTypes[input_param_type]
                             indentdecl += '        %(numpy_array_type)s* %(input_param_name)s_in_array1, int %(input_param_name)s_dim1' % locals()
