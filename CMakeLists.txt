@@ -71,11 +71,6 @@ if(NOT MACHINEINDEPENDENT_LIB)
   message(FATAL_ERROR "GenericCodeGen library not found")
 endif()
 
-find_library(OGLCompiler_LIB NAMES OGLCompiler HINTS ${GLSLANG_SEARCH_PATH} )
-if(NOT OGLCompiler_LIB)
-  message(FATAL_ERROR "OGLCompiler library not found")
-endif()
-
 find_library(OSDependent_LIB NAMES OSDependent HINTS ${GLSLANG_SEARCH_PATH} )
 if(NOT OSDependent_LIB)
   message(FATAL_ERROR "OSDependent library not found")
@@ -91,11 +86,6 @@ if(NOT SPVREMAPPER_LIB)
   message(FATAL_ERROR "SPVRemapper library not found")
 endif()
 
-find_library(HLSL_LIB NAMES HLSL HINTS ${GLSLANG_SEARCH_PATH} )
-if(NOT HLSL_LIB)
-  message(FATAL_ERROR "HLSL library not found")
-endif()
-
 find_library(SPIRV_TOOLS_LIB NAMES SPIRV-Tools HINTS ${SPIRV_TOOLS_SEARCH_PATH} )
 if(NOT SPIRV_TOOLS_LIB)
   message(FATAL_ERROR "SPIRV-Tools library not found")
@@ -107,7 +97,7 @@ if(NOT SPIRV_TOOLS_OPT_LIB)
 endif()
 
 
-set (GLSLANG_LIBRARIES ${GLSLANG_LIB} ${MACHINEINDEPENDENT_LIB} ${GENERICCODEGEN_LIB} ${OGLCompiler_LIB} ${OSDependent_LIB} ${SPIRV_LIB} ${SPVREMAPPER_LIB} ${HLSL_LIB})
+set (GLSLANG_LIBRARIES ${GLSLANG_LIB} ${MACHINEINDEPENDENT_LIB} ${GENERICCODEGEN_LIB} ${OSDependent_LIB} ${SPIRV_LIB} ${SPVREMAPPER_LIB} )
 set (SPIRV_TOOLS_LIBRARIES ${SPIRV_TOOLS_OPT_LIB} ${SPIRV_TOOLS_LIB})
 message (STATUS "GLSLANG_LIBRARIES LIBRARIES: " "${GLSLANG_LIBRARIES}" )
 message (STATUS "SPIRV_TOOLS_LIBRARIES LIBRARIES: " "${SPIRV_TOOLS_LIBRARIES}" )

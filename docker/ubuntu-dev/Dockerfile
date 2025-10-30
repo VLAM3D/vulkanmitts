@@ -1,6 +1,7 @@
-FROM registry.gitlab.com/mlamarre/vulkan/vulkan:1.3.243
-
+FROM nvidia/cuda:12.8.1-devel-ubuntu20.04
 ARG DEBIAN_FRONTEND=noninteractive
+ENV NVIDIA_VISIBLE_DEVICES=all
+ENV NVIDIA_DRIVER_CAPABILITIES=compute,utility,graphics
 RUN apt-get update && apt-get install -y --no-install-recommends \
 software-properties-common \
 build-essential \
@@ -17,6 +18,17 @@ python3 \
 python3-distutils \
 libx11-xcb-dev \
 libegl1-mesa-dev
+
+# Install Vulkan SDK
+# These commands are directly from https://packages.lunarg.com/#
+# There's a warning Warning: apt-key output should not be parsed (stdout is not a terminal)
+ARG VULKAN_SDK_VERSION=1.3.283
+ENV VULKAN_SDK_VERSION=${VULKAN_SDK_VERSION}
+RUN wget -qO - https://packages.lunarg.com/lunarg-signing-key-pub.asc | apt-key add - && \
+wget -qO /etc/apt/sources.list.d/lunarg-vulkan-${VULKAN_SDK_VERSION}-focal.list https://packages.lunarg.com/vulkan/${VULKAN_SDK_VERSION}/lunarg-vulkan-${VULKAN_SDK_VERSION}-focal.list && \
+apt update && \
+apt install -y vulkan-sdk && \
+apt-get -y autoremove && apt-get -y clean
 
 ENV CMAKE_VERSION=3.26
 ENV CMAKE_BUILD=3
@@ -52,7 +64,7 @@ WORKDIR /
 ARG PYTHON_VERSION=3.10
 RUN mamba install -y python=$PYTHON_VERSION
 RUN mamba config --set channel_priority strict
-RUN mamba install -y numpy pillow pyqt contextlib2 swig==4.0.0 -c conda-forge
+RUN mamba install -y "numpy==1.26.4" pillow pyqt contextlib2 swig==4.0.0 -c conda-forge
 RUN pip install pypicloud[server] twine
 
 # When running with --user 1000, 1001, 1002

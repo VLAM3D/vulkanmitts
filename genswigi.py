@@ -245,14 +245,17 @@ class CSWIGOutputGenerator(COutputGenerator):
                     members_name_type = [ (get_param_name(m),get_param_type(m)) for m in members]
                     for i,m in enumerate(members):
                         if 'len' in m.keys():
-                            if 'null-terminated' in m.get('len'):
-                                self.nonRAIIStruct.add(typename)
-                                break
-                            else:
-                                for j, nt_pair in enumerate(members_name_type):
-                                    if j!=i and nt_pair[0] in m.get('len') and nt_pair[1] in ['uint32_t','size_t']:
-                                        self.nonRAIIStruct.add(typename)
-                                        break
+                            # Check if this is actually a C array (fixed size) rather than a pointer
+                            is_c_array, _ = is_param_c_array(m)
+                            if not is_c_array:
+                                if 'null-terminated' in m.get('len'):
+                                    self.nonRAIIStruct.add(typename)
+                                    break
+                                else:
+                                    for j, nt_pair in enumerate(members_name_type):
+                                        if j!=i and nt_pair[0] in m.get('len') and nt_pair[1] in ['uint32_t','size_t']:
+                                            self.nonRAIIStruct.add(typename)
+                                            break
                         else:
                             member_type_name = get_param_type(m)
                             is_ptr, is_const, ptr_depth = is_param_pointer(m)
@@ -485,20 +488,23 @@ class CSWIGOutputGenerator(COutputGenerator):
         structure_type_member_index = -1
         for i,m in enumerate(members):
             if 'len' in m.keys():
-                for j, nt_pair in enumerate(members_name_type):
-                    if j!=i and nt_pair[0] in m.get('len') and nt_pair[1] in ['uint32_t','size_t']:
-                        l_pair = (i, j)
-                        if typeName not in ['VkWriteDescriptorSet','VkDescriptorSetLayoutBinding']:
-                            members_to_remove.add(l_pair[1])
-                            if l_pair[1] not in count_member_to_vector_member:
-                                count_member_to_vector_member[ l_pair[1] ] = l_pair[0]
-                            else:
-                                print(typeName, ' member', members_name_type[i][0], ' size is not used ' )
+                # Check if this member is a C array (fixed size) - if so, don't vectorize it
+                is_c_array, _ = is_param_c_array(m)
+                if not is_c_array:
+                    for j, nt_pair in enumerate(members_name_type):
+                        if j!=i and nt_pair[0] in m.get('len') and nt_pair[1] in ['uint32_t','size_t']:
+                            l_pair = (i, j)
+                            if typeName not in ['VkWriteDescriptorSet','VkDescriptorSetLayoutBinding']:
+                                members_to_remove.add(l_pair[1])
+                                if l_pair[1] not in count_member_to_vector_member:
+                                    count_member_to_vector_member[ l_pair[1] ] = l_pair[0]
+                                else:
+                                    print(typeName, ' member', members_name_type[i][0], ' size is not used ' )
 
-                        members_to_vectorize.add(l_pair[0])
-                        member_type = argout_void_to_char(members_name_type[i][1])
-                        if member_type not in self.hideFromSWIGTypes and member_type not in self.flagTypes:
-                            self.std_vector_types.add( member_type )
+                            members_to_vectorize.add(l_pair[0])
+                            member_type = argout_void_to_char(members_name_type[i][1])
+                            if member_type not in self.hideFromSWIGTypes and member_type not in self.flagTypes:
+                                self.std_vector_types.add( member_type )
             else:
                 member_name,member_type_name = members_name_type[i]
                 is_ptr, is_const, ptr_depth = is_param_pointer(m)

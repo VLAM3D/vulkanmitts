@@ -111,7 +111,7 @@ def readme(fname):
 def read_version():
     """Read version information
     """
-    return '1.3.243'
+    return os.environ.get('VULKAN_SDK_VERSION', '1.3.283')
 
 
 def rmtree(name):
